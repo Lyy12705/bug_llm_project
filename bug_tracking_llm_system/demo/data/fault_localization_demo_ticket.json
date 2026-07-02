@@ -1,0 +1,14 @@
+{
+  "ticket_id": "FL-DEMO-001",
+  "title": "Login crashes when auth token is missing",
+  "description": "Submitting the login form without an auth token crashes because validate_token calls strip on None.",
+  "component": "authentication",
+  "bug_type": "runtime_error",
+  "logs": "Traceback (most recent call last):\n  File \"src/auth/session.py\", line 5, in start_session\n    token = validate_token(user.token)\n  File \"src/auth/validator.py\", line 2, in validate_token\n    return token.strip()\nTypeError: 'NoneType' object has no attribute 'strip'",
+  "steps_to_reproduce": [
+    "Open the login page.",
+    "Submit the login form without an auth token."
+  ],
+  "expected_behavior": "The application should show a validation error for a missing token.",
+  "actual_behavior": "The login flow crashes with a TypeError."
+}

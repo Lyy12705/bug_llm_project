@@ -1,0 +1,7 @@
+ticket_id,title,description,duplicate_of,product,component
+T-100,App crashes after login,"After entering a valid password, the app closes immediately. The log shows NullPointerException in SessionManager.",,Demo,Auth
+T-101,Crash on sign in,"The client exits right after successful sign in. Stack trace mentions SessionManager and a missing session token.",T-100,Demo,Auth
+T-102,Login button has wrong color,"The login button is blue, but the design spec says it should be green.",,Demo,UI
+T-200,CSV export times out,"Exporting a large CSV report hangs for more than five minutes and eventually returns gateway timeout.",,Demo,Export
+T-201,Report download timeout,"When downloading a large CSV export, the request times out after several minutes.",T-200,Demo,Export
+T-300,Password reset email typo,"The password reset email says recieve instead of receive.",,Demo,Email

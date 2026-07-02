@@ -1,0 +1,295 @@
+{
+  "metadata": {
+    "dataset": "eclipse",
+    "history_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/data/eclipse_history_train.jsonl",
+    "source_rows": 70,
+    "profile_count": 3,
+    "method": "extractive_profile_from_training_tickets",
+    "note": "Profiles are inferred from historical ticket ownership. They are not verified job titles or organization roles."
+  },
+  "profiles": [
+    {
+      "assignee": "cdt-build-inbox@eclipse.org",
+      "ticket_count": 66,
+      "profile_confidence": "high",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "cdt-build",
+          "count": 58,
+          "ratio": 0.878788
+        },
+        {
+          "value": "cdt-core",
+          "count": 7,
+          "ratio": 0.106061
+        },
+        {
+          "value": "cdt-releng",
+          "count": 1,
+          "ratio": 0.015152
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 66,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "nat",
+          "count": 79,
+          "score": 22.5079
+        },
+        {
+          "term": "soname",
+          "count": 12,
+          "score": 15.9731
+        },
+        {
+          "term": "builddescription.java",
+          "count": 16,
+          "score": 15.8141
+        },
+        {
+          "term": "buildmanager.java",
+          "count": 14,
+          "score": 15.2544
+        },
+        {
+          "term": "icon",
+          "count": 9,
+          "score": 14.6545
+        },
+        {
+          "term": "builddescription.java nat",
+          "count": 8,
+          "score": 14.1147
+        },
+        {
+          "term": "wizarddialog.java",
+          "count": 8,
+          "score": 14.1147
+        },
+        {
+          "term": "commonbuilder.java",
+          "count": 10,
+          "score": 13.8439
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "eclipse_61642",
+          "title": "[Managed Build] A way to specify name and soname when building shared libs is needed",
+          "product": "",
+          "component": "cdt-core",
+          "priority": "P3",
+          "created_at": "2004-05-10T19:02:12Z"
+        },
+        {
+          "ticket_id": "eclipse_174054",
+          "title": "API for retrieving concrete project types that are legitimate on host machine",
+          "product": "",
+          "component": "cdt-build",
+          "priority": "P3",
+          "created_at": "2007-02-13T19:23:15Z"
+        },
+        {
+          "ticket_id": "eclipse_69211",
+          "title": "The shared libraries looses its permission - Export-> Deployable feature",
+          "product": "",
+          "component": "cdt-releng",
+          "priority": "P3",
+          "created_at": "2004-07-02T15:40:48Z"
+        },
+        {
+          "ticket_id": "eclipse_151770",
+          "title": "Build automatically is a really bad default",
+          "product": "",
+          "component": "cdt-build",
+          "priority": "P3",
+          "created_at": "2006-07-25T21:14:34Z"
+        },
+        {
+          "ticket_id": "eclipse_96627",
+          "title": "USABILITY: Renaming a folder should move make targets to new folder",
+          "product": "",
+          "component": "cdt-build",
+          "priority": "P3",
+          "created_at": "2005-05-25T15:29:28Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 66 historical tickets: likely focuses on cdt-build, cdt-core, cdt-releng. Common work themes: nat, soname, builddescription.java, buildmanager.java, icon."
+    },
+    {
+      "assignee": "cdt-contrib-inbox@eclipse.org",
+      "ticket_count": 3,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "cdt-other",
+          "count": 3,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 3,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "eclipse-rpm",
+          "count": 4,
+          "score": 9.349
+        },
+        {
+          "term": "cdt-other",
+          "count": 3,
+          "score": 8.2219
+        },
+        {
+          "term": "automated builds",
+          "count": 2,
+          "score": 7.7606
+        },
+        {
+          "term": "builds eclipse-rpm",
+          "count": 2,
+          "score": 7.7606
+        },
+        {
+          "term": "code formatting",
+          "count": 2,
+          "score": 7.7606
+        },
+        {
+          "term": "eclipse-oprofile",
+          "count": 2,
+          "score": 7.7606
+        },
+        {
+          "term": "eclipse-rpm eclipse-oprofile",
+          "count": 2,
+          "score": 7.7606
+        },
+        {
+          "term": "formatting",
+          "count": 2,
+          "score": 7.7606
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "eclipse_82190",
+          "title": "[RPM] Define code formatting settings for Eclipse-RPM projects",
+          "product": "",
+          "component": "cdt-other",
+          "priority": "P2",
+          "created_at": "2005-01-04T21:24:51Z"
+        },
+        {
+          "ticket_id": "eclipse_82177",
+          "title": "[RPM] Update and publish manual test plans",
+          "product": "",
+          "component": "cdt-other",
+          "priority": "P2",
+          "created_at": "2005-01-04T20:16:59Z"
+        },
+        {
+          "ticket_id": "eclipse_82174",
+          "title": "Automated builds for Eclipse-RPM and Eclipse-OProfile",
+          "product": "",
+          "component": "cdt-other",
+          "priority": "P2",
+          "created_at": "2005-01-04T20:03:58Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 3 historical tickets: likely focuses on cdt-other. Common work themes: eclipse-rpm, cdt-other, automated builds, builds eclipse-rpm, code formatting."
+    },
+    {
+      "assignee": "cdt-core-inbox@eclipse.org",
+      "ticket_count": 1,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "cdt-core",
+          "count": 1,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 1,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "brings",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "brings machine",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "c++ rename",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "cancelling",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "cancelling c++",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "collect",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "collect yvind",
+          "count": 1,
+          "score": 4.5835
+        },
+        {
+          "term": "cpu",
+          "count": 1,
+          "score": 4.5835
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "eclipse_102123",
+          "title": "Cancelling C/C++ Rename refactoring brings the machine to its knees",
+          "product": "",
+          "component": "cdt-core",
+          "priority": "P2",
+          "created_at": "2005-06-29T05:57:57Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 1 historical tickets: likely focuses on cdt-core. Common work themes: brings, brings machine, c++ rename, cancelling, cancelling c++."
+    }
+  ]
+}

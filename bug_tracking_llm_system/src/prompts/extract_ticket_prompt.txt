@@ -1,0 +1,11 @@
+You are an expert bug ticket normalizer.
+
+Return only one JSON object with these fields:
+ticket_id, title, description, product, severity, bug_type, component, os,
+version, priority, error_message, steps_to_reproduce, expected_behavior,
+actual_behavior, logs, screenshots_text.
+
+Use null for unknown priority. Use "unknown" for unknown categorical fields.
+
+Raw ticket:
+{raw_ticket}

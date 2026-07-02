@@ -1,0 +1,140 @@
+{
+  "mode": "model_predictions",
+  "passed": 58,
+  "total": 591,
+  "pass_at_1": 0.09813874788494077,
+  "by_benchmark": {
+    "HumanEval": {
+      "passed": 44,
+      "total": 164,
+      "pass_at_1": 0.2682926829268293
+    },
+    "MBPP": {
+      "passed": 14,
+      "total": 427,
+      "pass_at_1": 0.03278688524590164
+    }
+  },
+  "failures": [
+    {
+      "id": "HumanEval/1",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpl585aycm/candidate.py\", line 45, in <module>\n    check(separate_paren_groups)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpl585aycm/candidate.py\", line 33, in check\n    assert candidate('(()()) ((())) () ((())()())') == [\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        '(()())', '((()))', '()', '((())()())'\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ]\n    ^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/3",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpwtp1cgsw/candidate.py\", line 42, in <module>\n    check(below_zero)\n    ~~~~~^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpwtp1cgsw/candidate.py\", line 35, in check\n    assert candidate([1, 2, -3, 1, 2, -3]) == False\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpwtp1cgsw/candidate.py\", line 23, in below_zero\n    return any(balance < 0 for balance in [0] + [balance + op for op in operations])\n                                                 ^^^^^^^\nNameError: name 'balance' is not defined"
+    },
+    {
+      "id": "HumanEval/4",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpjkjcyiw8/candidate.py\", line 40, in <module>\n    check(mean_absolute_deviation)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpjkjcyiw8/candidate.py\", line 34, in check\n    assert abs(candidate([1.0, 2.0, 3.0]) - 2.0/3.0) < 1e-6\n               ~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpjkjcyiw8/candidate.py\", line 23, in mean_absolute_deviation\n    return sum(abs(x - x_mean) for x in numbers) / len(numbers)\n           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpjkjcyiw8/candidate.py\", line 23, in <genexpr>\n    return sum(abs(x - x_mean) for x in numbers) / len(numbers)\n                       ^^^^^^\nNameError: name 'x_mean' is not defined"
+    },
+    {
+      "id": "HumanEval/5",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmphzfkcdb8/candidate.py\", line 37, in <module>\n    check(intersperse)\n    ~~~~~^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmphzfkcdb8/candidate.py\", line 33, in check\n    assert candidate([5, 6, 3, 2], 8) == [5, 8, 6, 8, 3, 8, 2]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/6",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfovwh1kp/candidate.py\", line 36, in <module>\n    check(parse_nested_parens)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfovwh1kp/candidate.py\", line 31, in check\n    assert candidate('(()()) ((())) () ((())()())') == [2, 3, 1, 3]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/8",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfkxl8nr7/candidate.py\", line 40, in <module>\n    check(sum_product)\n    ~~~~~^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfkxl8nr7/candidate.py\", line 33, in check\n    assert candidate([]) == (0, 1)\n           ~~~~~~~~~^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfkxl8nr7/candidate.py\", line 22, in sum_product\n    return sum(numbers), reduce(lambda x, y: x * y, numbers, 1)\n                         ^^^^^^\nNameError: name 'reduce' is not defined"
+    },
+    {
+      "id": "HumanEval/10",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp95qk415i/candidate.py\", line 48, in <module>\n    check(make_palindrome)\n    ~~~~~^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp95qk415i/candidate.py\", line 42, in check\n    assert candidate('x') == 'x'\n           ^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/14",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpj8hg9c12/candidate.py\", line 35, in <module>\n    check(all_prefixes)\n    ~~~~~^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpj8hg9c12/candidate.py\", line 31, in check\n    assert candidate('asdfgh') == ['a', 'as', 'asd', 'asdf', 'asdfg', 'asdfgh']\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/17",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp7zd2ydrf/candidate.py\", line 45, in <module>\n    check(parse_music)\n    ~~~~~^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp7zd2ydrf/candidate.py\", line 38, in check\n    assert candidate('') == []\n           ^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/18",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp593txd92/candidate.py\", line 39, in <module>\n    check(how_many_times)\n    ~~~~~^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp593txd92/candidate.py\", line 35, in check\n    assert candidate('cacacacac', 'cac') == 4\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/19",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp4crtt2cx/candidate.py\", line 39, in <module>\n    check(sort_numbers)\n    ~~~~~^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp4crtt2cx/candidate.py\", line 32, in check\n    assert candidate('') == ''\n           ^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/20",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpygwp43dx/candidate.py\", line 40, in <module>\n    check(find_closest_elements)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpygwp43dx/candidate.py\", line 33, in check\n    assert candidate([1.0, 2.0, 5.9, 4.0, 5.0]) == (5.0, 5.9)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/21",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp1jfj0efl/candidate.py\", line 38, in <module>\n    check(rescale_to_unit)\n    ~~~~~^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp1jfj0efl/candidate.py\", line 31, in check\n    assert candidate([2.0, 49.9]) == [0.0, 1.0]\n           ~~~~~~~~~^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp1jfj0efl/candidate.py\", line 20, in rescale_to_unit\n    return [number - min_value for number in numbers]\n                     ^^^^^^^^^\nNameError: name 'min_value' is not defined"
+    },
+    {
+      "id": "HumanEval/24",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp6kjmbwed/candidate.py\", line 36, in <module>\n    check(largest_divisor)\n    ~~~~~^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp6kjmbwed/candidate.py\", line 31, in check\n    assert candidate(10) == 5\n           ^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/26",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfbxr_jbp/candidate.py\", line 36, in <module>\n    check(remove_duplicates)\n    ~~~~~^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpfbxr_jbp/candidate.py\", line 33, in check\n    assert candidate([1, 2, 3, 2, 4, 3, 5]) == [1, 4, 5]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/32",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpuo30if5z/candidate.py\", line 66, in <module>\n    check(find_zero)\n    ~~~~~^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpuo30if5z/candidate.py\", line 62, in check\n    assert math.fabs(poly(coeffs, solution)) < 1e-4\n                     ^^^^\nNameError: name 'poly' is not defined"
+    },
+    {
+      "id": "HumanEval/33",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpsr5u5pva/candidate.py\", line 24\n    if i % 3 == 0:\n    ^^\nIndentationError: expected an indented block after 'for' statement on line 23"
+    },
+    {
+      "id": "HumanEval/36",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpwx954cpl/candidate.py\", line 45, in <module>\n    check(fizz_buzz)\n    ~~~~~^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpwx954cpl/candidate.py\", line 34, in check\n    assert candidate(50) == 0\n           ~~~~~~~~~^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpwx954cpl/candidate.py\", line 24, in fizz_buzz\n    if 7 in str(i):\n       ^^^^^^^^^^^\nTypeError: 'in <string>' requires string as left operand, not int"
+    },
+    {
+      "id": "HumanEval/37",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpgchcjk8i/candidate.py\", line 36, in <module>\n    check(sort_even)\n    ~~~~~^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpgchcjk8i/candidate.py\", line 30, in check\n    assert tuple(candidate([1, 2, 3])) == tuple([1, 2, 3])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/38",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpephtojgi/candidate.py\", line 38, in <module>\n    check(decode_cyclic)\n    ~~~~~^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpephtojgi/candidate.py\", line 33, in check\n    encoded_str = encode_cyclic(str)\n                  ^^^^^^^^^^^^^\nNameError: name 'encode_cyclic' is not defined. Did you mean: 'decode_cyclic'?"
+    }
+  ]
+}

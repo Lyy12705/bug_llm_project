@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Bug Assistant Demo</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Integrated issue triage demo</p>
+        <h1>Bug Ticket 分派 Demo</h1>
+      </div>
+      <div class="top-actions">
+        <button class="button button-primary" id="runButton" type="button">
+          <span class="button-icon">▶</span>
+          開始分析
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="tracker-pane" aria-label="User input">
+        <div class="pane-header">
+          <div>
+            <p class="eyebrow" id="trackerName">User Input</p>
+            <h2 id="ticketTitle">Loading</h2>
+          </div>
+          <span class="status-chip" id="ticketId">--</span>
+        </div>
+
+        <section class="ticket-section">
+          <h3>使用者輸入的文字訊息</h3>
+          <textarea class="input-block" id="userInput" spellcheck="false"></textarea>
+        </section>
+      </section>
+
+      <section class="assistant-pane" aria-label="AI assistant analysis">
+        <div class="pane-header">
+          <div>
+            <p class="eyebrow">Analysis Result</p>
+            <h2 id="assistantHeadline">Ready</h2>
+          </div>
+          <span class="status-chip status-neutral" id="pipelineStatus">waiting</span>
+        </div>
+
+        <div class="result-grid" id="moduleGrid"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

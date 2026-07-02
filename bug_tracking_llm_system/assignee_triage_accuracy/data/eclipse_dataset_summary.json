@@ -1,0 +1,67 @@
+{
+  "source": "/Users/linyaying/Documents/bug_llm_project/ToJson/dataset/raw/eclipse_issue_sample.csv",
+  "total_usable_rows": 100,
+  "train_rows": 70,
+  "test_rows_before_filter": 30,
+  "test_rows_after_filter": 25,
+  "test_rows_dropped_unseen_assignee": 5,
+  "candidate_roster_size": 3,
+  "train_assignee_distribution": [
+    [
+      "cdt-build-inbox@eclipse.org",
+      66
+    ],
+    [
+      "cdt-contrib-inbox@eclipse.org",
+      3
+    ],
+    [
+      "cdt-core-inbox@eclipse.org",
+      1
+    ]
+  ],
+  "test_assignee_distribution": [
+    [
+      "cdt-build-inbox@eclipse.org",
+      22
+    ],
+    [
+      "cdt-core-inbox@eclipse.org",
+      3
+    ]
+  ],
+  "component_distribution": [
+    [
+      "cdt-build",
+      80
+    ],
+    [
+      "cdt-core",
+      10
+    ],
+    [
+      "cdt-other",
+      3
+    ],
+    [
+      "terminal",
+      3
+    ],
+    [
+      "cdt-releng",
+      1
+    ],
+    [
+      "cdt-refactoring",
+      1
+    ],
+    [
+      "cdt-parser",
+      1
+    ],
+    [
+      "cdt-lsp",
+      1
+    ]
+  ]
+}

@@ -1,0 +1,11 @@
+Generate a safe unified diff patch for the provided bug ticket and localized
+code. Return only the unified diff. Do not include Markdown or explanation.
+
+Ticket:
+{ticket_json}
+
+Location:
+{bug_location}
+
+Code:
+{context}

@@ -1,0 +1,13 @@
+{
+  "candidates": [
+    "auth-team@example.com",
+    "backend-team@example.com",
+    "build-team@example.com",
+    "data-team@example.com",
+    "frontend-team@example.com",
+    "manual_triage",
+    "payments-team@example.com",
+    "security-team@example.com"
+  ]
+}
+

@@ -1,0 +1,2 @@
+{"ticket_id":"BUG-038","title":"Login crash when token missing","description":"Missing auth token causes TypeError during login validation.","component":"authentication","priority":"P2","assignee":"auth-team@example.com"}
+{"ticket_id":"BUG-039","title":"Password reset email not sent","description":"SMTP timeout prevents password reset emails.","component":"email","priority":"P3","assignee":"backend-team@example.com"}

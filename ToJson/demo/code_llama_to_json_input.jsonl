@@ -1,0 +1,7 @@
+{"id":"demo_bug_001","source":"demo",
+	"bug_report":"User report: torch.compile fails on conv2d when the kernel size is larger than the input tensor. Environment: Windows 11, PyTorch 2.10.0. Steps to reproduce: create a Conv2d layer with kernel_size=5 and pass a 3x3 input tensor, then run the model with torch.compile. Expected result: the behavior should match eager mode. Actual result: the compiled model crashes with RuntimeError: Calculated padded input size per channel is smaller than kernel size."
+,"meta":{
+	"title":"torch.compile conv2d crashes on Windows 11",
+
+"direct_fields":{"bug_type":"","component":"","os":"","version":"","priority":"","error_message":""}},"json_ground_truth":null}
+＄

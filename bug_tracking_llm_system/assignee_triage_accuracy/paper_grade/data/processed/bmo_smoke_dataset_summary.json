@@ -1,0 +1,201 @@
+{
+  "dataset": "bmo_smoke",
+  "raw_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_bugs_raw.jsonl",
+  "usable_rows_before_frequency_filter": 112,
+  "train_rows": 45,
+  "validation_rows": 6,
+  "test_rows": 7,
+  "candidate_roster_size": 15,
+  "min_train_assignee_count": 2,
+  "assignees_anonymized": true,
+  "created_at_min": "2024-01-01T00:34:44Z",
+  "created_at_max": "2024-01-05T04:08:12Z",
+  "train_component_distribution": [
+    [
+      "panning and zooming",
+      4
+    ],
+    [
+      "dom: core & html",
+      4
+    ],
+    [
+      "css parsing and computation",
+      3
+    ],
+    [
+      "general",
+      3
+    ],
+    [
+      "graphics: canvas2d",
+      2
+    ],
+    [
+      "pdf viewer",
+      2
+    ],
+    [
+      "settings ui",
+      2
+    ],
+    [
+      "search",
+      2
+    ],
+    [
+      "audio/video: web codecs",
+      2
+    ],
+    [
+      "xpcom",
+      2
+    ],
+    [
+      "dom: web authentication",
+      2
+    ],
+    [
+      "widget: gtk",
+      2
+    ],
+    [
+      "audio/video: playback",
+      2
+    ],
+    [
+      "javascript engine",
+      1
+    ],
+    [
+      "web audio",
+      1
+    ],
+    [
+      "dom: ui events & focus handling",
+      1
+    ],
+    [
+      "layout: images, video, and html frames",
+      1
+    ],
+    [
+      "layout",
+      1
+    ],
+    [
+      "graphics: webrender",
+      1
+    ],
+    [
+      "layout: text and fonts",
+      1
+    ]
+  ],
+  "test_component_distribution": [
+    [
+      "audio/video: playback",
+      2
+    ],
+    [
+      "firefox view",
+      1
+    ],
+    [
+      "audio/video",
+      1
+    ],
+    [
+      "layout: scrolling and overflow",
+      1
+    ],
+    [
+      "css parsing and computation",
+      1
+    ],
+    [
+      "dom: core & html",
+      1
+    ]
+  ],
+  "train_assignee_distribution": [
+    [
+      "dev_0015",
+      9
+    ],
+    [
+      "dev_0002",
+      9
+    ],
+    [
+      "dev_0011",
+      3
+    ],
+    [
+      "dev_0013",
+      2
+    ],
+    [
+      "dev_0008",
+      2
+    ],
+    [
+      "dev_0007",
+      2
+    ],
+    [
+      "dev_0010",
+      2
+    ],
+    [
+      "dev_0004",
+      2
+    ],
+    [
+      "dev_0005",
+      2
+    ],
+    [
+      "dev_0006",
+      2
+    ],
+    [
+      "dev_0003",
+      2
+    ],
+    [
+      "dev_0014",
+      2
+    ],
+    [
+      "dev_0009",
+      2
+    ],
+    [
+      "dev_0012",
+      2
+    ],
+    [
+      "dev_0001",
+      2
+    ]
+  ],
+  "test_assignee_distribution": [
+    [
+      "dev_0015",
+      3
+    ],
+    [
+      "dev_0001",
+      2
+    ],
+    [
+      "dev_0002",
+      1
+    ],
+    [
+      "dev_0003",
+      1
+    ]
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "dataset": "controlled",
+  "history_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/data/controlled_history_train.jsonl",
+  "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/data/controlled_test_set.jsonl",
+  "roster_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/data/controlled_candidate_roster.json",
+  "history_rows": 18,
+  "test_rows": 27,
+  "candidate_roster_size": 8,
+  "top_k": 5,
+  "top1_accuracy": 0.925926,
+  "hit_at_3": 0.962963,
+  "hit_at_5": 1.0,
+  "mrr": 0.945679,
+  "manual_triage_rate": 0.148148,
+  "source_breakdown": {
+    "hybrid": 23,
+    "manual": 4
+  },
+  "error_breakdown": {
+    "cold_start_component": 1,
+    "correct": 25,
+    "manual_triage_predicted": 1
+  },
+  "per_component": {
+    "api": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "api-gateway": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "auth": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "authentication": {
+      "rows": 2,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "authentication-service": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "backend": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "build pipeline": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "compiler": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "database": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "db": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "documentation": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "email": {
+      "rows": 2,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "frontend": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "frontend checkout": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "mobile": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "observability": {
+      "rows": 1,
+      "top1_accuracy": 0.0,
+      "hit_at_3": 1.0,
+      "mrr": 0.333333
+    },
+    "payment": {
+      "rows": 2,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "reporting": {
+      "rows": 1,
+      "top1_accuracy": 0.0,
+      "hit_at_3": 0.0,
+      "mrr": 0.2
+    },
+    "search": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "security": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "security scanner": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "ui": {
+      "rows": 1,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    },
+    "unknown": {
+      "rows": 2,
+      "top1_accuracy": 1.0,
+      "hit_at_3": 1.0,
+      "mrr": 1.0
+    }
+  }
+}

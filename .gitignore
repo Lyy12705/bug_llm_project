@@ -1,0 +1,39 @@
+# macOS / editor noise
+.DS_Store
+*.swp
+*.swo
+
+# Python cache / local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Local environment and logs
+.env
+.env.*
+*.log
+tmp/
+temp/
+
+# Large generated fault-localization artifacts.
+bug_tracking_llm_system/data/fault_localization/
+bug_tracking_llm_system/reports/fault_localization/
+
+# Model weights and generated binary artifacts.
+*.joblib
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.sqlite
+*.sqlite3

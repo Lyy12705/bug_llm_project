@@ -1,0 +1,21 @@
+{
+  "paper_reference": "Roziere et al., 2024, Code Llama: Open Foundation Models for Code",
+  "total_records": 591,
+  "benchmarks": {
+    "HumanEval": 164,
+    "MBPP": 427
+  },
+  "schema": {
+    "id": "string",
+    "benchmark": "string",
+    "task_type": "string",
+    "language": "string",
+    "prompt": "string",
+    "canonical_solution": "string",
+    "tests": [
+      "string"
+    ],
+    "entry_point": "string",
+    "metadata": "object"
+  }
+}

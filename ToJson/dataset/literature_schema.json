@@ -1,0 +1,16 @@
+{
+  "id": "string",
+  "benchmark": "string",
+  "task_type": "string",
+  "language": "string",
+  "prompt": "string",
+  "canonical_solution": "string",
+  "tests": ["string"],
+  "entry_point": "string",
+  "metadata": {
+    "split": "string",
+    "paper_reference": "string",
+    "source_url": "string",
+    "original_task_id": "string"
+  }
+}

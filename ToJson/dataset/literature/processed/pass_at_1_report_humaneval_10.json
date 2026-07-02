@@ -1,0 +1,51 @@
+{
+  "mode": "model_predictions",
+  "passed": 4,
+  "total": 10,
+  "pass_at_1": 0.4,
+  "by_benchmark": {
+    "HumanEval": {
+      "passed": 4,
+      "total": 10,
+      "pass_at_1": 0.4
+    }
+  },
+  "failures": [
+    {
+      "id": "HumanEval/1",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpq8dx_bgu/candidate.py\", line 45, in <module>\n    check(separate_paren_groups)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpq8dx_bgu/candidate.py\", line 33, in check\n    assert candidate('(()()) ((())) () ((())()())') == [\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        '(()())', '((()))', '()', '((())()())'\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ]\n    ^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/3",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpw3z_b6tw/candidate.py\", line 42, in <module>\n    check(below_zero)\n    ~~~~~^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpw3z_b6tw/candidate.py\", line 35, in check\n    assert candidate([1, 2, -3, 1, 2, -3]) == False\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpw3z_b6tw/candidate.py\", line 23, in below_zero\n    return any(balance < 0 for balance in [0] + [balance + op for op in operations])\n                                                 ^^^^^^^\nNameError: name 'balance' is not defined"
+    },
+    {
+      "id": "HumanEval/4",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp33o74nn_/candidate.py\", line 40, in <module>\n    check(mean_absolute_deviation)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp33o74nn_/candidate.py\", line 34, in check\n    assert abs(candidate([1.0, 2.0, 3.0]) - 2.0/3.0) < 1e-6\n               ~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp33o74nn_/candidate.py\", line 23, in mean_absolute_deviation\n    return sum(abs(x - x_mean) for x in numbers) / len(numbers)\n           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp33o74nn_/candidate.py\", line 23, in <genexpr>\n    return sum(abs(x - x_mean) for x in numbers) / len(numbers)\n                       ^^^^^^\nNameError: name 'x_mean' is not defined"
+    },
+    {
+      "id": "HumanEval/5",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp9wruimfj/candidate.py\", line 37, in <module>\n    check(intersperse)\n    ~~~~~^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp9wruimfj/candidate.py\", line 33, in check\n    assert candidate([5, 6, 3, 2], 8) == [5, 8, 6, 8, 3, 8, 2]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/6",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpzf2vxo4x/candidate.py\", line 36, in <module>\n    check(parse_nested_parens)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmpzf2vxo4x/candidate.py\", line 31, in check\n    assert candidate('(()()) ((())) () ((())()())') == [2, 3, 1, 3]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError"
+    },
+    {
+      "id": "HumanEval/8",
+      "benchmark": "HumanEval",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp5s0qvvdo/candidate.py\", line 40, in <module>\n    check(sum_product)\n    ~~~~~^^^^^^^^^^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp5s0qvvdo/candidate.py\", line 33, in check\n    assert candidate([]) == (0, 1)\n           ~~~~~~~~~^^^^\n  File \"/var/folders/qr/68gsb2793kbd_zg507_9k7km0000gn/T/tmp5s0qvvdo/candidate.py\", line 22, in sum_product\n    return sum(numbers), reduce(lambda x, y: x * y, numbers, 1)\n                         ^^^^^^\nNameError: name 'reduce' is not defined"
+    }
+  ]
+}

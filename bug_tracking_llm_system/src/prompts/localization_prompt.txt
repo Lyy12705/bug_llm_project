@@ -1,0 +1,2 @@
+Given a structured ticket and code snippets, identify the most likely buggy
+file, function, and line range. Return only JSON.

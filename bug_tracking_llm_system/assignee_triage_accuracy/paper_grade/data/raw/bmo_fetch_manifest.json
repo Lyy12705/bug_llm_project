@@ -1,0 +1,26 @@
+{
+  "source": "https://bugzilla.mozilla.org/rest",
+  "products": [
+    "Core",
+    "Firefox"
+  ],
+  "statuses": [
+    "RESOLVED",
+    "VERIFIED",
+    "CLOSED"
+  ],
+  "resolutions": [
+    "FIXED"
+  ],
+  "start_date": "2024-01-01",
+  "end_date": null,
+  "limit": 60,
+  "max_bugs": 120,
+  "include_comments": true,
+  "output": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_bugs_raw.jsonl",
+  "bugs_written": 120,
+  "last_offset": 60,
+  "complete": false,
+  "started_at": "2026-06-14T11:15:58.506721+00:00",
+  "finished_at": "2026-06-14T11:17:15.151166+00:00"
+}

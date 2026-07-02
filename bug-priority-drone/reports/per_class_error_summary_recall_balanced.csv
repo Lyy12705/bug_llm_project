@@ -1,0 +1,6 @@
+﻿true_priority,support,correct,wrong,recall,error_rate,most_common_wrong_prediction,most_common_wrong_count,predicted_P1,predicted_P2,predicted_P3,predicted_P4,predicted_P5
+P1 Blocker,199,131,68,0.6582914572864321,0.3417085427135678,P2 Critical,51,131,51,9,5,3
+P2 Critical,198,136,62,0.6868686868686869,0.31313131313131315,P1 Blocker,28,28,136,14,14,6
+P3 Major,200,167,33,0.835,0.165,P4 Minor,21,3,0,167,21,9
+P4 Minor,199,142,57,0.7135678391959799,0.2864321608040201,P3 Major,17,7,16,17,142,17
+P5 Trivial,199,147,52,0.7386934673366834,0.2613065326633166,P4 Minor,29,2,7,14,29,147

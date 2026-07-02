@@ -1,0 +1,842 @@
+[
+  {
+    "source": "github",
+    "issue_id": "177469",
+    "title": "Update inductor expected accuracy files",
+    "body": "## Summary\n\nThis PR updates the expected accuracy CSV files for inductor benchmarks based on CI results from PyTorch commit b856aee08371c136fecabb8269629e280ce736c9.\n\nThese files serve as reference points for dynamo/inductor CI to track:\n- Graph breaks\n- Model accuracy\n\n## Changes\n\n- Updated CUDA expected accuracy files in `benchmarks/dynamo/ci_expected_accuracy/`\n- Updated ROCm expected accuracy files in `benchmarks/dynamo/ci_expected_accuracy/rocm/`\n\n## Test Plan\n\n- [ ] Verify that the CI jobs pass with the updated expected accuracy files\n- [ ] Review the diff to ensure changes are reasonable and expected\n- [ ] Check that no unexpected regressions are being marked as \"expected\"\n\ncc: @pytorch/pytorch-dev-infra\n\ncc @voznesenskym @penguinwu @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @kadeng @chauhang @amjames @Lucaskabela @jataylo",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177468",
+    "title": "fix:support unwind for windows(#177322)",
+    "body": "Fixes #177322 \r\n\r\nThis PR supports the unwind function on Windows systems.\r\n1. It implements three functions: unwind, libraryFor, and symbolize.\r\n2. It uses relevant Windows APIs to implement these functions.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "windows",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177467",
+    "title": "[dynamo] Track input tensors for attribute mutation",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* __->__ #177467\n\nInput tensors were not registered for attribute mutation tracking,\ncausing graph breaks on custom setattr (e.g. tensor.offloading_activation = True).\nThis brings them in line with intermediate tensors which are already tracked.\n\nAuthored with help from Claude.\n\ncc @voznesenskym @penguinwu @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @kadeng @chauhang @amjames @Lucaskabela @jataylo",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "ciflow/trunk",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177465",
+    "title": "[vllm hash update] update the pinned vllm hash",
+    "body": "This PR is auto-generated nightly by [this action](https://github.com/pytorch/pytorch/blob/main/.github/workflows/nightly.yml).\nUpdate the pinned vllm hash.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177464",
+    "title": "[torchtitan hash update] update the pinned torchtitan hash",
+    "body": "This PR is auto-generated nightly by [this action](https://github.com/pytorch/pytorch/blob/main/.github/workflows/nightly.yml).\nUpdate the pinned torchtitan hash.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177463",
+    "title": "[SymmMem] Avoid two probes when inserting handle into cache",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack/tree/0.12.0) (oldest at bottom):\r\n* __->__ #177463\r\n* #177459\r\n* #177380\r\n\r\nExisting pattern: `find` + operator`[]`\r\n\r\nWhy `emplace` tends to be faster\r\nBoth patterns must probe the hash table at least once to decide whether the key exists. The difference is:\r\n`find` + operator`[]` does two probes in the “not found” case:\r\nprobe 1 in `find(key)`\r\nprobe 2 in `operator[](key)` (it has to search again to find/insert)\r\n`emplace(key, value)` does one probe and returns `{it, inserted}` in a single pass.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177462",
+    "title": "In adfc/aggregates/aap_aggregates_scripts_common.py, remove...",
+    "body": "Summary:\n- In adfc/aggregates/aap_aggregates_scripts_common.py, remove redundant .keys() calls in dict membership checks at lines 51 (\"UID_LABEL\" in label_data.keys() and \"MULTI_LABEL\" in label_data.keys()) and 77 (\"DROPPED_UID_LABEL\" in label_data.keys()), since in dict is equivalent and more idiomatic.\n- In spatial_ai/location/handler.py, remove the leftover debug statement logger.info(\"Debugging statement.\") from the echo method.\n- In caffe2/tools/stats/monitor.py, remove the leftover debug statement print(\"here log\") from the add_log method.\n\nAI Review:\n- security: PASSED (1.00) — All three changes are safe: (1) replacing `in dict.keys()` with `in dict` is semantically identical, (2) removing debug `print(\"here log\")` and `logger.info(\"Debugging statement.\")` statements eliminates minor information leakage without affecting functionality.\n- quality: PASSED (0.90) — All three changes are correct and safe:\n- task_solution: PASSED (0.95) — The diff correctly addresses all three items in the task. The `.keys()` removals are semantically equivalent and more idiomatic. The debug statements are properly removed. The additional `.keys()` removals beyond the explicitly mentioned lines are consistent and appropriate.\n\nTest Plan:\nChanged files: `adfc/aggregates/aap_aggregates_scripts_common.py`, `caffe2/tools/stats/monitor.py`, `spatial_ai/location/handler.py`\nlint: passed\npassed\nbuild: passed\nScope: confirmed that modified symbols have no external/dynamic callers outside the changed files' immediate modules.\n\nDifferential Revision: D96602795",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "fb-exported",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177461",
+    "title": "[DDP] Deprecate unused output_device argument",
+    "body": "## Summary\n- Deprecate the `output_device` parameter in `DistributedDataParallel` with a `FutureWarning`\n- Update docstring to mark the argument as deprecated\n- Remove `output_device` from docstring code examples\n\n## Motivation\nThe `output_device` argument in DDP has no effect on behavior. Unlike `DataParallel`, DDP does not perform scatter/gather — each process runs its own forward pass on its assigned device. The only reference to `self.output_device` after construction is in DDP logging metadata.\n\nFixes #80420\n\n## Changes\n- Added a `FutureWarning` when `output_device is not None`, placed before the device_ids setup block so it only fires when the caller explicitly passes the argument\n- Updated the `output_device` docstring entry to indicate deprecation\n- Removed `output_device` from two docstring code examples where it was redundant with `device_ids`\n- Follows the existing `check_reduction` deprecation pattern in the same file\n\n## Test Plan\n- The deprecation warning only fires when `output_device` is explicitly passed (not when it defaults to `None`)\n- Existing test in `test/distributed/test_c10d_nccl.py` that passes `output_device` for error-path validation continues to work since the `ValueError` is raised after the warning\n- Verified with `ruff check` — no new lint issues introduced\n\ncc @rohan-varma @kwen2501",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": "error-path validation continues to work since the `ValueError` is raised after the warning"
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177460",
+    "title": "[BE]: Simplify WorkerServer with nholmann json",
+    "body": "We already have machinery for dumping JSONs use it to remove redundant JSON escpaing.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177459",
+    "title": "[SymmMem] Fix NCCLPeerAllocInfo destructor: deregister windows and free resources",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack/tree/0.12.0) (oldest at bottom):\n* #177463\n* __->__ #177459\n* #177380\n\nThe destructor was a no-op (= default), leaving NCCL symmetric memory\nwindows orphaned in NCCL's shadow pool and leaking signal pad CUmem.\nIn NCCL 2.29.7, ncclDevrFinalize gained an auto-destroy loop for\nunderegistered windows, which triggers a \"Device object does not exist\nin shadow pool\" warning when it encounters these orphaned windows.\n\nThe fixes: deregister buffer_win_ and signal_handle_ on destruction;\nfree signal_pad_ptr_ (previously a leaked local variable in the\nconstructor); free buffers_dev_ and signal_pads_dev_; add default\nnull initializers to pointer members; guard with is_finalizing() to\navoid calling NCCL/CUDA APIs during driver shutdown; use LOG(WARNING)\ninstead of C10D_NCCL_CHECK to avoid throwing from a destructor.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "windows",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177458",
+    "title": "[BE]: Update cpp-httplib submodule to 0.37.2",
+    "body": "Mainly bugfixes, compiler fixes, and performance fixes. This header only library is used mainly by our control plane implementation.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177457",
+    "title": "[DTensor] Coalesce collectives for multi-arg redistribution",
+    "body": "Fixes https://github.com/pytorch/pytorch/issues/170367\r\n\r\nWhen multiple op arguments need the same redistribution (same mesh, same src/dst placements), batch them into a single coalesced collective call instead of issuing N separate NCCL kernel launches. This is most impactful for foreach/fused ops (e.g. _foreach_add_, _fused_adam_) during optimizer steps with many parameters, but applies to any multi-arg op.\r\n\r\nSupports all_reduce, reduce_scatter, and allgather coalescing (all_to_all is not coalesced as there is no coalesced variant in funcol). Flattened mesh transforms (multi-dim mesh optimization) are also supported. Falls back to per-tensor redistribution for unsupported cases (e.g. _MaskPartial, multi-step transforms, subclassed placement types).",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177456",
+    "title": "[BE]: Update cusparseLt to 0.8.1 for cu129/cu13",
+    "body": "* Update cusparseLt to the latest version for 12.9 and 13+ CUDA\r\n* Modernize install script and update it to handle post cusparseLt 0.8 URL schema changes.\r\n* Improves Blackwell support and fixes Hopper perf regression on CUDA 13.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177455",
+    "title": "Add nn.SwiGLU activation function",
+    "body": "Fixes #128712\n\n## Summary\n\nAdds `torch.nn.SwiGLU` and `torch.nn.functional.swiglu` — the SiLU-gated linear unit used in LLaMA, Mistral, Gemma, PaLM, and most modern transformer architectures.\n\n```python\nm = torch.nn.SwiGLU(dim=-1)\noutput = m(input)  # splits input in half, applies SiLU gating\n```\n\nThe math: `SwiGLU(a, b) = SiLU(a) * b`, where input is split in half along `dim`.\n\nThis is a pure Python implementation using existing ops (`torch.chunk` + `torch.sigmoid`), following the approach suggested by @mikaylagawarecki in the issue. The previous attempt (#144465) went stale because it tried to add C++, inductor lowering, and decompositions all at once. This PR keeps the scope tight — getting the API in place first, with a fused kernel as a natural follow-up.\n\n## Implementation\n\nMirrors `nn.GLU` exactly:\n- Same class pattern (`__constants__`, `dim` parameter, `extra_repr`)\n- Same functional API pattern (scalar check, even-size check, `handle_torch_function`)\n- Same docstring structure with paper reference to [GLU Variants Improve Transformer](https://arxiv.org/abs/2002.05202)\n\nFiles changed:\n- `torch/nn/modules/activation.py` — `SwiGLU` class\n- `torch/nn/functional.py` — `swiglu()` function\n- `torch/nn/modules/__init__.py` — re-export\n\n## Test plan\n\n- [ ] Verify `F.swiglu` produces correct output: `SiLU(a) * b`\n- [ ] Verify `nn.SwiGLU` delegates to `F.swiglu`\n- [ ] Verify error on scalar input\n- [ ] Verify error on odd-sized dimension\n- [ ] Verify different `dim` values work correctly\n- [ ] Verify gradient flows correctly through `swiglu`\n\nThis PR was authored with assistance from Claude.\n\n## Coordination\n\nCommented on #128712 [here](https://github.com/pytorch/pytorch/issues/128712#issuecomment-4060966963).",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": "error on scalar input"
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177454",
+    "title": "Use wrapper function for increase accuracy of golden reference.",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177453",
+    "title": "[inductor] Fix shlex quoting in build_fbcode_re command splitting",
+    "body": "Differential Revision: D96595846\n\n\n\n\ncc @voznesenskym @penguinwu @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @ipiszy @kadeng @muchulee8 @amjames @chauhang @aakhundov @coconutruben @jataylo",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "fb-exported",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177452",
+    "title": "aoti kernel capture (#177452)",
+    "body": "Summary:\n\n## Debugging utility for capturing AOTI kernel call inputs.\n\nFirst version for manual/reactive debugging without needing to re-lower with AOTI. Enables after the fact saving of all kernel parameters to help debug issues like IMAs. It can also serve as a quick way to capture inputs to explore custom triton kernels and/or triton tuning parameters.\n\nThese APIs can later be integrated into the AOTI codgen as well.\n\n### `call_*` kernel wrappers\n\nUse `AOTI_CAPTURE_CALL` to wrap any variadic `call_*` invocation.\nInfrastructure arguments (stream, kernels struct, cubin_dir) are automatically\nskipped; tensor arguments are copied to CPU before serialization.\n\n```cpp\n// Basic — uses __LINE__ as the call-site tag automatically\nAOTI_CAPTURE_CALL(call_my_kernel, tensor1, tensor2, scalar1);\n```\n\nTo attach a **provenance tag** (e.g. a debug handle from the graph) use\n`AOTI_CAPTURE_CALL_TAG`:\n\n```cpp\n// Explicit tag \"4\" (from e.g. concat_2D_jagged_0:4)\nAOTI_CAPTURE_CALL_TAG(\"4\", call_concat_2D_jagged_0, t1, t2, t3);\n```\n\n### Proxy executor calls\n\nReplace direct calls to `aoti_torch_proxy_executor_call_function` with the\ncapture-aware wrappers:\n\n```cpp\n// Basic — uses __LINE__ as the tag\ncapture_and_call_proxy(\n    proxy_executor, extern_node_index,\n    num_ints, flatten_int_args,\n    num_tensors, flatten_tensor_args);\n\n// With explicit provenance tag\ncapture_and_call_proxy_tag(\"7\",\n    proxy_executor, extern_node_index,\n    num_ints, flatten_int_args,\n    num_tensors, flatten_tensor_args);\n```\n\nTest Plan: Unit test and local recompilation of cpp_wrapper with manual instrumentation.\n\nDifferential Revision: D95832368",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "fb-exported",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177451",
+    "title": "torch.compile fails on conv2d with kernel size larger than input size, while meta device succeeds",
+    "body": "### 🐛 Describe the bug\n\nWhen using `torch.compile` on a `nn.Conv2d` layer where the kernel size is larger than the input tensor size, the compilation fails with a runtime error. In eager mode, the operation directly raises an error, while the same operation succeeds in `meta` device (shape-only computation). This inconsistent behavior between `torch.compile`, eager mode, and `meta` device is unexpected.\n\n### Error logs\n\n#### Reproducible Code\n```python\nimport torch\nimport torch.nn.functional as F\n\ninput_tensor = torch.randn(2,4,5,5)\nweight_tensor = torch.randn(6,4,3,3)\n\nbias = None\nstride = 3\npadding = 0\ndilation = [2, 3]\ngroups = 1\n\ndef conv_func(input, weight):\n  return F.conv2d(input, weight, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)\n\ntry:\n  eager_shape = conv_func(input_tensor, weight_tensor).shape\n  print(eager_shape)\nexcept Exception as e:\n  print(e)\n\ntry:\n  compiled_conv = torch.compile(conv_func, dynamic=True)\n  symbolic_shape = compiled_conv(input_tensor, weight_tensor).shape\n  print(symbolic_shape)\nexcept Exception as e:\n  print(e)\n\ntry:\n  input_meta = input_tensor.to('meta')\n  weight_meta = weight_tensor.to('meta')\n  with torch.device('meta'):\n    meta_shape = conv_func(input_meta, weight_meta).shape\n  print(meta_shape)\nexcept Exception as e:\n  print(e)\n```\n\neager_results:\n```\nCalculated padded input size per channel: (5 x 5). Kernel size: (5 x 7). Kernel size can't be greater than actual input size\n```\n\ntoch.compile results:\n```\nDynamo failed to run FX node with fake tensors: call_function <built-in method conv2d of type object at 0x7919c3b82820>(*(FakeTensor(..., size=(s31, s81, s16, s16)), FakeTensor(..., size=(s36, s81, s0, s0))), **{'bias': None, 'stride': 3, 'padding': 0, 'dilation': [2, 3], 'groups': 1}): got RuntimeError(\"Calculated padded input size per channel: (s16 x s16). Kernel size: (2*s0 - 1 x 3*s0 - 2). Kernel size can't be greater than actual input size\")\n\nfrom user code:\n   File \"/tmp/ipykernel_750/2280593521.py\", line 2, in conv_func\n    return F.conv2d(input, weight, bias=bias, stride=stride, padding=padding, dilation=dilation, groups=groups)\n\nSet TORCHDYNAMO_VERBOSE=1 for the internal stack trace (please do this especially if you're reporting a bug to PyTorch). For even more developer context, set TORCH_LOGS=\"+dynamo\"\n```\n\nmeta results:\n```\ntorch.Size([2, 6, 1, 0])\n```\n\n### Versions\n\n```\nCollecting environment information...\nPyTorch version: 2.10.0+cpu\nIs debug build: False\nCUDA used to build PyTorch: None\nROCM used to build PyTorch: N/A\n\nOS: Ubuntu 22.04.5 LTS (x86_64)\nGCC version: (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0\nClang version: Could not collect\nCMake version: version 3.31.10\nLibc version: glibc-2.35\n\nPython version: 3.12.12 (main, Oct 10 2025, 08:52:57) [GCC 11.4.0] (64-bit runtime)\nPython platform: Linux-6.6.113+-x86_64-with-glibc2.35\nIs CUDA available: False\nCUDA runtime version: No CUDA\nCUDA_MODULE_LOADING set to: N/A\nGPU models and configuration: No CUDA\nNvidia driver version: No CUDA\ncuDNN version: No CUDA\nIs XPU available: False\nHIP runtime version: N/A\nMIOpen runtime version: N/A\nIs XNNPACK available: True\nCaching allocator config: N/A\n\nCPU:\nArchitecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           46 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  2\nOn-line CPU(s) list:                     0,1\nVendor ID:                               GenuineIntel\nModel name:                              Intel(R) Xeon(R) CPU @ 2.20GHz\nCPU family:                              6\nModel:                                   79\nThread(s) per core:                      2\nCore(s) per socket:                      1\nSocket(s):                               1\nStepping:                                0\nBogoMIPS:                                4399.99\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp fsgsbase tsc_adjust bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap xsaveopt arat md_clear arch_capabilities\nHypervisor vendor:                       KVM\nVirtualization type:                     full\nL1d cache:                               32 KiB (1 instance)\nL1i cache:                               32 KiB (1 instance)\nL2 cache:                                256 KiB (1 instance)\nL3 cache:                                55 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0,1\nVulnerability Gather data sampling:      Not affected\nVulnerability Indirect target selection: Vulnerable\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Mitigation; PTE Inversion\nVulnerability Mds:                       Vulnerable; SMT Host state unknown\nVulnerability Meltdown:                  Vulnerable\nVulnerability Mmio stale data:           Vulnerable\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Vulnerable\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Vulnerable\nVulnerability Spectre v1:                Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers\nVulnerability Spectre v2:                Vulnerable; IBPB: disabled; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Vulnerable\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Vulnerable\nVulnerability Vmscape:                   Not affected\n\nVersions of relevant libraries:\n[pip3] intel-cmplr-lib-ur==2025.3.2\n[pip3] intel-openmp==2025.3.2\n[pip3] mkl==2025.3.1\n[pip3] numpy==2.0.2\n[pip3] nvidia-nccl-cu12==2.29.7\n[pip3] onemkl-license==2025.3.1\n[pip3] optree==0.19.0\n[pip3] tbb==2022.3.1\n[pip3] tcmlib==1.4.1\n[pip3] torch==2.10.0+cpu\n[pip3] torchao==0.10.0\n[pip3] torchaudio==2.10.0+cpu\n[pip3] torchcodec==0.10.0\n[pip3] torchdata==0.11.0\n[pip3] torchsummary==1.5.1\n[pip3] torchtune==0.6.1\n[pip3] torchvision==0.25.0+cpu\n[pip3] umf==1.0.3\n[conda] Could not collect\n```\n\ncc @malfet @ezyang @eellison @bdhirsh @bobrenjc93 @aorenste @chauhang @penguinwu",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "triage review",
+      "os": "linux",
+      "version": "",
+      "priority": "",
+      "error_message": "error. In eager mode, the operation directly raises an error, while the same operation succeeds in `meta` device (shape-only computation). This inconsistent behavior"
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177450",
+    "title": "DataPipes: prevent failing properties from masking invalid-iterator errors",
+    "body": "## Summary\r\n- Make IterDataPipe diagnostic argument rendering robust when constructor-matching properties raise.\r\n- Prevent unrelated property exceptions from masking the intended invalid-iterator `RuntimeError`.\r\n- Add a regression test for this behavior.\r\n\r\n## Root cause\r\n`_generate_input_args_string` in `torch/utils/data/datapipes/_hook_iterator.py` used `inspect.getmembers(obj)`, which eagerly evaluates descriptors/properties.  \r\nIf one such property raised, that exception escaped and replaced the expected invalid-iterator error.\r\n\r\n## Fix\r\n- Iterate constructor parameter names only.\r\n- Skip `self`.\r\n- Use guarded `getattr` and ignore failing attribute access.\r\n- Keep deterministic output ordering with `result.sort()`.\r\n\r\n## Tests\r\n- `python -m pytest test/test_datapipe.py::TestDataPipeHookIterator::test_invalid_iterator_message_ignores_failing_property -q`\r\n- Result: `1 passed`\r\n\r\n## Files changed\r\n- `torch/utils/data/datapipes/_hook_iterator.py`\r\n- `test/test_datapipe.py`",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": "errors ## Summary"
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177449",
+    "title": "[Storage] Add swap_data_ptr for safe storage data pointer transfer",
+    "body": "Expose a swap_data_ptr method on UntypedStorage that atomically swaps the DataPtr and nbytes between two StorageImpl instances. This enables patterns like reassigning a tensor's underlying memory while preserving its view chain, without invalidating the source storage's ownership (which std::move in set_data_ptr_noswap would do).\r\n\r\nCo-authored-by: Claude <noreply@anthropic.com>",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "ciflow/trunk",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177448",
+    "title": "Fix: Add generator parameter support to Gamma distribution sample()",
+    "body": "##summary\r\n\r\n`torch.distributions.Gamma().sample()` did not support \r\nthe `generator` keyword argument, causing a TypeError \r\nwhen users tried to pass a generator for reproducibility.\r\n\r\n## Changes\r\n- `torch/distributions/gamma.py` — added `generator=None` \r\n  to `_standard_gamma()` and `rsample()`\r\n- `torch/distributions/distribution.py` — added \r\n  `generator=None` to base `sample()` and `rsample()`\r\n\r\n## Tests\r\nAdded 5 tests in `test/test_distributions.py`:\r\n- test_gamma_generator_basic\r\n- test_gamma_deterministic_with_same_seed\r\n- test_gamma_with_different_seeds\r\n- test_gamma_batched\r\n- test_gamma_without_generator",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": "TypeError"
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177447",
+    "title": "Make run_dtensor_rng_op compatible with compile_on_one_rank",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* __->__ #177447\n* #177446\n* #177445\n\nUse mesh._sym_get_coordinate() in _compute_rng_offsets so that RNG\noffset values become symbolic SymInts (via _runtime_compute_coordinate_on_dim)\nwhen compile_on_one_rank is active. Previously, mesh.get_coordinate()\nreturned concrete rank-specific integers that got baked into the compiled\ngraph, producing different graphs on different ranks.\n\nAlso refactors test_compile_on_one_rank.py to extract graph-comparison\nhelpers (_assert_graphs_identical_across_ranks, _compile_and_capture_graph)\nand adds a test for DTensor random op graph consistency.\n\nAuthored with Claude.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "ciflow/inductor",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177446",
+    "title": "Fix type annotation for _sym_get_coordinate",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* #177447\n* __->__ #177446\n* #177445",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "ciflow/inductor",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177445",
+    "title": "Add SymInt and SymFloat to Number",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* #177447\n* #177446\n* __->__ #177445\n\n\n\ncc @lolpack @maggiemoss @ndmitchell @kinto0 @samwgoldman @voznesenskym @penguinwu @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @ipiszy @kadeng @muchulee8 @amjames @chauhang @aakhundov @coconutruben @jataylo",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "release notes: quantization",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177443",
+    "title": "[dynamo] Support id() on containers and copy.deepcopy tracing",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* __->__ #177443\n\r\n* Support id by introducing `FakeIDVariable` a\r\ncompile-time-only variable that holds id(vt) and can participate as a\r\ndict key but intentionally blocks reconstruction across graph breaks\r\nto prevent silently baking stale ids into resumed bytecode.\r\n\r\n* Lets Dynamo trace into copy.deepcopy\r\n\r\nAuthored with Claude.\r\n\r\ncc @voznesenskym @penguinwu @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @kadeng @chauhang @amjames @Lucaskabela @jataylo",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "ciflow/trunk",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177442",
+    "title": "Nondeterministic Segmentation fault with flash attention 3 and torch.compile",
+    "body": "### 🐛 Describe the bug\n\n```\n\"\"\"\nautograd cache segfault with torch.compile + flash_attn_3.\n\nSIGSEGV in pickle.dumps() during autograd cache save in backward pass.\nNon-deterministic (~10-30% of runs with clean inductor cache).\n\nTested: PyTorch 2.10.0.dev20260130+cu129, flash-attn-3 3.0.0b1, CUDA 12.9\nRequires: pip install flash-attn-3\n\n  rm -rf /tmp/torchinductor_$USER/ && python3 repro.py\n\nWorkarounds:\n  TORCHINDUCTOR_AUTOGRAD_CACHE=0 python3 repro.py\n  python3 repro.py --no-compile\n\"\"\"\n\nimport sys\nimport torch\nimport torch.nn as nn\nfrom flash_attn_interface import flash_attn_func\n\n\nclass Model(nn.Module):\n    def __init__(self, dim=128, n_heads=2):\n        super().__init__()\n        self.n_heads = n_heads\n        self.head_dim = dim // n_heads\n        self.qkv = nn.Linear(dim, dim * 3, bias=False)\n\n    def forward(self, x):\n        B, S, _ = x.shape\n        qkv = self.qkv(x).view(B, S, 3, self.n_heads, self.head_dim)\n        q, k, v = qkv[:, :, 0], qkv[:, :, 1], qkv[:, :, 2]\n        out, _ = flash_attn_func(q=q, k=k, v=v)\n        return out.reshape(B, S, -1)\n\n\ntorch.cuda.set_device(0)\ntorch._dynamo.config.cache_size_limit = 10_000\n\nmodel = Model().to(device=\"cuda:0\", dtype=torch.bfloat16)\nif \"--no-compile\" not in sys.argv:\n    model.forward = torch.compile(model.forward, dynamic=False)\n\nx = torch.randn(1, 256, 128, device=\"cuda:0\", dtype=torch.bfloat16)\nmodel(x).sum().backward()  # segfaults here\nprint(\"[repro] No crash\")\n```\n\nUse this command:\n```\nrm -rf /tmp/torchinductor_$USER/ && python3 repro.py\n```\nOutput (about 1/4 of the time):\n\n```\nkevin@kevin-h100-0:/mnt/clusterstorage/workspace/kevin/ml-monorepo/chadfusion$ rm -rf /tmp/torchinductor_$USER/ && python3 repro_segfault_standalone.py\n/usr/local/lib/python3.10/dist-packages/torch/_dynamo/variables/functions.py:1946: UserWarning: Dynamo does not know how to trace the builtin `flash_attn_3_cuda.pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1.fwd.` This function is either a Python builtin (e.g. _warnings.warn) or a third-party C/C++ Python extension (perhaps created with pybind).\nIf it is a Python builtin, please file an issue on GitHub so the PyTorch team can add support for it and see the next case for a workaround.\nIf it is a third-party C/C++ Python extension, please either wrap it into a PyTorch-understood custom operator (see https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html for more details) or, if it is traceable, use `torch.compiler.allow_in_graph`.\n  torch._dynamo.utils.warn_once(explanation + \"\\n\" + \"\\n\".join(hints))\nSegmentation fault\n```\n\nIf you leave out the inductor cache clear, it will deterministically crash on the second run of the script. The error will be:\n```\nkevin@kevin-h100-0:/mnt/clusterstorage/workspace/kevin/ml-monorepo/chadfusion$ python repro_segfault_standalone.py \n/usr/local/lib/python3.10/dist-packages/torch/_dynamo/variables/functions.py:1946: UserWarning: Dynamo does not know how to trace the builtin `flash_attn_3_cuda.pybind11_detail_function_record_v1_system_libstdcpp_gxx_abi_1xxx_use_cxx11_abi_1.fwd.` This function is either a Python builtin (e.g. _warnings.warn) or a third-party C/C++ Python extension (perhaps created with pybind).\nIf it is a Python builtin, please file an issue on GitHub so the PyTorch team can add support for it and see the next case for a workaround.\nIf it is a third-party C/C++ Python extension, please either wrap it into a PyTorch-understood custom operator (see https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html for more details) or, if it is traceable, use `torch.compiler.allow_in_graph`.\n  torch._dynamo.utils.warn_once(explanation + \"\\n\" + \"\\n\".join(hints))\nTraceback (most recent call last):\n  File \"/mnt/clusterstorage/workspace/kevin/ml-monorepo/chadfusion/repro_segfault_standalone.py\", line 46, in <module>\n    model(x).sum().backward()  # segfaults here\n  File \"/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py\", line 1776, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n  File \"/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py\", line 1787, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_dynamo/eval_frame.py\", line 953, in compile_wrapper\n    return fn(*args, **kwargs)\n  File \"/mnt/clusterstorage/workspace/kevin/ml-monorepo/chadfusion/repro_segfault_standalone.py\", line 30, in forward\n    def forward(self, x):\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_dynamo/eval_frame.py\", line 1181, in _fn\n    return fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_functorch/aot_autograd.py\", line 1148, in forward\n    return compiled_fn(full_args)\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py\", line 1962, in __call__\n    return self.compiled_fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py\", line 452, in runtime_wrapper\n    ret_outs = [\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py\", line 453, in <listcomp>\n    handler(orig_inputs, fw_outs, out)\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_functorch/_aot_autograd/runtime_wrappers.py\", line 199, in __call__\n    return gen_alias_from_base(\n  File \"/usr/local/lib/python3.10/dist-packages/torch/_functorch/_aot_autograd/functional_utils.py\", line 252, in gen_alias_from_base\n    out = _functionalization.apply_view_meta_sequence(\nRuntimeError: shape '[139576348471101, 4182651185909040093, 384]' is invalid for input of size 98304\n```\n\n### Error logs\n\n_No response_\n\n### Versions\n\n```\nPyTorch version: 2.10.0\nIs debug build: False\nCUDA used to build PyTorch: 12.9\nROCM used to build PyTorch: N/A\n\nOS: Ubuntu 22.04.5 LTS (x86_64)\nGCC version: (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0\nClang version: Could not collect\nCMake version: version 4.2.3\nLibc version: glibc-2.35\n\nPython version: 3.10.12 (main, Nov  4 2025, 08:48:33) [GCC 11.4.0] (64-bit runtime)\nPython platform: Linux-6.5.13-65-650-4141-22041-coreweave-amd64-85c45edc-x86_64-with-glibc2.35\nIs CUDA available: True\nCUDA runtime version: Could not collect\nCUDA_MODULE_LOADING set to: \nGPU models and configuration: GPU 0: NVIDIA H100 80GB HBM3\nNvidia driver version: 570.172.08\ncuDNN version: Probably one of the following:\n/usr/lib/x86_64-linux-gnu/libcudnn.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_adv.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_cnn.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_engines_precompiled.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_engines_runtime_compiled.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_graph.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_heuristic.so.9.18.1\n/usr/lib/x86_64-linux-gnu/libcudnn_ops.so.9.18.1\nHIP runtime version: N/A\nMIOpen runtime version: N/A\nIs XNNPACK available: True\n\nCPU:\nArchitecture:                       x86_64\nCPU op-mode(s):                     32-bit, 64-bit\nAddress sizes:                      46 bits physical, 57 bits virtual\nByte Order:                         Little Endian\nCPU(s):                             128\nOn-line CPU(s) list:                0-127\nVendor ID:                          GenuineIntel\nModel name:                         Intel(R) Xeon(R) Platinum 8462Y+\nCPU family:                         6\nModel:                              143\nThread(s) per core:                 2\nCore(s) per socket:                 32\nSocket(s):                          2\nStepping:                           8\nCPU max MHz:                        4100.0000\nCPU min MHz:                        800.0000\nBogoMIPS:                           5600.00\nFlags:                              fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cat_l2 cdp_l3 invpcid_single cdp_l2 ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect avx_vnni avx512_bf16 wbnoinvd dtherm ida arat pln pts hfi vnmi avx512vbmi umip pku ospke waitpkg avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg tme avx512_vpopcntdq la57 rdpid bus_lock_detect cldemote movdiri movdir64b enqcmd fsrm md_clear serialize tsxldtrk pconfig arch_lbr ibt amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities\nVirtualization:                     VT-x\nL1d cache:                          3 MiB (64 instances)\nL1i cache:                          2 MiB (64 instances)\nL2 cache:                           128 MiB (64 instances)\nL3 cache:                           120 MiB (2 instances)\nNUMA node(s):                       2\nNUMA node0 CPU(s):                  0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,124,126\nNUMA node1 CPU(s):                  1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59,61,63,65,67,69,71,73,75,77,79,81,83,85,87,89,91,93,95,97,99,101,103,105,107,109,111,113,115,117,119,121,123,125,127\nVulnerability Gather data sampling: Not affected\nVulnerability Itlb multihit:        Not affected\nVulnerability L1tf:                 Not affected\nVulnerability Mds:                  Not affected\nVulnerability Meltdown:             Not affected\nVulnerability Mmio stale data:      Not affected\nVulnerability Retbleed:             Not affected\nVulnerability Spec rstack overflow: Not affected\nVulnerability Spec store bypass:    Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:           Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:           Mitigation; Enhanced / Automatic IBRS; IBPB conditional; RSB filling; PBRSB-eIBRS SW sequence; BHI BHI_DIS_S\nVulnerability Srbds:                Not affected\nVulnerability Tsx async abort:      Not affected\n\nVersions of relevant libraries:\n[pip3] clip-anytorch==2.6.0\n[pip3] dctorch==0.1.2\n[pip3] DISTS_pytorch==0.1\n[pip3] gpytorch==1.15.2\n[pip3] lovely-numpy==0.2.20\n[pip3] mypy_extensions==1.1.0\n[pip3] numpy==1.24.4\n[pip3] torch==2.10.0\n[pip3] torchaudio==2.10.0\n[pip3] torchdata==0.11.0\n[pip3] torchdiffeq==0.2.5\n[pip3] torchsde==0.2.6\n[pip3] torchtitan==0.1.0\n[pip3] torchvision==0.25.0\n[pip3] triton==3.6.0+git8fedd49b\n[pip3] welford-torch==0.2.5\n[conda] Could not collect\n```\n\ncc @chauhang @penguinwu @bdhirsh @bobrenjc93 @aorenste @voznesenskym @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @ipiszy @kadeng @muchulee8 @amjames @aakhundov @coconutruben @jataylo @xmfan @aditvenk",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "triage review",
+      "os": "linux",
+      "version": "",
+      "priority": "",
+      "error_message": "error will be:"
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177441",
+    "title": "[DTensor] Fix `None IValue == DTensorSpec` and cache key collision for ops with optional Tensor",
+    "body": "Two bugs in NativeShardingPropagatorCache:\r\n\r\n1. IValueOrDTensorSpec::operator== returned true when comparing a None IValue against a DTensorSpec, because both have default iv=None. On hash bucket collisions this caused false-positive equality, leading to wrong OutputSharding results. Fixed by checking !rhs.dtensor_spec before comparing iv fields.\r\n\r\n2. handle_non_dtensor_arg dropped None/undefined tensor args from the cache key when idx < static_argnum. For ops with optional Tensor? parameters at those positions, this made op(t1, t2, None) and op(t1, None, t2) produce identical keys. Fixed by always including None/undefined args regardless of static_argnum.\r\n\r\nNote that Bug 1 was the root cause of the flaky \r\ntest_dtensor_op_db_clamp_cpu_float32 failure (hash bucket collisions between different samples triggered the broken operator==). Bug 2 is a latent issue for any op registered with high static_argnum and optional Tensor? parameters.\r\n\r\nResolves https://github.com/pytorch/pytorch/issues/176974\r\n\r\nAuthored with Claude.",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177440",
+    "title": "[Dynamo] Support __contains__ on Flag enum variables",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* __->__ #177440\n\nFlag enums support the `in` operator to check membership (e.g.,\n`LocalReduction.MEAN in local_reduction`), but Dynamo didn't handle\nthis, causing a graph break via the CONTAINS_OP polyfill fallback\nwhich then failed on `hasattr(EnumVariable, __iter__)`.\n\nAdd `call_method` to `EnumVariable` to evaluate `__contains__` at\ntrace time when both operands are Python constants. The existing\n`ID_MATCH` guard on enum variables at construction time is sufficient\nto trigger recompilation when the enum value changes.\n\nAuthored with Claude.\n\ncc @voznesenskym @penguinwu @EikanWang @jgong5 @Guobing-Chen @XiaobingSuper @zhuhaozhe @blzheng @wenzhe-nrv @jiayisunx @kadeng @chauhang @amjames @Lucaskabela @jataylo",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "ciflow/trunk",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177438",
+    "title": "Infer device_type in fork_rng from devices argument",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack) (oldest at bottom):\n* __->__ #177438\n\nfork_rng defaulted device_type to \"cuda\", so callers like\ntest_randperm that pass devices=[\"openreg:0\"] without an explicit\ndevice_type would incorrectly try to initialize CUDA. When devices\nis provided but device_type is not, infer it from the first device\nin the list. Falls back to \"cuda\" when neither is provided.\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "github",
+    "issue_id": "177437",
+    "title": "[1/N] nccl-ep: cmake",
+    "body": "Stack from [ghstack](https://github.com/ezyang/ghstack/tree/0.12.0) (oldest at bottom):\r\n* __->__ #177437\r\n\r\nAdds a USE_NCCL_EP CMake option that builds NCCL via CMake (instead of\r\nMakefile) so that the nccl_ep contrib library can be built in the same\r\ntree. libnccl_ep.a is statically linked into libtorch_cuda.so via the\r\nCaffe2_CUDA_DEPENDENCY_LIBS mechanism. The option is surfaced in the\r\ncmake summary under USE_NCCL_EP.\r\n\r\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+    "direct_fields": {
+      "bug_type": "",
+      "component": "open source",
+      "os": "",
+      "version": "",
+      "priority": "",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19837",
+    "title": "Bump org.apache.zookeeper:zookeeper from 3.8.4 to 3.8.6 in hadoop-project",
+    "body": "Bump org.apache.zookeeper:zookeeper from 3.8.4 to 3.8.6 in hadoop-project",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "",
+      "version": "3.5.0, 3.5.1, 3.6.0, 3.5.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19836",
+    "title": "Running dfsadmin report fails when datanode name fails to resolve",
+    "body": "When running `hdfs dfsadmin -report` on a cluster where one of the DataNode addresses cannot be resolved, the DataNode report fails with an IllegalArgumentException: \r\n\r\n{{stackable@simple-hdfs-namenode-default-0 /stackable/hadoop-3.4.0 $ hdfs dfsadmin -report}}\r\n{{Configured Capacity: 2933688373248 (2.67 TB)}}\r\n{{Present Capacity: 1299099013120 (1.18 TB)}}\r\n{{DFS Remaining: 1299098914816 (1.18 TB)}}\r\n{{DFS Used: 98304 (96 KB)}}\r\n{{DFS Used%: 0.00%}}\r\n{{Replicated Blocks:}}\r\n{{ Under replicated blocks: 0}}\r\n{{ Blocks with corrupt replicas: 0}}\r\n{{ Missing blocks: 0}}\r\n{{ Missing blocks (with replication factor 1): 0}}\r\n{{ Low redundancy blocks with highest priority to recover: 0}}\r\n{{ Pending deletion blocks: 0}}\r\n{{Erasure Coded Block Groups:}}\r\n{{ Low redundancy block groups: 0}}\r\n{{ Block groups with corrupt internal blocks: 0}}\r\n{{ Missing block groups: 0}}\r\n{{ Low redundancy blocks with highest priority to recover: 0}}\r\n{{ Pending deletion blocks: 0}}\r\n{{-------------------------------------------------}}\r\n{{report: java.lang.IllegalArgumentException}}\r\n\r\nThe method that adds DataNode addressed to the list of nodes to report on checks to see if the hostname resolves. If this test fails then Preconditions.checkArgument() throws an uncaught IllegalArgumentException.\r\n\r\n{{  void add(InetSocketAddress addr) {}}\r\n{{    Preconditions.checkArgument(!addr.isUnresolved());}}\r\n{{    addrs.put(addr.getAddress(), addr.getPort());}}\r\n\r\n\r\n\r\nIt would make more sense log the failure and return from the add() method rather than cause the creation of the HostSet to fail entirely.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "hdfs",
+      "os": "",
+      "version": "3.4.3",
+      "priority": "Major",
+      "error_message": "Exception:"
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19835",
+    "title": "Make MapReduce Application Master class configurable in YARNRunner",
+    "body": "YARNRunner currently always uses {{MRJobConfig.APPLICATION_MASTER_CLASS}} when building the command to start the Application Master, and does not read {{{}yarn.app.mapreduce.am{}}}. As a result, custom AM classes (e.g. Celeborn’s {{{}MRAppMasterWithCeleborn{}}}) are never used when submitting jobs via the standard job client.\r\n\r\nThis patch changes YARNRunner to take the AM class from configuration: it uses {{jobConf.get(\"yarn.app.mapreduce.am\", MRJobConfig.APPLICATION_MASTER_CLASS)}} and passes that value into the launch arguments. If {{yarn.app.mapreduce.am}} is set, that class is used; otherwise behavior is unchanged (default AM class). This allows remote shuffle and other custom AMs to be used without forking the job client.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "mapreduce",
+      "os": "",
+      "version": "3.4.3",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19834",
+    "title": "Broken links and whitespace misalignments in S3A index.html",
+    "body": "There are some broken links on the [Amazon S3|https://hadoop.apache.org/docs/r3.4.3/hadoop-aws/tools/hadoop-aws/index.html] documentation index page.",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "documentation",
+      "os": "",
+      "version": "3.5.0, 3.6.0",
+      "priority": "Trivial",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19833",
+    "title": "fs.s3a.classloader.isolation=false configuration does not work - classloader not retrieved from Configuration object",
+    "body": "The configuration {{fs.s3a.classloader.isolation=false (introduced from https://issues.apache.org/jira/browse/HADOOP-18993)}} does not work as intended. While the configuration is correctly set in the Hadoop Configuration object, the S3A classloader is never retrieved from the Hadoop Configuration object, resulting in classloader isolation always being enabled regardless of the {{fs.s3a.classloader.isolation}} value.\r\n\r\n \r\n\r\nThe bug occurs in two steps:\r\n\r\n*Configuration is set correctly* - The isolation flag is properly stored in the Hadoop Configuration object. Code link: [https://github.com/apache/hadoop/blob/release-3.5.0-RC0/hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AUtils.java#L1756] \r\n\r\n*Classloader is not retrieved from Configuration* - When creating instances, the classloader is not read from the Configuration object, instead it is always using the S3AUtils's classloader. Code link: [https://github.com/apache/hadoop/blob/release-3.5.0-RC0/hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AUtils.java#L660]",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "",
+      "os": "",
+      "version": "3.4.0, 3.5.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.5.1, 3.4.0, 3.5.0, 3.4.1, 3.4.2, 3.4.3, 3.4.4, 3.5.1",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19832",
+    "title": "hadoop-shaded-guava 1.5.0: missing relocation for org.jspecify causes classpath collisions",
+    "body": "`hadoop-shaded-guava` 1.5.0 bundles `org.jspecify:jspecify` classes but does not apply a relocation rule in the Maven shade plugin configuration. As a result, the classes remain at their original `org/jspecify/annotations/` path inside the shaded JAR.\r\n\r\nThis causes classpath collisions when a project has both `hadoop-shaded-guava` and a direct or transitive dependency on the standalone `org.jspecify:jspecify` artifact on the classpath.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "",
+      "os": "",
+      "version": "",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19831",
+    "title": "upgrade to jackson 2.18.6",
+    "body": "has security related bug fixes - including https://github.com/advisories/GHSA-72hv-8253-57qq\r\n\r\n[https://github.com/FasterXML/jackson/wiki/Jackson-Release-2.18.6]\r\n\r\nThis only affects Hadoop 3.5.0 and above because Hadoop 3.4 is stuck on an older Jackson version. Jackson 2.18 is an LTS release line.",
+    "direct_fields": {
+      "bug_type": "Task",
+      "component": "",
+      "os": "",
+      "version": "3.5.0, 3.6.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19830",
+    "title": "AWS SDK v1 dependencies in hadoop-aws library",
+    "body": "The `hadoop-aws` [library|https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws] contains a dependency on the `com.amazonaws:aws-java-sdk-core` library, which AWS no longer patches, including for security vulnerabilities. This forces every downstream consumer, for example [spark-core|https://mvnrepository.com/artifact/org.apache.spark/spark-core], to carry an end-of-life dependency with no remediation path, resulting in unpatched vulnerabilities and compliance failures.\r\n\r\nIt would be great to replace `aws-java-sdk-core` with the equivalent counterpart from AWS SDK for Java 2.x.",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "",
+      "version": "3.4.3",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19829",
+    "title": "Bump lz4-java 1.10.4",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "",
+      "version": "3.5.0, 3.4.3, 3.5.0, 3.4.4",
+      "priority": "Critical",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19828",
+    "title": "Build Docker image in CI only once per commit",
+    "body": "GitHub workflow for building Hadoop image in CI currently re-builds the image if the same commit is pushed to a different branch.  It should re-use existing image and only apply new tag.",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "docker",
+      "os": "",
+      "version": "",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19827",
+    "title": "Upgrade kafka-clients to 3.9.2",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "",
+      "version": "3.4.3, 3.5.0, 3.4.4",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19826",
+    "title": "Add contract test to verify renaming empty dir works",
+    "body": "Add a quick new test for the corner case of verifying that when an empty dir is renamed, the dest dir exists and the old path doesn't.",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "fs",
+      "os": "",
+      "version": "3.5.0, 3.5.1, 3.6.0",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19825",
+    "title": "Create docker image for Hadoop 3.4.3",
+    "body": "Update Dockerfile to use Hadoop 3.4.3.",
+    "direct_fields": {
+      "bug_type": "Task",
+      "component": "docker",
+      "os": "",
+      "version": "",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19824",
+    "title": "Build failure: Could not find resource '${repo.root}' ...",
+    "body": "When trying to run `spotbugs` target on a submodule from the repo root, I'm getting a failure to resolve ${repo.root}. Reproduction:\r\n\r\n \r\n\r\n{{mvnd clean}}\r\n{{mvnd clean compile -pl hadoop-tools/hadoop-aws -am}}\r\n{{mvnd -pl hadoop-tools/hadoop-aws -am  spotbugs:spotbugs}}\r\n\r\n{{...}}\r\n\r\n{{Could not find resource '${repo.root}/dev-support/findbugs-exclude-global.xml'}}\r\n\r\n\r\n\r\nAm I expected to `cd` into the submodule folder first? Do we really need this `directory-maven-plugin` which is supposed to compute `repo.root` for us? Why not just use relative paths (e.g. ../../)?  I'm not very skilled with maven but this seems brittle.\r\n\r\nThis repo.root thing was introduced for global excludes as part of a spotbugs upgrade in HADOOP-19731.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "hadoop-common",
+      "os": "",
+      "version": "3.5.0",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19823",
+    "title": "Remove hadoop-azure-datalake module",
+    "body": "Currently there are two modules to access to Azure:\r\n\r\n* hadoop-azure:\r\n\r\n    Supports Azure Blob Storage (ABFS/WASB) using these URI schemes:\r\n\r\n    * wasb:// and wasbs://\r\n    * abfs:// and abfss:// (new - Azure Data Lake Storage Gen2)\r\n\r\n* hadoop-azure-datalake\r\n\r\nThis is the module to connect to Azure Data Lake Storage Gen1 with the URI schema adl://.\r\n\r\nSince 29 February 2024, Azure Data Lake Storage Gen1 is retired by Microsoft and cannot be accessed:\r\n\r\nhttps://azure.microsoft.com/en-us/updates?id=action-required-switch-to-azure-data-lake-storage-gen2-by-29-february-2024\r\n\r\nI consider this module could be removed. This can reduce the maintenance effort: tests, dependencies management, potential vulnerabilities, etc.",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "fs/adl",
+      "os": "",
+      "version": "",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19822",
+    "title": "Upgrade Avro to 1.11.5",
+    "body": "We can upgrade to Avro 1.11.5 for inclusion in the Hadoop 3.5.0 release.",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "common",
+      "os": "",
+      "version": "3.5.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19821",
+    "title": "[JDK25] Token initialization fails with NoClassDefFoundError",
+    "body": "The issue was identified on Hadoop 3.4.3 RC1 validation - use OpenJDK 25 with Kerberos enabled, SparkPi fails immediately and consistently.\r\n\r\nThe root cause is that JDK 24 introduces a behavior change on ServiceLoader's returned iterator, `iterator.hasNext()` might throw NoClassDefFoundError, which previously only happened on `iterator.next()`\r\n\r\nSee [https://bugs.openjdk.org/browse/JDK-8350481]\r\n{code:java}\r\n2026-02-20 19:41:32,117 INFO resourcemanager.ClientRMService: Application with id 1 submitted by user spark\r\n2026-02-20 19:41:32,126 WARN security.DelegationTokenRenewer: Unable to add the application to the delegation token renewer.\r\njava.lang.NoClassDefFoundError: com/google/protobuf/Message$Builder\r\n        at java.base/java.lang.Class.getDeclaredConstructors0(Native Method)\r\n        at java.base/java.lang.Class.privateGetDeclaredConstructors(Class.java:2985)\r\n        at java.base/java.lang.Class.getConstructor0(Class.java:3180)\r\n        at java.base/java.lang.Class.getConstructor(Class.java:2199)\r\n        at java.base/java.util.ServiceLoader.getConstructor(ServiceLoader.java:623)\r\n        at java.base/java.util.ServiceLoader$LazyClassPathLookupIterator.hasNextService(ServiceLoader.java:1111)\r\n        at java.base/java.util.ServiceLoader$LazyClassPathLookupIterator.hasNext(ServiceLoader.java:1142)\r\n        at java.base/java.util.ServiceLoader$1.hasNext(ServiceLoader.java:1164)\r\n        at java.base/java.util.ServiceLoader$2.hasNext(ServiceLoader.java:1246)\r\n        at org.apache.hadoop.security.token.Token.getClassForIdentifier(Token.java:136)\r\n        at org.apache.hadoop.security.token.Token.decodeIdentifier(Token.java:166)\r\n        at org.apache.hadoop.security.token.Token.identifierToString(Token.java:425)\r\n        at org.apache.hadoop.security.token.Token.toString(Token.java:445)\r\n        at java.base/java.lang.String.valueOf(String.java:4530)\r\n        at java.base/java.lang.StringBuilder.append(StringBuilder.java:173)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer.handleAppSubmitEvent(DelegationTokenRenewer.java:496)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer.access$1800(DelegationTokenRenewer.java:83)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer$DelegationTokenRenewerRunnable.handleDTRenewerAppSubmitEvent(DelegationTokenRenewer.java:1078)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer$DelegationTokenRenewerRunnable.run(DelegationTokenRenewer.java:1055)\r\n        at java.base/java.lang.StringBuilder.append(StringBuilder.java:173)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer.handleAppSubmitEvent(DelegationTokenRenewer.java:496)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer.access$1800(DelegationTokenRenewer.java:83)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer$DelegationTokenRenewerRunnable.handleDTRenewerAppSubmitEvent(DelegationTokenRenewer.java:1078)\r\n        at org.apache.hadoop.yarn.server.resourcemanager.security.DelegationTokenRenewer$DelegationTokenRenewerRunnable.run(DelegationTokenRenewer.java:1055)\r\n        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:545)\r\n2026-02-20 19:41:32,139 INFO rmapp.RMAppImpl: application_1771616432238_0001 State change from FINAL_SAVING to FAILED on event = APP_UPDATE_SAVED\r\n2026-02-20 19:41:32,139 WARN capacity.CapacityScheduler: Couldn't find application application_1771616432238_0001 {code}",
+    "direct_fields": {
+      "bug_type": "Sub-task",
+      "component": "common",
+      "os": "",
+      "version": "3.4.3, 3.5.0",
+      "priority": "Major",
+      "error_message": "Error The issue was identified on Hadoop 3.4.3 RC1 validation - use OpenJDK 25 with Kerberos enabled, SparkPi fails immediately and consistently."
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19820",
+    "title": "CI is too slow",
+    "body": "Jira to start gathering tasks for CI performance improvements.\r\n\r\nI recently was blocked on a CI run that took over 24 hours:\r\n\r\n[https://ci-hadoop.apache.org/job/hadoop-multibranch/job/PR-8225/8/]\r\n\r\nOther runs tend to take ~3 hours. Ideally (IMHO) CI should run in 10 minutes. Would love to help move in this direction but I'm not sure where to start. Besides looking at profiles etc. I would love suggestions from others on what the lowest hanging fruit is for improving build, test, and CI time and reliability.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "build",
+      "os": "",
+      "version": "3.5.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19819",
+    "title": "Remove obsolete OS platform Dockerfiles",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "",
+      "version": "3.5.0, 3.5.1, 3.6.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19818",
+    "title": "hadoop-aws scale test timeouts broken",
+    "body": "Trying to run a large file (3GiB) scale test and it times out regardless of setting `fs.s3a.scale.test.timeout`. Wondering if this broke during JUnit upgrades?",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "hadoop-aws",
+      "os": "",
+      "version": "3.5.0",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19817",
+    "title": "Test failure in ITestS3ACommitterMRJob; NPE trying to cleanup previous",
+    "body": "On latest trunk, when running `mvn clean  verify  -Dit.test=ITestS3ACommitterMRJob -DskipUnitTests`\r\n\r\n```\r\n\r\n[ERROR] org.apache.hadoop.fs.s3a.commit.integration.ITestS3ACommitterMRJob.test_200_execute\r\n[ERROR]   Run 1: ITestS3ACommitterMRJob.test_200_execute:313->Assertions.fail:138 Job job_1771361025853_0001 failed in state FAILED with cause Application application_1771361025853_0001 failed 2 times due to AM Container for appattempt_1771361025853_0001_000002 exited with  exitCode: 1\r\nFailing this attempt.Diagnostics: [2026-02-17 12:43:51.159]Exception from container-launch.\r\nContainer id: container_1771361025853_0001_02_000001\r\nExit code: 1\r\n\r\n[2026-02-17 12:43:51.160]Container exited with a non-zero exit code 1. Error file: prelaunch.err.\r\nLast 4096 bytes of prelaunch.err :\r\nLast 4096 bytes of stderr :\r\nlog4j:WARN No appenders could be found for logger (org.apache.hadoop.mapreduce.v2.app.MRAppMaster).\r\nlog4j:WARN Please initialize the log4j system properly.\r\nlog4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.\r\nError while trying to clean up previous job's temporary filesjava.lang.NullPointerException: Cannot invoke \"org.apache.hadoop.mapreduce.v2.api.records.JobId.getAppId()\" because \"id\" is null\r\n```",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "hadoop-aws",
+      "os": "",
+      "version": "3.4.3",
+      "priority": "Major",
+      "error_message": "ERROR] org.apache.hadoop.fs.s3a.commit.integration.ITestS3ACommitterMRJob.test_200_execute"
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19816",
+    "title": "Hadoop should ship with a URLStreamHandlerProvider to handle hdfs: URLs",
+    "body": "Much of Hadoop's APIs seem to be centered around the use of a URI. However, `hdfs:` URIs are actually locations (URLs) and can be treated as such. Unfortunately, Hadoop doesn't ship with a URLStreamHandlerProvider, so applications (including the Hadoop client API itself) cannot use these URLs directly, because there's no provider in the system capable of interpreting these URIs as URLs, and `hdfs:` is not a built-in URL scheme in Java.\r\n\r\nThe Apache Accumulo project wrote a simple implementation to handle URLs with the `hdfs:` scheme (it does not handle other HDFS schemes, like `viewfs:`, etc., which may be nice to support, though `file:` URLs that Hadoop also supports, are probably best left handled by the built-in URLStreamHandlerProvider in Java, rather than Hadoop's LocalFileSystem or RawLocalFileSystem implementations).\r\n\r\nI think this would be homed better inside the Hadoop project, rather than left as an exercise to the user. For reference, our implementation is located at:\r\n\r\n[https://github.com/apache/accumulo-classloaders/blob/21626c06236d6a96ed0c53ef7fc9c38c3d449a9a/modules/hdfs-urlstreamhandler-provider/README.md]",
+    "direct_fields": {
+      "bug_type": "Wish",
+      "component": "common",
+      "os": "",
+      "version": "",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19815",
+    "title": "Path normalizes away important trailing slash used for URI.resolve(other)",
+    "body": "This issue appears to be a relatively long-standing bug with Hadoop's FileSystem and Path classes, but is nevertheless important.\r\n\r\nThe core of the issue is that {{URI.resolve(...)}} relies on a trailing slash to determine how to resolve path components, but the trailing slash is often stripped out in common code paths for FileSystem and Path. This causes problems when trying to resolve new URIs/Paths from existing ones. Constructing a Path from a URI, rather than a String or another Path, does preserve the original URI, so things do resolve correctly, but that yields highly inconsistent behavior, and depends on the specifics of how it was constructed and how the original URI was preserved internally.\r\n\r\nHowever, even if one argues that the String constructor for Path is supposed to normalize, and the URI constructor is supposed to preserve, the problem also exists with many of the {{FileSystem}} methods, such as {{{}fs.getUri(){}}}, {{{}fs.getHomeDirectory(){}}}, {{{}fs.getWorkingDirectory(){}}}, etc. So, one must do convoluted string manipulation to resolve one Path from another.\r\n\r\nFor example:\r\n{code:java}\r\nnew Path(\"hdfs://localhost:8020/path/to/somewhere\").toUri().resolve(\"other\");\r\n// expected ==> URI(hdfs://localhost:8020/path/to/other)\r\n// actual ==> URI(hdfs://localhost:8020/path/to/other)\r\n\r\nnew Path(\"hdfs://localhost:8020/path/to/somewhere/\").toUri().resolve(\"other\");\r\n// expected ==> URI(hdfs://localhost:8020/path/to/somewhere/other)\r\n// actual ==> URI(hdfs://localhost:8020/path/to/other)\r\n\r\n\r\n\r\nnew Path(new URI(\"hdfs://localhost:8020/path/to/somewhere\")).toUri().resolve(\"other\");\r\n// expected ==> URI(hdfs://localhost:8020/path/to/other)\r\n// actual ==> URI(hdfs://localhost:8020/path/to/other)\r\n\r\nnew Path(new URI(\"hdfs://localhost:8020/path/to/somewhere/\")).toUri().resolve(\"other\");\r\n// expected ==> URI(hdfs://localhost:8020/path/to/somewhere/other)\r\n// actual ==> URI(hdfs://localhost:8020/path/to/somewhere/other)\r\n\r\n\r\n\r\nvar fs = FileSystem.get(new Configuration());\r\nfs.getUri();\r\n// expected ==> URI(hdfs://localhost:8020/)\r\n// actual ==> URI(hdfs://localhost:8020) // probably matters more for LocalFileSystem or viewfs, etc.\r\n\r\nfs.getWorkingDirectory().toUri();\r\nfs.getHomeDirectory().toUri();\r\n// expected ==> URI(hdfs://localhost:8020/user/me/)\r\n// actual ==> URI(hdfs://localhost:8020/user/me)\r\n\r\n// broken code\r\nURI relativeURI = new URI(\"mytempdir\");\r\nfs.getWorkingDirectory().toUri().resolve(relativeURI);\r\n// expected ==> hdfs://localhost:8020/user/me/mytempdir\r\n// actual ==> hdfs://localhost:8020/user/mytempdir\r\n\r\n// convoluted workaround (assuming relative path in the suffix without any other URI elements)\r\nURI relativeURI = new URI(\"mytempdir\");\r\nfs.getWorkingDirectory().suffix(\"/\" + relativeURI.toString()).toUri();\r\n// expected ==> hdfs://localhost:8020/user/me/mytempdir\r\n// actual ==> hdfs://localhost:8020/user/me/mytempdir\r\n{code}\r\nSome of this is workable, so long as you're staying with Path, but the moment you try to work with URIs/URLs, things get convoluted quickly, requiring {{toString()}} calls and concatenation with slash {{/}} characters, and edge cases when the other path isn't relative, or contains a different authority or scheme, etc. These are things {{URI.resolve()}} would already handle, so code can get unnecessarily complex to work around these API problems.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "common",
+      "os": "",
+      "version": "3.4.2",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19814",
+    "title": "Release Apache Hadoop 3.5.0",
+    "body": "Release tracking for Hadoop 3.5.0",
+    "direct_fields": {
+      "bug_type": "Task",
+      "component": "build",
+      "os": "",
+      "version": "",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19813",
+    "title": "CVE-2025-67735 Bump AWS SDK bundle for netty CVE",
+    "body": "Hi all,\r\n\r\nThe AWS SDK being used has a netty version affected by CVE-2025-67735\r\n\r\nIt should be updated to, at least v2.40.11, which uses a fixed version of netty",
+    "direct_fields": {
+      "bug_type": "Task",
+      "component": "build",
+      "os": "",
+      "version": "3.5.0, 3.4.3",
+      "priority": "Minor",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19812",
+    "title": "Reduce boost source code download size",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "",
+      "version": "3.5.0, 3.5.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19811",
+    "title": "hadoop-gcp does not relocate shaded OpenTelemetry dependencies",
+    "body": "The hadoop-gcp sub-module intends to produce a jar with a completely shaded and relocated set of internal dependencies. Currently, the OpenTelemetry classes are not relocated, which creates a risk of version conflicts with downstream projects. Thank you to [~chengpan] for reporting this.",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "fs/gcs",
+      "os": "",
+      "version": "3.5.0",
+      "priority": "Blocker",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19810",
+    "title": "Replace FastByteComparisons with JDK Arrays.compareUnsigned",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "common",
+      "os": "",
+      "version": "3.5.1, 3.5.1",
+      "priority": "Major",
+      "error_message": ""
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19809",
+    "title": "start-build-env.sh fails",
+    "body": "Running {{start-build-env.sh}} fails at the 10th step with the following error:\r\n\r\n{{Step 10/30 : RUN apt-get -q update     && apt-get -q install -y --no-install-recommends wget apt-transport-https gpg gpg-agent gawk ca-certificates     && apt-get -q install -y --no-install-recommends python3 pylint python3-dateutil     && echo \"deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/\\{print$2}' /etc/os-release) main\" > /etc/apt/sources.list.d/adoptium.list     && wget -q -O - https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/trusted.gpg.d/adoptium.asc      && apt-get -q update     && apt-get -q install -y --no-install-recommends $(pkg-resolver/resolve.py ubuntu:noble)     && apt-get clean     && update-java-alternatives -s java-1.17.0-openjdk-amd64     && rm -rf /var/lib/apt/lists/*}}\r\n{{ ---> Running in 3a1b2b8bc40d}}\r\n{{Get:1 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]}}\r\n{{Get:2 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]}}\r\n{{Get:3 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1199 kB]}}\r\n{{Get:4 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]}}\r\n{{Get:5 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]}}\r\n{{Get:6 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]}}\r\n{{Get:7 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]}}\r\n{{Get:8 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1802 kB]}}\r\n{{Get:9 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [34.8 kB]}}\r\n{{Get:10 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [3061 kB]}}\r\n{{Get:11 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]}}\r\n{{Get:12 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]}}\r\n{{Get:13 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [3280 kB]}}\r\n{{Get:14 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [2198 kB]}}\r\n{{Get:15 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [38.1 kB]}}\r\n{{Get:16 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1978 kB]}}\r\n{{Get:17 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [34.6 kB]}}\r\n{{Get:18 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.5 kB]}}\r\n{{Fetched 35.9 MB in 4s (8483 kB/s)}}\r\n{{Reading package lists...}}\r\n{{E: Problem executing scripts APT::Update::Post-Invoke 'rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true'}}\r\n{{E: Sub-process returned an error code}}\r\n{{The command '/bin/bash -o pipefail -c apt-get -q update     && apt-get -q install -y --no-install-recommends wget apt-transport-https gpg gpg-agent gawk ca-certificates     && apt-get -q install -y --no-install-recommends python3 pylint python3-dateutil     && echo \"deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/\\{print$2}' /etc/os-release) main\" > /etc/apt/sources.list.d/adoptium.list     && wget -q -O - https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/trusted.gpg.d/adoptium.asc      && apt-get -q update     && apt-get -q install -y --no-install-recommends $(pkg-resolver/resolve.py ubuntu:noble)     && apt-get clean     && update-java-alternatives -s java-1.17.0-openjdk-amd64     && rm -rf /var/lib/apt/lists/*' returned a non-zero code: 100}}",
+    "direct_fields": {
+      "bug_type": "Bug",
+      "component": "build",
+      "os": "linux",
+      "version": "3.5.0",
+      "priority": "Minor",
+      "error_message": "error:"
+    }
+  },
+  {
+    "source": "jira",
+    "issue_id": "HADOOP-19808",
+    "title": "Jenkins switch from Debian 11 to Debian 13",
+    "body": "",
+    "direct_fields": {
+      "bug_type": "Improvement",
+      "component": "build",
+      "os": "linux",
+      "version": "3.5.0, 3.5.0",
+      "priority": "Major",
+      "error_message": ""
+    }
+  }
+]

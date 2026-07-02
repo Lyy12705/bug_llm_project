@@ -1,0 +1,80 @@
+{
+  "status": "pass",
+  "generated_at": "2026-07-02T07:03:55.204874+00:00",
+  "workspace_root": "/Users/linyaying/Documents/bug_llm_project",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "integrated_unit_tests",
+      "description": "Run the main integrated system unittest suite.",
+      "status": "pass",
+      "duration_seconds": 7.597,
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -m unittest discover -s tests",
+      "cwd": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system",
+      "detail": "unittest suite reported OK",
+      "stdout_tail": "",
+      "stderr_tail": "...............\nLoading weights:   0%|          | 0/103 [00:00<?, ?it/s]\nLoading weights: 100%|██████████| 103/103 [00:00<00:00, 10304.19it/s]\n....................2026-07-02 15:03:52,588 INFO bug_tracking_llm_system: Step 1: Extract ticket JSON\n2026-07-02 15:03:52,589 INFO bug_tracking_llm_system: Step 2: Detect duplicate\n2026-07-02 15:03:52,589 INFO bug_tracking_llm_system: Step 3: Predict priority\n2026-07-02 15:03:52,589 INFO bug_tracking_llm_system: Step 4: Assign developer\n2026-07-02 15:03:52,590 INFO bug_tracking_llm_system: Step 5: Localize bug\n2026-07-02 15:03:52,591 INFO bug_tracking_llm_system: Step 6: Generate patch\n.2026-07-02 15:03:52,591 INFO bug_tracking_llm_system: Step 1: Extract ticket JSON\n2026-07-02 15:03:52,592 INFO bug_tracking_llm_system: Step 2: Detect duplicate\n2026-07-02 15:03:52,592 INFO bug_tracking_llm_system: Step 3: Predict priority\n2026-07-02 15:03:52,592 INFO bug_tracking_llm_system: Step 4: Assign developer\n2026-07-02 15:03:52,608 INFO bug_tracking_llm_system: Step 5: Localize bug\n2026-07-02 15:03:52,609 INFO bug_tracking_llm_system: Step 6: Generate patch\n2026-07-02 15:03:52,610 INFO bug_tracking_llm_system: Step 7: Generate reproduction tests\n2026-07-02 15:03:52,610 INFO bug_tracking_llm_system: Step 8: Run regression tests\n2026-07-02 15:03:52,645 INFO bug_tracking_llm_system: Step 9: Generate commit message\n.2026-07-02 15:03:52,648 INFO bug_tracking_llm_system: Step 1: Extract ticket JSON\n2026-07-02 15:03:52,648 INFO bug_tracking_llm_system: Step 2: Detect duplicate\n2026-07-02 15:03:52,649 INFO bug_tracking_llm_system: Step 3: Predict priority\n2026-07-02 15:03:52,649 INFO bug_tracking_llm_system: Step 4: Assign developer\n2026-07-02 15:03:52,664 INFO bug_tracking_llm_system: Step 5: Localize bug\n2026-07-02 15:03:52,665 INFO bug_tracking_llm_system: Step 6: Generate patch\n.2026-07-02 15:03:52,667 INFO bug_tracking_llm_system: Step 1: Extract ticket JSON\n2026-07-02 15:03:52,667 INFO bug_tracking_llm_system: Step 2: Detect duplicate\n..\n----------------------------------------------------------------------\nRan 40 tests in 6.672s\n\nOK\n"
+    },
+    {
+      "name": "main_pipeline_smoke",
+      "description": "Run one integrated ticket through extraction, duplicate, priority, assignee, localization, and patch fallback.",
+      "status": "pass",
+      "duration_seconds": 0.387,
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 src/main.py --raw-ticket data/raw_tickets/raw_ticket.example.json --repo-path ../bug-duplicate-detection --fault-top-k 3 --fault-embedding-backend tfidf --output /tmp/bug_llm_health_check/main_pipeline_result.json --no-checkpoints",
+      "cwd": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system",
+      "detail": "pipeline status=needs_manual_patch; patch_status=blocked_low_confidence; localization_candidates=3",
+      "stdout_tail": "{\"status\": \"needs_manual_patch\", \"output\": \"/tmp/bug_llm_health_check/main_pipeline_result.json\"}\n",
+      "stderr_tail": "2026-07-02 15:03:53,328 INFO bug_tracking_llm_system: Step 1: Extract ticket JSON\n2026-07-02 15:03:53,329 INFO bug_tracking_llm_system: Step 2: Detect duplicate\n2026-07-02 15:03:53,329 INFO bug_tracking_llm_system: Step 3: Predict priority\n2026-07-02 15:03:53,329 INFO bug_tracking_llm_system: Step 4: Assign developer\n2026-07-02 15:03:53,344 INFO bug_tracking_llm_system: Step 5: Localize bug\n2026-07-02 15:03:53,648 INFO bug_tracking_llm_system: Step 6: Generate patch\n"
+    },
+    {
+      "name": "fault_localization_smoke",
+      "description": "Run retrieval-first fault localization on one ticket with local TF-IDF backend.",
+      "status": "pass",
+      "duration_seconds": 0.357,
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 scripts/fault_localization.py --ticket data/raw_tickets/raw_ticket.example.json --repo-path ../bug-duplicate-detection --top-k 3 --embedding-backend tfidf --output /tmp/bug_llm_health_check/fault_localization_result.json",
+      "cwd": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system",
+      "detail": "localized_candidates=3; top_file=src/duplicate_ticket_detection/dataset.py; top_score=0.3397",
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "name": "duplicate_detection_smoke",
+      "description": "Evaluate the duplicate detection TF-IDF baseline on the bundled sample tickets.",
+      "status": "pass",
+      "duration_seconds": 0.884,
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -m duplicate_ticket_detection.cli evaluate --tickets examples/sample_tickets.csv --method tfidf --combine max --top-k 5",
+      "cwd": "/Users/linyaying/Documents/bug_llm_project/bug-duplicate-detection",
+      "detail": "duplicate MAP was reported",
+      "stdout_tail": "tickets=6\nqueries_with_duplicates=4\nMAP=1.0000\ntop_1_accuracy=1.0000\ntop_5_hit_rate=1.0000\nMRR=1.0000\nquery_id,AP,first_duplicate_rank,relevant_ids,top_ranked_ids\nT-100,1.0000,1,T-101,T-101 T-102 T-300 T-201 T-200\nT-101,1.0000,1,T-100,T-100 T-201 T-102 T-200 T-300\nT-200,1.0000,1,T-201,T-201 T-101 T-300 T-100 T-102\nT-201,1.0000,1,T-200,T-200 T-100 T-101 T-102 T-300\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "priority_prediction_smoke",
+      "description": "Read the existing priority-prediction evaluation CSV and print headline metrics.",
+      "status": "pass",
+      "duration_seconds": 0.275,
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 scripts/show_model_metrics.py",
+      "cwd": "/Users/linyaying/Documents/bug_llm_project/bug-priority-drone",
+      "detail": "priority metrics were reported",
+      "stdout_tail": "             Metric  Value\n           Accuracy 0.7266\n           Macro F1 0.7265\nOff-by-one accuracy 0.9045\n                MAE 0.4040\n          P1 recall 0.6583\n          P2 recall 0.6869\n          P3 recall 0.8350\n          P4 recall 0.7136\n          P5 recall 0.7387\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "ticket_json_evaluation_smoke",
+      "description": "Evaluate existing bug-report-to-JSON predictions against the local labeled sample.",
+      "status": "pass",
+      "duration_seconds": 0.028,
+      "command": "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 scripts/To_Json/evaluate_results.py --gold dataset/labeled/test.jsonl --pred dataset/predicted/predicted.jsonl --no-source-consistency",
+      "cwd": "/Users/linyaying/Documents/bug_llm_project/ToJson",
+      "detail": "ticket JSON accuracy was reported",
+      "stdout_tail": "=== Dataset Status ===\nGround truth file        : dataset/labeled/test.jsonl\nGround truth records     : 56\nAnnotated JSON records   : 56\nPrediction file          : dataset/predicted/predicted.jsonl\nPrediction records       : 56\nEvaluation fields        : bug_type, component, os, version, priority, error_message\n\n=== Ground Truth Evaluation ===\nReference records : 56\nPredicted records : 56\nMatched records   : 56\nMissing predicted : 0\nExtra predicted   : 0\n\nField Accuracy\nbug_type      :  37/ 56 = 0.6607\ncomponent     :  11/ 56 = 0.1964\nos            :  52/ 56 = 0.9286\nversion       :  30/ 56 = 0.5357\npriority      :  33/ 56 = 0.5893\nerror_message :  29/ 56 = 0.5179\n\nOverall Metrics\nOverall field accuracy : 192/336 = 0.5714\nExact match accuracy   : 3/56 = 0.0536\n\nSample Mismatches (up to 10)\nID: 177437\n  - component\n      reference: cmake\n      pred     : nccl-ep\n\nID: 177438\n  - bug_type\n      reference: logic_error\n      pred     : non_bug\n  - component\n      reference: fork_rng\n      pred     : unknown\n  - priority\n      reference: P3\n      pred     : P5\n\nID: 177440\n  - bug_type\n      reference: logic_error\n      pred     : non_bug\n  - component\n      reference: Dynamo\n      pred     : unknown\n  - priority\n      reference: P3\n      pred     : P5\n\nID: 177441\n  - error_message\n      reference: \n      pred     : IValueOrDTensorSpec::operator== returned true when comparing a None IValue against a DTensorSpec, because both have default iv=None. On hash bucket collisions this caused false-positive equality, leading to wrong OutputSharding results.\n\nID: 177442\n  - component\n      reference: torch.compile\n      pred     : flash attention 3\n  - os\n      reference: linux\n      pred     : unknown\n  - version\n      reference: 2.10.0\n      pred     : \n  - priority\n      reference: P2\n      pred     : P3\n  - error_message\n      reference: Segmentation fault\n      pred     : Nondeterministic Segmentation fault with flash attention 3 and torch.compile\n\nID: 177443\n  - component\n      reference: dynamo\n      pred     : unknown\n\nID: 177445\n  - component\n      reference: Number\n      pred     : unknown\n\nID: 177447\n  - bug_type\n      reference: logic_error\n      pred     : non_bug\n  - component\n      reference: DTensor\n      pred     : unknown\n  - priority\n      reference: P3\n      pred     : P5\n\nID: 177448\n  - bug_type\n      reference: crash\n      pred     : non_bug\n  - component\n      reference: distributions\n      pred     : unknown\n  - priority\n      reference: P3\n      pred     : P5\n  - error_message\n      reference: TypeError\n      pred     : \n\nID: 177450\n  - error_message\n      reference: RuntimeError\n      pred     : Prevent unrelated property exceptions from masking the intended invalid-iterator error.\n\n------------------------------------------------------------\n\n",
+      "stderr_tail": ""
+    }
+  ],
+  "scope_note": "This is a lightweight local health check. It intentionally does not call Ollama, download embedding models, rerun full SWE-bench Lite, retrain classifiers, or mutate datasets."
+}

@@ -1,0 +1,1788 @@
+{
+  "metadata": {
+    "dataset": "bmo_smoke",
+    "history_path": "bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_smoke_history_train.jsonl",
+    "source_rows": 45,
+    "profile_count": 15,
+    "method": "extractive_profile_from_training_tickets",
+    "note": "Profiles are inferred from historical ticket ownership. They are not verified job titles or organization roles."
+  },
+  "profiles": [
+    {
+      "assignee": "dev_0002",
+      "ticket_count": 9,
+      "profile_confidence": "medium",
+      "top_products": [
+        {
+          "value": "firefox",
+          "count": 6,
+          "ratio": 0.666667
+        },
+        {
+          "value": "core",
+          "count": 3,
+          "ratio": 0.333333
+        }
+      ],
+      "top_components": [
+        {
+          "value": "dom: core & html",
+          "count": 2,
+          "ratio": 0.222222
+        },
+        {
+          "value": "settings ui",
+          "count": 2,
+          "ratio": 0.222222
+        },
+        {
+          "value": "general",
+          "count": 2,
+          "ratio": 0.222222
+        },
+        {
+          "value": "dom: ui events & focus handling",
+          "count": 1,
+          "ratio": 0.111111
+        },
+        {
+          "value": "search",
+          "count": 1,
+          "ratio": 0.111111
+        },
+        {
+          "value": "protections ui",
+          "count": 1,
+          "ratio": 0.111111
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 4,
+          "ratio": 0.444444
+        },
+        {
+          "value": "p5",
+          "count": 2,
+          "ratio": 0.222222
+        },
+        {
+          "value": "p1",
+          "count": 2,
+          "ratio": 0.222222
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.111111
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "s4",
+          "count": 8,
+          "ratio": 0.888889
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.111111
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 9,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "chrome",
+          "count": 61,
+          "score": 16.0485
+        },
+        {
+          "term": "chrome mochikit",
+          "count": 55,
+          "score": 15.7234
+        },
+        {
+          "term": "mochikit",
+          "count": 55,
+          "score": 15.7234
+        },
+        {
+          "term": "mochikit content",
+          "count": 55,
+          "score": 15.7234
+        },
+        {
+          "term": "content",
+          "count": 82,
+          "score": 14.6238
+        },
+        {
+          "term": "content tests",
+          "count": 34,
+          "score": 14.2131
+        },
+        {
+          "term": "dom events",
+          "count": 10,
+          "score": 13.7288
+        },
+        {
+          "term": "events",
+          "count": 10,
+          "score": 13.7288
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872954",
+          "title": "[Protections Panel] Protections doorhanger has a blocked tracker milestones subviewbutton that is unlabeled",
+          "product": "firefox",
+          "component": "protections ui",
+          "priority": "--",
+          "created_at": "2024-01-04T00:48:04Z"
+        },
+        {
+          "ticket_id": "bmo_1872719",
+          "title": "Perma [Tier-2] dom/events/test/clipboard/browser_navigator_clipboard_read.js | Node is not accessible via accessibility API: id: , tagName: browser, className",
+          "product": "core",
+          "component": "dom: ui events & focus handling",
+          "priority": "P5",
+          "created_at": "2024-01-02T17:19:39Z"
+        },
+        {
+          "ticket_id": "bmo_1872899",
+          "title": "Perma [tier 2] TEST-UNEXPECTED-FAIL | browser/components/search/test/browser/browser_searchbar_openpopup.js | Node is not accessible via accessibility API: id: , tagName: html:body, className:  -",
+          "product": "firefox",
+          "component": "search",
+          "priority": "P5",
+          "created_at": "2024-01-03T19:37:26Z"
+        },
+        {
+          "ticket_id": "bmo_1872903",
+          "title": "Add an exception from a11y_checks for a click on a web content in Desktop UI",
+          "product": "firefox",
+          "component": "general",
+          "priority": "P3",
+          "created_at": "2024-01-03T20:00:20Z"
+        },
+        {
+          "ticket_id": "bmo_1872743",
+          "title": "Default and Default Private Engine comboboxes in Settings UI are unlabelled",
+          "product": "firefox",
+          "component": "settings ui",
+          "priority": "P1",
+          "created_at": "2024-01-02T20:19:12Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 9 historical tickets: likely focuses on dom: core & html, settings ui, general in firefox, core. Common work themes: chrome, chrome mochikit, mochikit, mochikit content, content."
+    },
+    {
+      "assignee": "dev_0015",
+      "ticket_count": 9,
+      "profile_confidence": "medium",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 9,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "css parsing and computation",
+          "count": 3,
+          "ratio": 0.333333
+        },
+        {
+          "value": "dom: core & html",
+          "count": 2,
+          "ratio": 0.222222
+        },
+        {
+          "value": "graphics: canvas2d",
+          "count": 1,
+          "ratio": 0.111111
+        },
+        {
+          "value": "layout: images, video, and html frames",
+          "count": 1,
+          "ratio": 0.111111
+        },
+        {
+          "value": "layout",
+          "count": 1,
+          "ratio": 0.111111
+        },
+        {
+          "value": "css transitions and animations",
+          "count": 1,
+          "ratio": 0.111111
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p4",
+          "count": 9,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "--",
+          "count": 9,
+          "ratio": 1.0
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 9,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "scope",
+          "count": 11,
+          "score": 14.1251
+        },
+        {
+          "term": "sync",
+          "count": 27,
+          "score": 11.6192
+        },
+        {
+          "term": "kscopeactivation",
+          "count": 5,
+          "score": 10.8474
+        },
+        {
+          "term": "web-platform-tests",
+          "count": 19,
+          "score": 10.6687
+        },
+        {
+          "term": "dcheck",
+          "count": 4,
+          "score": 9.9198
+        },
+        {
+          "term": "units",
+          "count": 4,
+          "score": 9.9198
+        },
+        {
+          "term": "rule",
+          "count": 5,
+          "score": 9.1475
+        },
+        {
+          "term": "bugs.webkit.org",
+          "count": 4,
+          "score": 9.0025
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872986",
+          "title": "[wpt-sync] Sync PR 43849 - [@scope] Produce kScopeActivation relations for scoped nesting",
+          "product": "core",
+          "component": "css parsing and computation",
+          "priority": "P4",
+          "created_at": "2024-01-04T08:43:52Z"
+        },
+        {
+          "ticket_id": "bmo_1872736",
+          "title": "[wpt-sync] Sync PR 43838 - Wait for FCP before running color-mix tests",
+          "product": "core",
+          "component": "layout: images, video, and html frames",
+          "priority": "P4",
+          "created_at": "2024-01-02T18:58:32Z"
+        },
+        {
+          "ticket_id": "bmo_1872649",
+          "title": "[wpt-sync] Sync PR 43835 - Ensure that drawImage(detachedCanvas) throws",
+          "product": "core",
+          "component": "graphics: canvas2d",
+          "priority": "P4",
+          "created_at": "2024-01-02T08:42:22Z"
+        },
+        {
+          "ticket_id": "bmo_1872758",
+          "title": "[wpt-sync] Sync PR 43840 - Remove ResizeObserver lifecycle DCHECK",
+          "product": "core",
+          "component": "layout",
+          "priority": "P4",
+          "created_at": "2024-01-02T22:28:22Z"
+        },
+        {
+          "ticket_id": "bmo_1872908",
+          "title": "[wpt-sync] Sync PR 43845 - DOM: Introduce `ObservableEventListenerOptions` dictionary",
+          "product": "core",
+          "component": "dom: core & html",
+          "priority": "P4",
+          "created_at": "2024-01-03T20:27:29Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 9 historical tickets: likely focuses on css parsing and computation, dom: core & html, graphics: canvas2d in core. Common work themes: scope, sync, kscopeactivation, web-platform-tests, dcheck."
+    },
+    {
+      "assignee": "dev_0011",
+      "ticket_count": 3,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "firefox",
+          "count": 3,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "search",
+          "count": 1,
+          "ratio": 0.333333
+        },
+        {
+          "value": "messaging system",
+          "count": 1,
+          "ratio": 0.333333
+        },
+        {
+          "value": "new tab page",
+          "count": 1,
+          "ratio": 0.333333
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 1,
+          "ratio": 0.333333
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.333333
+        },
+        {
+          "value": "p1",
+          "count": 1,
+          "ratio": 0.333333
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "n/a",
+          "count": 2,
+          "ratio": 0.666667
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.333333
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 3,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "react-test-renderer",
+          "count": 5,
+          "score": 10.8474
+        },
+        {
+          "term": "newtab",
+          "count": 6,
+          "score": 10.5322
+        },
+        {
+          "term": "chai-json-schema",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "able",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "aboutwelcome",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "aboutwelcome asrouter",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "appears react-test-renderer",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "asrouter",
+          "count": 2,
+          "score": 7.0384
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1873013",
+          "title": "Remove unused react-test-renderer from newtab's node_modules",
+          "product": "firefox",
+          "component": "new tab page",
+          "priority": "P1",
+          "created_at": "2024-01-04T12:19:08Z"
+        },
+        {
+          "ticket_id": "bmo_1873010",
+          "title": "Remove chai-json-schema module from aboutwelcome/asrouter test code as it is not used",
+          "product": "firefox",
+          "component": "messaging system",
+          "priority": "--",
+          "created_at": "2024-01-04T12:13:50Z"
+        },
+        {
+          "ticket_id": "bmo_1872757",
+          "title": "Update SearchTestUtils.useTestEngines to be able to load search-config-v2 configurations",
+          "product": "firefox",
+          "component": "search",
+          "priority": "P2",
+          "created_at": "2024-01-02T22:25:57Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 3 historical tickets: likely focuses on search, messaging system, new tab page in firefox. Common work themes: react-test-renderer, newtab, chai-json-schema, able, aboutwelcome."
+    },
+    {
+      "assignee": "dev_0001",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "audio/video: playback",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p1",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "p5",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "n/a",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "s4",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "media test",
+          "count": 12,
+          "score": 14.4868
+        },
+        {
+          "term": "test test_eme_mfcdm_generate_request.html",
+          "count": 12,
+          "score": 14.4868
+        },
+        {
+          "term": "test_eme_mfcdm_generate_request.html",
+          "count": 12,
+          "score": 14.4868
+        },
+        {
+          "term": "media",
+          "count": 17,
+          "score": 13.4374
+        },
+        {
+          "term": "dom media",
+          "count": 12,
+          "score": 13.1471
+        },
+        {
+          "term": "add_task",
+          "count": 7,
+          "score": 12.2461
+        },
+        {
+          "term": "http",
+          "count": 7,
+          "score": 12.2461
+        },
+        {
+          "term": "http mochi.test",
+          "count": 7,
+          "score": 12.2461
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1873011",
+          "title": "Perma win ccov wmfme dom/media/test/test_eme_mfcdm_generate_request.html | failed to create media key",
+          "product": "core",
+          "component": "audio/video: playback",
+          "priority": "P5",
+          "created_at": "2024-01-04T12:14:21Z"
+        },
+        {
+          "ticket_id": "bmo_1872973",
+          "title": "[wmfme] Run EME clearkey tests on wmfme",
+          "product": "core",
+          "component": "audio/video: playback",
+          "priority": "P1",
+          "created_at": "2024-01-04T06:34:56Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on audio/video: playback in core. Common work themes: media test, test test_eme_mfcdm_generate_request.html, test_eme_mfcdm_generate_request.html, media, dom media."
+    },
+    {
+      "assignee": "dev_0003",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "audio/video",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "audio/video: web codecs",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p1",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "n/a",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "decodertemplate",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "ffmpegvideoencoder",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "smaller",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "bigger",
+          "count": 2,
+          "score": 6.3875
+        },
+        {
+          "term": "functions",
+          "count": 2,
+          "score": 6.3875
+        },
+        {
+          "term": "settings",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "audio video",
+          "count": 2,
+          "score": 5.3166
+        },
+        {
+          "term": "core audio",
+          "count": 2,
+          "score": 5.3166
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872871",
+          "title": "Split FFmpegVideoEncoder initailization into smaller functions",
+          "product": "core",
+          "component": "audio/video",
+          "priority": "P1",
+          "created_at": "2024-01-03T16:23:45Z"
+        },
+        {
+          "ticket_id": "bmo_1872951",
+          "title": "DecoderTemplate cleanup",
+          "product": "core",
+          "component": "audio/video: web codecs",
+          "priority": "P1",
+          "created_at": "2024-01-04T00:30:35Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on audio/video, audio/video: web codecs in core. Common work themes: decodertemplate, ffmpegvideoencoder, smaller, bigger, functions."
+    },
+    {
+      "assignee": "dev_0004",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "firefox",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "pdf viewer",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p1",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "s3",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "verified",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "resolved",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "keywords": [
+        {
+          "term": "l10n",
+          "count": 48,
+          "score": 20.2496
+        },
+        {
+          "term": "viewer.ftl",
+          "count": 48,
+          "score": 20.2496
+        },
+        {
+          "term": "viewer.ftl l10n",
+          "count": 45,
+          "score": 19.9813
+        },
+        {
+          "term": "l10n viewer.ftl",
+          "count": 30,
+          "score": 18.2958
+        },
+        {
+          "term": "pdf.js",
+          "count": 21,
+          "score": 16.8131
+        },
+        {
+          "term": "github.com mozilla",
+          "count": 20,
+          "score": 16.6103
+        },
+        {
+          "term": "mozilla pdf.js",
+          "count": 20,
+          "score": 16.6103
+        },
+        {
+          "term": "pdf.js commit",
+          "count": 20,
+          "score": 16.6103
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872797",
+          "title": "Update PDF.js to new version 231c79800b4e0bb5b705353a98c7e8c8cff70393 from 2023-12-31 14:34:28",
+          "product": "firefox",
+          "component": "pdf viewer",
+          "priority": "--",
+          "created_at": "2024-01-03T06:15:56Z"
+        },
+        {
+          "ticket_id": "bmo_1872721",
+          "title": "Highlight on cropped pdf isn't visible when saving/printing",
+          "product": "firefox",
+          "component": "pdf viewer",
+          "priority": "P1",
+          "created_at": "2024-01-02T17:31:33Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on pdf viewer in firefox. Common work themes: l10n, viewer.ftl, viewer.ftl l10n, l10n viewer.ftl, pdf.js."
+    },
+    {
+      "assignee": "dev_0005",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "panning and zooming",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "p4",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "s4",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "minimap",
+          "count": 4,
+          "score": 9.9198
+        },
+        {
+          "term": "rects",
+          "count": 4,
+          "score": 9.9198
+        },
+        {
+          "term": "border",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "border thickness",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "thickness",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "apz",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "apz minimap",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "thickness rects",
+          "count": 2,
+          "score": 7.0384
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872901",
+          "title": "Increase border thickness of rects in APZ minimap",
+          "product": "core",
+          "component": "panning and zooming",
+          "priority": "P4",
+          "created_at": "2024-01-03T19:48:05Z"
+        },
+        {
+          "ticket_id": "bmo_1872772",
+          "title": "Remove apz.scrollend-event.content.enabled pref",
+          "product": "core",
+          "component": "panning and zooming",
+          "priority": "P3",
+          "created_at": "2024-01-03T00:32:23Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on panning and zooming in core. Common work themes: minimap, rects, border, border thickness, thickness."
+    },
+    {
+      "assignee": "dev_0006",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "firefox",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_components": [
+        {
+          "value": "layout: text and fonts",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "general",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "p1",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "s3",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "xpcomutils.definelazygetter",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "pref",
+          "count": 2,
+          "score": 6.3875
+        },
+        {
+          "term": "remove",
+          "count": 2,
+          "score": 4.2252
+        },
+        {
+          "term": "add linter",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "chromeutils.definelazygetter",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "chromeutils.definelazygetter add",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "default years",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "error xpcomutils.definelazygetter",
+          "count": 1,
+          "score": 4.157
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872784",
+          "title": "Remove layout.css.font-display.enabled pref",
+          "product": "core",
+          "component": "layout: text and fonts",
+          "priority": "--",
+          "created_at": "2024-01-03T01:45:54Z"
+        },
+        {
+          "ticket_id": "bmo_1872922",
+          "title": "Replace last few uses of XPCOMUtils.defineLazyGetter with ChromeUtils.defineLazyGetter and add linter error for XPCOMUtils.defineLazyGetter",
+          "product": "firefox",
+          "component": "general",
+          "priority": "P1",
+          "created_at": "2024-01-03T21:17:13Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on layout: text and fonts, general in core, firefox. Common work themes: xpcomutils.definelazygetter, pref, remove, add linter, chromeutils.definelazygetter."
+    },
+    {
+      "assignee": "dev_0007",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "javascript engine",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "javascript engine: jit",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "p2",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "n/a",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "inlining",
+          "count": 6,
+          "score": 11.6053
+        },
+        {
+          "term": "monomorphic",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "monomorphic inlining",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "trial",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "trial inlining",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "yaml",
+          "count": 3,
+          "score": 8.7239
+        },
+        {
+          "term": "flag force",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "loading",
+          "count": 2,
+          "score": 7.0384
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872666",
+          "title": "Remove OrderedDict code from YAML file loading",
+          "product": "core",
+          "component": "javascript engine",
+          "priority": "P3",
+          "created_at": "2024-01-02T11:52:47Z"
+        },
+        {
+          "ticket_id": "bmo_1873027",
+          "title": "Add a shell flag to force monomorphic inlining or trial inlining",
+          "product": "core",
+          "component": "javascript engine: jit",
+          "priority": "P2",
+          "created_at": "2024-01-04T14:13:26Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on javascript engine, javascript engine: jit in core. Common work themes: inlining, monomorphic, monomorphic inlining, trial, trial inlining."
+    },
+    {
+      "assignee": "dev_0008",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "graphics: canvas2d",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "graphics: webrender",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "--",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "s3",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "builds worker",
+          "count": 39,
+          "score": 19.3864
+        },
+        {
+          "term": "worker",
+          "count": 39,
+          "score": 19.3864
+        },
+        {
+          "term": "checkouts",
+          "count": 28,
+          "score": 18.009
+        },
+        {
+          "term": "checkouts gecko",
+          "count": 28,
+          "score": 18.009
+        },
+        {
+          "term": "worker checkouts",
+          "count": 28,
+          "score": 18.009
+        },
+        {
+          "term": "builds",
+          "count": 39,
+          "score": 17.5937
+        },
+        {
+          "term": "gfx",
+          "count": 24,
+          "score": 17.3682
+        },
+        {
+          "term": "gecko gfx",
+          "count": 20,
+          "score": 16.6103
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872776",
+          "title": "firefox: src/rasterize.h:1157: void draw_perspective_spans(int, Point3D *, Interpolants *, Texture &, Texture &, const ClipRect &) [P = unsigned int]: Assertion `l0.y == r0.y' failed.",
+          "product": "core",
+          "component": "graphics: webrender",
+          "priority": "--",
+          "created_at": "2024-01-03T01:18:25Z"
+        },
+        {
+          "ticket_id": "bmo_1872646",
+          "title": "Only use DrawTargetWebgl::BeginFrame when actually mutating a canvas",
+          "product": "core",
+          "component": "graphics: canvas2d",
+          "priority": "--",
+          "created_at": "2024-01-02T07:37:48Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on graphics: canvas2d, graphics: webrender in core. Common work themes: builds worker, worker, checkouts, checkouts gecko, worker checkouts."
+    },
+    {
+      "assignee": "dev_0009",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "dom: web authentication",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p5",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "s4",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "aboutwebauthn",
+          "count": 25,
+          "score": 17.5379
+        },
+        {
+          "term": "aboutwebauthn tests",
+          "count": 25,
+          "score": 17.5379
+        },
+        {
+          "term": "components aboutwebauthn",
+          "count": 25,
+          "score": 17.5379
+        },
+        {
+          "term": "browser browser_aboutwebauthn_bio.js",
+          "count": 24,
+          "score": 17.3682
+        },
+        {
+          "term": "browser_aboutwebauthn_bio.js",
+          "count": 24,
+          "score": 17.3682
+        },
+        {
+          "term": "toolkit",
+          "count": 25,
+          "score": 15.9161
+        },
+        {
+          "term": "toolkit components",
+          "count": 25,
+          "score": 15.9161
+        },
+        {
+          "term": "test-pass toolkit",
+          "count": 14,
+          "score": 15.1276
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872957",
+          "title": "Perma [tier 2] toolkit/components/aboutwebauthn/tests/browser/browser_aboutwebauthn_bio.js | Node is not accessible via accessibility API: id: bio-enrollments-tab-button, tagName: DIV, className: category -",
+          "product": "core",
+          "component": "dom: web authentication",
+          "priority": "P5",
+          "created_at": "2024-01-04T01:28:34Z"
+        },
+        {
+          "ticket_id": "bmo_1873038",
+          "title": "Sidebar navigation tablist in about:webauthn needs to ensure proper dynamic focus handling",
+          "product": "core",
+          "component": "dom: web authentication",
+          "priority": "--",
+          "created_at": "2024-01-04T15:42:10Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on dom: web authentication in core. Common work themes: aboutwebauthn, aboutwebauthn tests, components aboutwebauthn, browser browser_aboutwebauthn_bio.js, browser_aboutwebauthn_bio.js."
+    },
+    {
+      "assignee": "dev_0010",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "web audio",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "audio/video: web codecs",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "p2",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "--",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "n/a",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "xsimd",
+          "count": 6,
+          "score": 11.6053
+        },
+        {
+          "term": "arch",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "arch generic",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "generic",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "generic xsimd_generic_math.hpp",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "include xsimd",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "third_party xsimd",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "windows",
+          "count": 2,
+          "score": 7.0384
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872670",
+          "title": "Update xsimd to new version 3216c13f180e671d61b8bf7ecb96168f78592100 from 2024-01-02 07:57:02",
+          "product": "core",
+          "component": "web audio",
+          "priority": "--",
+          "created_at": "2024-01-02T12:13:15Z"
+        },
+        {
+          "ticket_id": "bmo_1872879",
+          "title": "Set scalability mode in VideoEncoder on Windows",
+          "product": "core",
+          "component": "audio/video: web codecs",
+          "priority": "P2",
+          "created_at": "2024-01-03T17:24:48Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on web audio, audio/video: web codecs in core. Common work themes: xsimd, arch, arch generic, generic, generic xsimd_generic_math.hpp."
+    },
+    {
+      "assignee": "dev_0012",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "widget: gtk",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "--",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "--",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "boxes",
+          "count": 9,
+          "score": 13.2909
+        },
+        {
+          "term": "hand",
+          "count": 9,
+          "score": 13.2909
+        },
+        {
+          "term": "etc",
+          "count": 8,
+          "score": 12.8012
+        },
+        {
+          "term": "cursor",
+          "count": 7,
+          "score": 12.2461
+        },
+        {
+          "term": "links",
+          "count": 6,
+          "score": 11.6053
+        },
+        {
+          "term": "open hand",
+          "count": 6,
+          "score": 11.6053
+        },
+        {
+          "term": "open",
+          "count": 6,
+          "score": 10.5322
+        },
+        {
+          "term": "boxes etc",
+          "count": 4,
+          "score": 9.9198
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872961",
+          "title": "The cursor was shown as an open hand instead of a pointing hand above links, video, audio, boxes etc.",
+          "product": "core",
+          "component": "widget: gtk",
+          "priority": "--",
+          "created_at": "2024-01-04T01:56:30Z"
+        },
+        {
+          "ticket_id": "bmo_1872963",
+          "title": "WakeLockListener.cpp debug log messages are incorrect",
+          "product": "core",
+          "component": "widget: gtk",
+          "priority": "--",
+          "created_at": "2024-01-04T02:23:13Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on widget: gtk in core. Common work themes: boxes, hand, etc, cursor, links."
+    },
+    {
+      "assignee": "dev_0013",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "panning and zooming",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "s4",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "core panning",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "panning",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "panning zooming",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "zooming",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "change",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "change webrenderlayerscrolldata",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "checking leaf",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "displayportutils",
+          "count": 1,
+          "score": 4.157
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872564",
+          "title": "optimize DisplayPortUtils::MaybeCreateDisplayPortInFirstScrollFrameEncountered by checking for leaf frames",
+          "product": "core",
+          "component": "panning and zooming",
+          "priority": "P3",
+          "created_at": "2024-01-01T02:24:10Z"
+        },
+        {
+          "ticket_id": "bmo_1872563",
+          "title": "change WebRenderLayerScrollData::mVisibleRegion from a region to a rect",
+          "product": "core",
+          "component": "panning and zooming",
+          "priority": "P3",
+          "created_at": "2024-01-01T02:19:38Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on panning and zooming in core. Common work themes: core panning, panning, panning zooming, zooming, change."
+    },
+    {
+      "assignee": "dev_0014",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [
+        {
+          "value": "core",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_components": [
+        {
+          "value": "xpcom",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "--",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [
+        {
+          "value": "--",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_statuses": [
+        {
+          "value": "resolved",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "keywords": [
+        {
+          "term": "generate",
+          "count": 2,
+          "score": 7.0384
+        },
+        {
+          "term": "core xpcom",
+          "count": 2,
+          "score": 6.3875
+        },
+        {
+          "term": "xpidl",
+          "count": 2,
+          "score": 6.3875
+        },
+        {
+          "term": "xpcom",
+          "count": 2,
+          "score": 5.9354
+        },
+        {
+          "term": "arguments",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "arguments enums",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "avoid keywords",
+          "count": 1,
+          "score": 4.157
+        },
+        {
+          "term": "better separate",
+          "count": 1,
+          "score": 4.157
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "bmo_1872918",
+          "title": "Generate typescript declarations lib from xpidl",
+          "product": "core",
+          "component": "xpcom",
+          "priority": "--",
+          "created_at": "2024-01-03T21:01:35Z"
+        },
+        {
+          "ticket_id": "bmo_1872969",
+          "title": "Rename several xpidl method arguments and enums to avoid js keywords and name collisions",
+          "product": "core",
+          "component": "xpcom",
+          "priority": "--",
+          "created_at": "2024-01-04T04:35:03Z"
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on xpcom in core. Common work themes: generate, core xpcom, xpidl, xpcom, arguments."
+    }
+  ]
+}

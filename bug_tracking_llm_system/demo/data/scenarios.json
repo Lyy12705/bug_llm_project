@@ -1,0 +1,280 @@
+{
+  "scenarios": [
+    {
+      "id": "duplicate-login-token",
+      "label": "Duplicate 案例",
+      "kind": "duplicate",
+      "one_line": "新 ticket 與歷史 BUG-038 高度相似，AI 建議工程師確認 duplicate。",
+      "adapter": {
+        "tracker": "Trac",
+        "project": "Auth Service",
+        "surface": "Ticket sidebar assistant"
+      },
+      "metrics": [
+        {
+          "label": "Duplicate Top-k Hit Rate",
+          "value": "91.80%",
+          "caption": "前 10 名候選能涵蓋多數正確 duplicate"
+        },
+        {
+          "label": "Top-1",
+          "value": "66.39%",
+          "caption": "第一名候選直接命中的比例"
+        },
+        {
+          "label": "MRR",
+          "value": "0.7535",
+          "caption": "正確候選通常排在前段"
+        }
+      ],
+      "ticket": {
+        "ticket_id": "RAW-101",
+        "title": "Login page crashes when token is missing",
+        "reporter": "qa-auth@example.com",
+        "component": "authentication",
+        "severity": "major",
+        "environment": "macOS 14, app 1.2.0",
+        "description": "When I try to login without a token, the app crashes instead of showing a validation error.",
+        "logs": "TypeError: token is None at src/auth/validator.py:42",
+        "steps_to_reproduce": [
+          "Open the login page",
+          "Submit login without token"
+        ],
+        "expected_behavior": "System should show a validation error.",
+        "actual_behavior": "Application crashes."
+      },
+      "user_input": "Login page crashes when token is missing\n\nReporter: qa-auth@example.com\nComponent: authentication\nSeverity: major\nEnvironment: macOS 14, app 1.2.0\n\nWhen I try to login without a token, the app crashes instead of showing a validation error.\n\nSteps to reproduce:\n1. Open the login page\n2. Submit login without token\n\nExpected: System should show a validation error.\nActual: Application crashes.\n\nLog: TypeError: token is None at src/auth/validator.py:42",
+      "workflow": [
+        {
+          "key": "extract",
+          "label": "Ticket JSON 正規化",
+          "summary": "把自然語言 ticket 轉成後續模型可用的標準欄位。"
+        },
+        {
+          "key": "duplicate",
+          "label": "Duplicate Detection",
+          "summary": "在歷史 ticket 中找到高相似候選。"
+        },
+        {
+          "key": "stop",
+          "label": "交給工程師確認",
+          "summary": "AI 不自動關閉 ticket，而是產生複核建議。"
+        }
+      ],
+      "result": {
+        "status": "duplicate",
+        "structured_ticket": {
+          "ticket_id": "RAW-101",
+          "title": "Login page crashes when token is missing",
+          "description": "When I try to login without a token, the app crashes instead of showing a validation error.",
+          "bug_type": "crash",
+          "component": "authentication",
+          "severity": "major",
+          "os": "macOS",
+          "version": "1.2.0",
+          "priority": null,
+          "error_message": "TypeError: token is None at src/auth/validator.py:42",
+          "steps_to_reproduce": [
+            "Open the login page",
+            "Submit login without token"
+          ],
+          "expected_behavior": "System should show a validation error.",
+          "actual_behavior": "Application crashes.",
+          "logs": "TypeError: token is None at src/auth/validator.py:42"
+        },
+        "duplicate": {
+          "is_duplicate": true,
+          "duplicate_of": "BUG-038",
+          "similarity_score": 0.91,
+          "threshold": 0.82,
+          "needs_review": true,
+          "top_k_candidates": [
+            {
+              "ticket_id": "BUG-038",
+              "title": "Login crash when token missing",
+              "similarity": 0.91,
+              "title_similarity": 0.94,
+              "content_similarity": 0.87,
+              "component": "authentication",
+              "priority": "P2",
+              "assignee": "auth-team@example.com"
+            },
+            {
+              "ticket_id": "BUG-214",
+              "title": "Auth validator returns 500 for empty credentials",
+              "similarity": 0.73,
+              "title_similarity": 0.68,
+              "content_similarity": 0.76,
+              "component": "authentication",
+              "priority": "P3",
+              "assignee": "auth-team@example.com"
+            },
+            {
+              "ticket_id": "BUG-039",
+              "title": "Password reset email not sent",
+              "similarity": 0.18,
+              "title_similarity": 0.14,
+              "content_similarity": 0.21,
+              "component": "email",
+              "priority": "P3",
+              "assignee": "backend-team@example.com"
+            }
+          ]
+        },
+        "duplicate_of": "BUG-038"
+      },
+      "tracker_comment": "AI Assistant Summary:\n- Duplicate check: probable duplicate of BUG-038, score 0.91 above threshold 0.82.\n- Evidence: same authentication component, matching missing-token crash, similar TypeError log.\n- Suggested action: engineer should confirm and link this ticket to BUG-038 instead of starting a separate fix."
+    },
+    {
+      "id": "integrated-triage-flow",
+      "label": "整合功能案例",
+      "kind": "integrated_triage",
+      "one_line": "沒有確認 duplicate，AI 繼續完成 priority prediction 與 assignee suggestion。",
+      "adapter": {
+        "tracker": "Bugzilla",
+        "project": "Checkout UI",
+        "surface": "Issue triage assistant"
+      },
+      "metrics": [
+        {
+          "label": "Priority Accuracy",
+          "value": "72.66%",
+          "caption": "natural holdout 評估"
+        },
+        {
+          "label": "Assignee Top-1",
+          "value": "76.56%",
+          "caption": "BMO 3k held-out test"
+        },
+        {
+          "label": "Assignee Hit@3",
+          "value": "90.63%",
+          "caption": "正確負責人在前三名"
+        }
+      ],
+      "ticket": {
+        "ticket_id": "RAW-202",
+        "title": "Checkout page becomes blank after applying a discount code",
+        "reporter": "qa-checkout@example.com",
+        "component": "frontend",
+        "severity": "major",
+        "environment": "Chrome 124, macOS 14, app 2.4.1",
+        "description": "After entering a discount code on the checkout page, the page becomes blank. Refreshing the browser restores the cart, but the discount is not applied.",
+        "logs": "TypeError: Cannot read properties of undefined (reading 'total') at src/checkout/discounts.ts:88",
+        "steps_to_reproduce": [
+          "Open a cart with one item",
+          "Go to checkout",
+          "Enter discount code SPRING20",
+          "Click Apply"
+        ],
+        "expected_behavior": "The discount should be applied and the order total should update.",
+        "actual_behavior": "The checkout page becomes blank."
+      },
+      "user_input": "Checkout page becomes blank after applying a discount code\n\nReporter: qa-checkout@example.com\nComponent: frontend\nSeverity: major\nEnvironment: Chrome 124, macOS 14, app 2.4.1\n\nAfter entering a discount code on the checkout page, the page becomes blank. Refreshing the browser restores the cart, but the discount is not applied.\n\nSteps to reproduce:\n1. Open a cart with one item\n2. Go to checkout\n3. Enter discount code SPRING20\n4. Click Apply\n\nExpected: The discount should be applied and the order total should update.\nActual: The checkout page becomes blank.\n\nLog: TypeError: Cannot read properties of undefined (reading 'total') at src/checkout/discounts.ts:88",
+      "workflow": [
+        {
+          "key": "extract",
+          "label": "Ticket JSON 正規化",
+          "summary": "擷取 component、error message、重現步驟與預期/實際行為。"
+        },
+        {
+          "key": "duplicate",
+          "label": "Duplicate Detection",
+          "summary": "Top candidates 未超過 duplicate threshold。"
+        },
+        {
+          "key": "priority",
+          "label": "Priority Prediction",
+          "summary": "根據 crash 訊號、component 與 related report factor 預測 P2。"
+        },
+        {
+          "key": "assignee",
+          "label": "Assignee Suggestion",
+          "summary": "Hybrid triager 綜合歷史分派、owner mapping 與文字相似度產生候選負責人排名。"
+        }
+      ],
+      "result": {
+        "status": "completed",
+        "structured_ticket": {
+          "ticket_id": "RAW-202",
+          "title": "Checkout page becomes blank after applying a discount code",
+          "description": "After entering a discount code on the checkout page, the page becomes blank. Refreshing the browser restores the cart, but the discount is not applied.",
+          "bug_type": "crash",
+          "component": "frontend",
+          "severity": "major",
+          "os": "macOS",
+          "version": "2.4.1",
+          "priority": null,
+          "error_message": "TypeError: Cannot read properties of undefined (reading 'total') at src/checkout/discounts.ts:88",
+          "steps_to_reproduce": [
+            "Open a cart with one item",
+            "Go to checkout",
+            "Enter discount code SPRING20",
+            "Click Apply"
+          ],
+          "expected_behavior": "The discount should be applied and the order total should update.",
+          "actual_behavior": "The checkout page becomes blank.",
+          "logs": "TypeError: Cannot read properties of undefined (reading 'total') at src/checkout/discounts.ts:88"
+        },
+        "duplicate": {
+          "is_duplicate": false,
+          "duplicate_of": null,
+          "similarity_score": 0.49,
+          "threshold": 0.82,
+          "needs_review": false,
+          "top_k_candidates": [
+            {
+              "ticket_id": "BUG-319",
+              "title": "Checkout total does not update after coupon removal",
+              "similarity": 0.49,
+              "title_similarity": 0.55,
+              "content_similarity": 0.43,
+              "component": "frontend",
+              "priority": "P3",
+              "assignee": "frontend-team@example.com"
+            },
+            {
+              "ticket_id": "BUG-288",
+              "title": "Cart page shows stale subtotal after refresh",
+              "similarity": 0.42,
+              "title_similarity": 0.38,
+              "content_similarity": 0.45,
+              "component": "frontend",
+              "priority": "P3",
+              "assignee": "frontend-team@example.com"
+            }
+          ]
+        },
+        "priority": {
+          "predicted_priority": "P2",
+          "confidence": 0.74,
+          "factor_scores": {
+            "textual_factor": 0.82,
+            "temporal_factor": 0.11,
+            "author_factor": 0.26,
+            "related_report_factor": 0.49,
+            "severity_factor": 0.88,
+            "component_factor": 0.76
+          },
+          "model": "deterministic_drone_gray_baseline"
+        },
+        "assignee": {
+          "assignee": "frontend-team@example.com",
+          "confidence": 0.82,
+          "reason": "Assigned by hybrid ranking for component 'frontend' and priority P2; strongest signals: component_history, component_owner_mapping, text_similarity.",
+          "ranked_candidates": [
+            "frontend-team@example.com",
+            "ui-platform@example.com",
+            "checkout-team@example.com"
+          ],
+          "candidate_scores": {
+            "frontend-team@example.com": 6.4125,
+            "ui-platform@example.com": 2.1833,
+            "checkout-team@example.com": 1.2041
+          }
+        }
+      },
+      "tracker_comment": "AI Assistant Summary:\n- Structured JSON: extracted title, component, severity, error message, steps, expected behavior, and actual behavior.\n- Duplicate check: no confirmed duplicate. Top candidate BUG-319 scored 0.49 below threshold 0.82.\n- Suggested priority: P2, confidence 0.74.\n- Suggested assignee: frontend-team@example.com, selected by Hybrid triager using component history, owner mapping, and text similarity."
+    }
+  ]
+}

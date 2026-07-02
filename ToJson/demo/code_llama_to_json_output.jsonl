@@ -1,0 +1,10 @@
+{"id": "demo_bug_001", "predicted_json": 
+	{"bug_type": "crash", 
+	 "component": "torch.compile", 
+	 "os": "Windows 11", 
+	 "version": "PyTorch 2.10.0", 
+	 "priority": "P1", 
+	 "error_message": 
+	 "RuntimeError: Calculated padded input size per channel is smaller than kernel size."}, 
+
+"extraction_meta": {"reference": "Roziere et al., 2024, Code Llama: Open Foundation Models for Code", "model": "codellama:7b-instruct", "prompt_style": "Code Llama-Instruct [INST] instruction", "prompt_mode": "zero_shot", "decoding": {"temperature": 0.0, "top_p": 1.0, "seed": 42, "num_ctx": 8192, "num_predict": 512}, "max_title_chars": 500, "max_report_chars": 6000, "postprocess": "none"}}

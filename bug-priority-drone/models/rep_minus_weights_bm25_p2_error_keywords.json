@@ -1,0 +1,32 @@
+{
+  "summary_weight": 3.4,
+  "description_weight": 0.7,
+  "bigram_summary_weight": 3.8,
+  "bigram_description_weight": 0.6,
+  "unigram_feature_weight": 0.24701581651214868,
+  "bigram_feature_weight": 0.009982137715330797,
+  "product_weight": 2.25745280640573,
+  "component_weight": 0.8854729448199432,
+  "severity_weight": 0.1333987493584024,
+  "k1_unigram": 1.0,
+  "k3_unigram": 50.0,
+  "summary_b_unigram": 0.55,
+  "description_b_unigram": 0.9,
+  "k1_bigram": 1.1,
+  "k3_bigram": 80.0,
+  "summary_b_bigram": 0.55,
+  "description_b_bigram": 0.9,
+  "feature_names": [
+    "unigram_bm25fext",
+    "bigram_bm25fext",
+    "same_product",
+    "same_component",
+    "same_severity"
+  ],
+  "training_pairs": 1780,
+  "negative_samples": 5,
+  "rounds": 2,
+  "learning_rate": 0.02,
+  "l2": 0.0001,
+  "note": "Feature weights were tuned with RankNet-style SGD. BM25Fext internal parameters are exposed in this JSON but kept at defaults unless edited."
+}

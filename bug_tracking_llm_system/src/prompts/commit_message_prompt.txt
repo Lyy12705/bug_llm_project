@@ -1,0 +1,2 @@
+Generate a Conventional Commit message from the structured ticket, patch diff,
+and test result. Return JSON with commit_message and commit_body.

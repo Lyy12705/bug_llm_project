@@ -1,0 +1,55 @@
+{
+  "dataset": "bmo_paper_2024_3k",
+  "started_at": "2026-06-14T12:56:22.259818+00:00",
+  "finished_at": "2026-06-14T12:56:22.905047+00:00",
+  "raw_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_paper_2024_3k_raw.jsonl",
+  "processed_dir": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed",
+  "profile_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/assignee_profiles/bmo_paper_2024_3k_assignee_profiles.json",
+  "report_dir": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/reports/bmo_paper_2024_3k",
+  "commands": [
+    [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/scripts/prepare_paper_grade_dataset.py",
+      "--raw",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_paper_2024_3k_raw.jsonl",
+      "--dataset",
+      "bmo_paper_2024_3k",
+      "--output-dir",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed",
+      "--min-train-assignee-count",
+      "10"
+    ],
+    [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/scripts/build_assignee_profiles.py",
+      "--dataset",
+      "bmo_paper_2024_3k",
+      "--history",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl",
+      "--output-dir",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/assignee_profiles"
+    ],
+    [
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin/python3",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/scripts/evaluate_paper_grade_benchmarks.py",
+      "--dataset",
+      "bmo_paper_2024_3k",
+      "--data-dir",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed",
+      "--output-dir",
+      "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/reports/bmo_paper_2024_3k",
+      "--top-k",
+      "10",
+      "--bm25-neighbors",
+      "25",
+      "--bootstrap-samples",
+      "300",
+      "--baselines",
+      "global_majority",
+      "component_majority",
+      "product_component_majority",
+      "bm25_text_knn",
+      "current_assignee_triager"
+    ]
+  ]
+}

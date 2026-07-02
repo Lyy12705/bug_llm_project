@@ -1,0 +1,16 @@
+{
+  "ticket_id": "RAW-001",
+  "title": "Login page crashes when token is missing",
+  "description": "When I try to login without a token, the app crashes instead of showing a validation error.",
+  "logs": "TypeError: token is None at src/auth/validator.py:42",
+  "environment": {
+    "os": "macOS",
+    "version": "1.2.0"
+  },
+  "steps_to_reproduce": [
+    "Open the login page",
+    "Submit login without token"
+  ],
+  "expected_behavior": "System should show a validation error.",
+  "actual_behavior": "Application crashes."
+}

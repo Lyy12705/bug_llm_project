@@ -1,0 +1,660 @@
+{
+  "metadata": {
+    "dataset": "controlled",
+    "history_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/data/controlled_history_train.jsonl",
+    "source_rows": 18,
+    "profile_count": 7,
+    "method": "extractive_profile_from_training_tickets",
+    "note": "Profiles are inferred from historical ticket ownership. They are not verified job titles or organization roles."
+  },
+  "profiles": [
+    {
+      "assignee": "backend-team@example.com",
+      "ticket_count": 5,
+      "profile_confidence": "medium",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "email",
+          "count": 3,
+          "ratio": 0.6
+        },
+        {
+          "value": "api",
+          "count": 1,
+          "ratio": 0.2
+        },
+        {
+          "value": "backend",
+          "count": 1,
+          "ratio": 0.2
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 3,
+          "ratio": 0.6
+        },
+        {
+          "value": "p3",
+          "count": 2,
+          "ratio": 0.4
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "email",
+          "count": 8,
+          "score": 8.3291
+        },
+        {
+          "term": "backend",
+          "count": 3,
+          "score": 6.1823
+        },
+        {
+          "term": "queue",
+          "count": 3,
+          "score": 6.1823
+        },
+        {
+          "term": "api",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "item",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "queue item",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "retries",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "welcome",
+          "count": 2,
+          "score": 5.5918
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-API-002",
+          "title": "Backend job double processes queue item",
+          "product": "",
+          "component": "backend",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-EMAIL-002",
+          "title": "Email worker retries forever",
+          "product": "",
+          "component": "email",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-API-001",
+          "title": "Orders endpoint returns 500",
+          "product": "",
+          "component": "api",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-EMAIL-001",
+          "title": "Password reset email is not sent",
+          "product": "",
+          "component": "email",
+          "priority": "P3",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-EMAIL-003",
+          "title": "Welcome email renders missing link",
+          "product": "",
+          "component": "email",
+          "priority": "P3",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 5 historical tickets: likely focuses on email, api, backend. Common work themes: email, backend, queue, api, item."
+    },
+    {
+      "assignee": "auth-team@example.com",
+      "ticket_count": 3,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "authentication",
+          "count": 3,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 2,
+          "ratio": 0.666667
+        },
+        {
+          "value": "p3",
+          "count": 1,
+          "ratio": 0.333333
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "token",
+          "count": 5,
+          "score": 7.0579
+        },
+        {
+          "term": "authentication",
+          "count": 4,
+          "score": 6.4543
+        },
+        {
+          "term": "expired",
+          "count": 3,
+          "score": 6.1823
+        },
+        {
+          "term": "refresh",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "reset",
+          "count": 2,
+          "score": 4.9879
+        },
+        {
+          "term": "returns",
+          "count": 2,
+          "score": 4.5795
+        },
+        {
+          "term": "fails",
+          "count": 2,
+          "score": 4.0403
+        },
+        {
+          "term": "auth",
+          "count": 1,
+          "score": 3.3026
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-AUTH-002",
+          "title": "Session refresh returns invalid token",
+          "product": "",
+          "component": "authentication",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-AUTH-001",
+          "title": "Login fails when token is expired",
+          "product": "",
+          "component": "authentication",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-AUTH-003",
+          "title": "Password reset token cannot be verified",
+          "product": "",
+          "component": "authentication",
+          "priority": "P3",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 3 historical tickets: likely focuses on authentication. Common work themes: token, authentication, expired, refresh, reset."
+    },
+    {
+      "assignee": "payments-team@example.com",
+      "ticket_count": 3,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "payment",
+          "count": 3,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 2,
+          "ratio": 0.666667
+        },
+        {
+          "value": "p1",
+          "count": 1,
+          "ratio": 0.333333
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "payment",
+          "count": 7,
+          "score": 7.9679
+        },
+        {
+          "term": "authorization",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "capture",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "payment capture",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "refund",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "refund webhook",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "webhook",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "gateway",
+          "count": 2,
+          "score": 4.9879
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-PAY-003",
+          "title": "Card authorization status is stale",
+          "product": "",
+          "component": "payment",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-PAY-001",
+          "title": "Payment capture fails after retry",
+          "product": "",
+          "component": "payment",
+          "priority": "P1",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-PAY-002",
+          "title": "Refund webhook is ignored",
+          "product": "",
+          "component": "payment",
+          "priority": "P2",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 3 historical tickets: likely focuses on payment. Common work themes: payment, authorization, capture, payment capture, refund."
+    },
+    {
+      "assignee": "build-team@example.com",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "build",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "compiler",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p2",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "build",
+          "count": 3,
+          "score": 6.1823
+        },
+        {
+          "term": "compiler",
+          "count": 3,
+          "score": 6.1823
+        },
+        {
+          "term": "generated",
+          "count": 3,
+          "score": 5.6762
+        },
+        {
+          "term": "generated header",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "header",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "incremental",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "fails generated",
+          "count": 2,
+          "score": 4.9879
+        },
+        {
+          "term": "fails",
+          "count": 2,
+          "score": 4.0403
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-BUILD-001",
+          "title": "Build fails when generated header is missing",
+          "product": "",
+          "component": "build",
+          "priority": "P2",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-BUILD-002",
+          "title": "Compiler error on incremental build",
+          "product": "",
+          "component": "compiler",
+          "priority": "P2",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on build, compiler. Common work themes: build, compiler, generated, generated header, header."
+    },
+    {
+      "assignee": "data-team@example.com",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "search",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "search",
+          "count": 5,
+          "score": 7.6872
+        },
+        {
+          "term": "archived",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "records",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "archived migration",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "archived records",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "database",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "database row",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "duplicate rows",
+          "count": 1,
+          "score": 3.3026
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-SEARCH-002",
+          "title": "Search results duplicate rows",
+          "product": "",
+          "component": "search",
+          "priority": "P3",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-SEARCH-001",
+          "title": "Search index misses archived records",
+          "product": "",
+          "component": "search",
+          "priority": "P3",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on search. Common work themes: search, archived, records, archived migration, archived records."
+    },
+    {
+      "assignee": "frontend-team@example.com",
+      "ticket_count": 2,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "frontend",
+          "count": 1,
+          "ratio": 0.5
+        },
+        {
+          "value": "ui",
+          "count": 1,
+          "ratio": 0.5
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p3",
+          "count": 2,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "button",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "checkout",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "checkout button",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "label",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "modal",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "total",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "total label",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "action",
+          "count": 1,
+          "score": 3.3026
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-FRONT-001",
+          "title": "Checkout button overlaps total label",
+          "product": "",
+          "component": "frontend",
+          "priority": "P3",
+          "created_at": ""
+        },
+        {
+          "ticket_id": "HIST-FRONT-002",
+          "title": "Modal stays open after cancel",
+          "product": "",
+          "component": "ui",
+          "priority": "P3",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 2 historical tickets: likely focuses on frontend, ui. Common work themes: button, checkout, checkout button, label, modal."
+    },
+    {
+      "assignee": "security-team@example.com",
+      "ticket_count": 1,
+      "profile_confidence": "low",
+      "top_products": [],
+      "top_components": [
+        {
+          "value": "security",
+          "count": 1,
+          "ratio": 1.0
+        }
+      ],
+      "top_priorities": [
+        {
+          "value": "p1",
+          "count": 1,
+          "ratio": 1.0
+        }
+      ],
+      "top_severities": [],
+      "top_statuses": [],
+      "keywords": [
+        {
+          "term": "security",
+          "count": 2,
+          "score": 5.5918
+        },
+        {
+          "term": "attributes",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "attributes security",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "cookie",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "cookie settings",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "cookies",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "cookies missing",
+          "count": 1,
+          "score": 3.3026
+        },
+        {
+          "term": "flags",
+          "count": 1,
+          "score": 3.3026
+        }
+      ],
+      "representative_tickets": [
+        {
+          "ticket_id": "HIST-SEC-001",
+          "title": "Security scanner flags weak cookie settings",
+          "product": "",
+          "component": "security",
+          "priority": "P1",
+          "created_at": ""
+        }
+      ],
+      "inferred_responsibility": "Inferred from 1 historical tickets: likely focuses on security. Common work themes: security, attributes, attributes security, cookie, cookie settings."
+    }
+  ]
+}
