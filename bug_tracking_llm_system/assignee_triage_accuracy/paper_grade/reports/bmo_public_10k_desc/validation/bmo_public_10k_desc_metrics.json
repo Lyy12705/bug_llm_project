@@ -1,0 +1,149 @@
+{
+  "dataset": "bmo_public_10k_desc",
+  "train_path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_history_train.jsonl",
+  "test_path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_validation_set.jsonl",
+  "roster_path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_candidate_roster.json",
+  "train_rows": 6524,
+  "test_rows": 794,
+  "candidate_roster_size": 155,
+  "top_k": 10,
+  "bm25_neighbors": 25,
+  "bootstrap_samples": 300,
+  "class_imbalance": {
+    "train_assignee_count": 155,
+    "test_assignee_count": 130,
+    "train_max_count": 1453,
+    "train_min_count": 10,
+    "train_imbalance_ratio": 145.3,
+    "train_top_assignee_share": 0.222716,
+    "train_singleton_assignees": 0,
+    "test_assignees_absent_from_train": [],
+    "test_assignees_absent_from_roster": [],
+    "roster_coverage_rate": 1.0,
+    "top_train_assignees": [
+      {
+        "assignee": "dev_0153",
+        "count": 1453
+      },
+      {
+        "assignee": "dev_0050",
+        "count": 304
+      },
+      {
+        "assignee": "dev_0011",
+        "count": 108
+      },
+      {
+        "assignee": "dev_0071",
+        "count": 91
+      },
+      {
+        "assignee": "dev_0070",
+        "count": 89
+      },
+      {
+        "assignee": "dev_0010",
+        "count": 87
+      },
+      {
+        "assignee": "dev_0143",
+        "count": 86
+      },
+      {
+        "assignee": "dev_0137",
+        "count": 86
+      },
+      {
+        "assignee": "dev_0144",
+        "count": 85
+      },
+      {
+        "assignee": "dev_0142",
+        "count": 82
+      }
+    ]
+  },
+  "leakage_audit": {
+    "ticket_id_overlap_count": 0,
+    "exact_title_overlap_count": 3,
+    "exact_title_description_overlap_count": 0,
+    "created_at_available": true,
+    "test_start": "2020-05-26T07:06:25+00:00",
+    "history_rows_after_test_start": 0,
+    "risk_flags": [
+      "exact_title_overlap"
+    ]
+  },
+  "baselines": {
+    "bm25_text_knn": {
+      "rows": 794,
+      "top1_accuracy": 0.520151,
+      "hit_at_3": 0.688917,
+      "hit_at_5": 0.743073,
+      "hit_at_10": 0.79471,
+      "mrr": 0.613671,
+      "macro_f1": 0.274299,
+      "macro_top1_by_assignee": 0.324704,
+      "macro_top1_by_component": 0.473658,
+      "unable_to_decide_rate": 0.0,
+      "fallback_trigger_rate": 0.0,
+      "auto_assignment_coverage": 1.0,
+      "auto_assignment_accuracy": 0.520151,
+      "end_to_end_routing_accuracy": 0.520151,
+      "routing_status_breakdown": {
+        "none": 794
+      },
+      "fallback_reason_breakdown": {
+        "none": 794
+      },
+      "top1_bootstrap_95ci": {
+        "low": 0.482368,
+        "high": 0.554156
+      },
+      "error_breakdown": {
+        "cold_start_component": 3,
+        "correct": 413,
+        "long_tail_assignee": 74,
+        "wrong_assignee": 304
+      },
+      "top1_delta_vs_current_triager": {
+        "delta": -0.054156,
+        "low": -0.075567,
+        "high": -0.030227
+      }
+    },
+    "current_assignee_triager": {
+      "rows": 794,
+      "top1_accuracy": 0.574307,
+      "hit_at_3": 0.763224,
+      "hit_at_5": 0.846348,
+      "hit_at_10": 0.906801,
+      "mrr": 0.684036,
+      "macro_f1": 0.326662,
+      "macro_top1_by_assignee": 0.382636,
+      "macro_top1_by_component": 0.556589,
+      "unable_to_decide_rate": 1.0,
+      "fallback_trigger_rate": 1.0,
+      "auto_assignment_coverage": 0.0,
+      "auto_assignment_accuracy": 0.0,
+      "end_to_end_routing_accuracy": 0.0,
+      "routing_status_breakdown": {
+        "needs_manual_triage": 794
+      },
+      "fallback_reason_breakdown": {
+        "text_only_or_broad_history_only": 90,
+        "uncalibrated_recommendation_only": 704
+      },
+      "top1_bootstrap_95ci": {
+        "low": 0.540302,
+        "high": 0.610831
+      },
+      "error_breakdown": {
+        "cold_start_component": 3,
+        "correct": 456,
+        "long_tail_assignee": 78,
+        "wrong_assignee": 257
+      }
+    }
+  }
+}

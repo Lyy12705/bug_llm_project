@@ -1,0 +1,12 @@
+{
+  "checks": {
+    "nf4_load_ok": false
+  },
+  "reasons": [
+    "peft not installed",
+    "trl not installed",
+    "bitsandbytes not installed",
+    "runtime import failed: No module named 'peft'"
+  ],
+  "status": "blocked"
+}

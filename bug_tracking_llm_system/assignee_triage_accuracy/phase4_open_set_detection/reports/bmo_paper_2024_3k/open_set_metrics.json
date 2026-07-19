@@ -1,0 +1,868 @@
+{
+  "artifacts": {
+    "feature_distribution_by_group.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/feature_distribution_by_group.csv",
+    "high_confidence_unseen_cases.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/high_confidence_unseen_cases.csv",
+    "multi_window_open_set_summary.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/multi_window_open_set_summary.csv",
+    "open_set_detector_comparison.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_detector_comparison.csv",
+    "open_set_drift_report.md": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_drift_report.md",
+    "open_set_false_negative.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_false_negative.csv",
+    "open_set_false_positive.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_false_positive.csv",
+    "open_set_feature_audit.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_feature_audit.csv",
+    "open_set_metrics.json": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_metrics.json",
+    "open_set_predictions.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/open_set_predictions.csv",
+    "phase4_open_set_summary.json": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/phase4_open_set_summary.json",
+    "phase4_open_set_summary.md": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/phase4_open_set_summary.md",
+    "routing_policy_open_set_comparison.csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/routing_policy_open_set_comparison.csv"
+  },
+  "calibration": {
+    "calibration_train_rows": 1569,
+    "calibration_validation_predictions": 168,
+    "calibrator": "isotonic_regression"
+  },
+  "config_snapshot": {
+    "bootstrap_samples": 500,
+    "output_dir": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k",
+    "seed": 3407,
+    "top_k": 10
+  },
+  "dataset": "bmo_paper_2024_3k",
+  "detector_metrics": {
+    "test": {
+      "logistic_regression": {
+        "auprc": 0.164823,
+        "auroc": 0.695081,
+        "balanced_accuracy": 0.56955,
+        "balanced_accuracy_95ci": {
+          "high": 0.697917,
+          "low": 0.459126
+        },
+        "fn": 10,
+        "fp": 80,
+        "fpr_at_95_tpr": 0.774809,
+        "known_recall": 0.694656,
+        "known_recall_95ci": {
+          "high": 0.751908,
+          "low": 0.633962
+        },
+        "known_rows": 262,
+        "mcc": 0.073489,
+        "rows": 280,
+        "tn": 182,
+        "tp": 8,
+        "tpr_at_05_fpr": 0.166667,
+        "tpr_at_10_fpr": 0.166667,
+        "tpr_at_20_fpr": 0.277778,
+        "unknown_recall": 0.444444,
+        "unknown_recall_95ci": {
+          "high": 0.6875,
+          "low": 0.217391
+        },
+        "unknown_rows": 18
+      },
+      "low_historical_support": {
+        "auprc": 0.116419,
+        "auroc": 0.613232,
+        "balanced_accuracy": 0.535412,
+        "balanced_accuracy_95ci": {
+          "high": 0.65,
+          "low": 0.413836
+        },
+        "fn": 8,
+        "fp": 127,
+        "fpr_at_95_tpr": 0.950382,
+        "known_recall": 0.515267,
+        "known_recall_95ci": {
+          "high": 0.576208,
+          "low": 0.452471
+        },
+        "known_rows": 262,
+        "mcc": 0.034748,
+        "rows": 280,
+        "tn": 135,
+        "tp": 10,
+        "tpr_at_05_fpr": 0.166667,
+        "tpr_at_10_fpr": 0.222222,
+        "tpr_at_20_fpr": 0.277778,
+        "unknown_recall": 0.555556,
+        "unknown_recall_95ci": {
+          "high": 0.8,
+          "low": 0.333333
+        },
+        "unknown_rows": 18
+      },
+      "negative_calibrated_probability": {
+        "auprc": 0.111964,
+        "auroc": 0.648855,
+        "balanced_accuracy": 0.643554,
+        "balanced_accuracy_95ci": {
+          "high": 0.747159,
+          "low": 0.517176
+        },
+        "fn": 5,
+        "fp": 114,
+        "fpr_at_95_tpr": 1.0,
+        "known_recall": 0.564885,
+        "known_recall_95ci": {
+          "high": 0.625984,
+          "low": 0.505703
+        },
+        "known_rows": 262,
+        "mcc": 0.141444,
+        "rows": 280,
+        "tn": 148,
+        "tp": 13,
+        "tpr_at_05_fpr": 0.111111,
+        "tpr_at_10_fpr": 0.111111,
+        "tpr_at_20_fpr": 0.111111,
+        "unknown_recall": 0.722222,
+        "unknown_recall_95ci": {
+          "high": 0.916667,
+          "low": 0.5
+        },
+        "unknown_rows": 18
+      },
+      "negative_margin": {
+        "auprc": 0.230446,
+        "auroc": 0.646416,
+        "balanced_accuracy": 0.581001,
+        "balanced_accuracy_95ci": {
+          "high": 0.710196,
+          "low": 0.464552
+        },
+        "fn": 10,
+        "fp": 74,
+        "fpr_at_95_tpr": 0.732824,
+        "known_recall": 0.717557,
+        "known_recall_95ci": {
+          "high": 0.775281,
+          "low": 0.660377
+        },
+        "known_rows": 262,
+        "mcc": 0.087311,
+        "rows": 280,
+        "tn": 188,
+        "tp": 8,
+        "tpr_at_05_fpr": 0.166667,
+        "tpr_at_10_fpr": 0.222222,
+        "tpr_at_20_fpr": 0.222222,
+        "unknown_recall": 0.444444,
+        "unknown_recall_95ci": {
+          "high": 0.684211,
+          "low": 0.222222
+        },
+        "unknown_rows": 18
+      },
+      "negative_raw_confidence": {
+        "auprc": 0.137015,
+        "auroc": 0.659563,
+        "balanced_accuracy": 0.63274,
+        "balanced_accuracy_95ci": {
+          "high": 0.746212,
+          "low": 0.52539
+        },
+        "fn": 8,
+        "fp": 76,
+        "fpr_at_95_tpr": 1.0,
+        "known_recall": 0.709924,
+        "known_recall_95ci": {
+          "high": 0.76779,
+          "low": 0.650376
+        },
+        "known_rows": 262,
+        "mcc": 0.141146,
+        "rows": 280,
+        "tn": 186,
+        "tp": 10,
+        "tpr_at_05_fpr": 0.222222,
+        "tpr_at_10_fpr": 0.222222,
+        "tpr_at_20_fpr": 0.277778,
+        "unknown_recall": 0.555556,
+        "unknown_recall_95ci": {
+          "high": 0.777778,
+          "low": 0.333333
+        },
+        "unknown_rows": 18
+      },
+      "random_forest": {
+        "auprc": 0.17493,
+        "auroc": 0.677905,
+        "balanced_accuracy": 0.585454,
+        "balanced_accuracy_95ci": {
+          "high": 0.699939,
+          "low": 0.487315
+        },
+        "fn": 13,
+        "fp": 28,
+        "fpr_at_95_tpr": 0.835878,
+        "known_recall": 0.89313,
+        "known_recall_95ci": {
+          "high": 0.926471,
+          "low": 0.856061
+        },
+        "known_rows": 262,
+        "mcc": 0.13,
+        "rows": 280,
+        "tn": 234,
+        "tp": 5,
+        "tpr_at_05_fpr": 0.277778,
+        "tpr_at_10_fpr": 0.277778,
+        "tpr_at_20_fpr": 0.388889,
+        "unknown_recall": 0.277778,
+        "unknown_recall_95ci": {
+          "high": 0.5,
+          "low": 0.090909
+        },
+        "unknown_rows": 18
+      },
+      "rule_based_novelty": {
+        "auprc": 0.179995,
+        "auroc": 0.709712,
+        "balanced_accuracy": 0.641857,
+        "balanced_accuracy_95ci": {
+          "high": 0.724806,
+          "low": 0.537107
+        },
+        "fn": 3,
+        "fp": 144,
+        "fpr_at_95_tpr": 1.0,
+        "known_recall": 0.450382,
+        "known_recall_95ci": {
+          "high": 0.507463,
+          "low": 0.386364
+        },
+        "known_rows": 262,
+        "mcc": 0.140468,
+        "rows": 280,
+        "tn": 118,
+        "tp": 15,
+        "tpr_at_05_fpr": 0.277778,
+        "tpr_at_10_fpr": 0.333333,
+        "tpr_at_20_fpr": 0.444444,
+        "unknown_recall": 0.833333,
+        "unknown_recall_95ci": {
+          "high": 1.0,
+          "low": 0.631579
+        },
+        "unknown_rows": 18
+      }
+    },
+    "validation": {
+      "logistic_regression": {
+        "auprc": 0.393837,
+        "auroc": 0.763217,
+        "balanced_accuracy": 0.731739,
+        "balanced_accuracy_95ci": {
+          "high": 0.798021,
+          "low": 0.670715
+        },
+        "fn": 9,
+        "fp": 82,
+        "fpr_at_95_tpr": 0.63913,
+        "known_recall": 0.643478,
+        "known_recall_95ci": {
+          "high": 0.709091,
+          "low": 0.577586
+        },
+        "known_rows": 230,
+        "mcc": 0.357665,
+        "rows": 280,
+        "tn": 148,
+        "tp": 41,
+        "tpr_at_05_fpr": 0.16,
+        "tpr_at_10_fpr": 0.28,
+        "tpr_at_20_fpr": 0.44,
+        "unknown_recall": 0.82,
+        "unknown_recall_95ci": {
+          "high": 0.931034,
+          "low": 0.716981
+        },
+        "unknown_rows": 50
+      },
+      "low_historical_support": {
+        "auprc": 0.268632,
+        "auroc": 0.603478,
+        "balanced_accuracy": 0.609131,
+        "balanced_accuracy_95ci": {
+          "high": 0.66543,
+          "low": 0.55352
+        },
+        "fn": 8,
+        "fp": 143,
+        "fpr_at_95_tpr": 0.817391,
+        "known_recall": 0.378261,
+        "known_recall_95ci": {
+          "high": 0.446429,
+          "low": 0.319635
+        },
+        "known_rows": 230,
+        "mcc": 0.176554,
+        "rows": 280,
+        "tn": 87,
+        "tp": 42,
+        "tpr_at_05_fpr": 0.2,
+        "tpr_at_10_fpr": 0.22,
+        "tpr_at_20_fpr": 0.32,
+        "unknown_recall": 0.84,
+        "unknown_recall_95ci": {
+          "high": 0.930233,
+          "low": 0.735849
+        },
+        "unknown_rows": 50
+      },
+      "negative_calibrated_probability": {
+        "auprc": 0.20653,
+        "auroc": 0.56013,
+        "balanced_accuracy": 0.570869,
+        "balanced_accuracy_95ci": {
+          "high": 0.644756,
+          "low": 0.50303
+        },
+        "fn": 19,
+        "fp": 110,
+        "fpr_at_95_tpr": 1.0,
+        "known_recall": 0.521739,
+        "known_recall_95ci": {
+          "high": 0.585903,
+          "low": 0.463203
+        },
+        "known_rows": 230,
+        "mcc": 0.108573,
+        "rows": 280,
+        "tn": 120,
+        "tp": 31,
+        "tpr_at_05_fpr": 0.02,
+        "tpr_at_10_fpr": 0.08,
+        "tpr_at_20_fpr": 0.08,
+        "unknown_recall": 0.62,
+        "unknown_recall_95ci": {
+          "high": 0.75,
+          "low": 0.480769
+        },
+        "unknown_rows": 50
+      },
+      "negative_margin": {
+        "auprc": 0.237596,
+        "auroc": 0.543391,
+        "balanced_accuracy": 0.567826,
+        "balanced_accuracy_95ci": {
+          "high": 0.640727,
+          "low": 0.494054
+        },
+        "fn": 28,
+        "fp": 70,
+        "fpr_at_95_tpr": 0.982609,
+        "known_recall": 0.695652,
+        "known_recall_95ci": {
+          "high": 0.754545,
+          "low": 0.632743
+        },
+        "known_rows": 230,
+        "mcc": 0.110612,
+        "rows": 280,
+        "tn": 160,
+        "tp": 22,
+        "tpr_at_05_fpr": 0.12,
+        "tpr_at_10_fpr": 0.22,
+        "tpr_at_20_fpr": 0.28,
+        "unknown_recall": 0.44,
+        "unknown_recall_95ci": {
+          "high": 0.5625,
+          "low": 0.3
+        },
+        "unknown_rows": 50
+      },
+      "negative_raw_confidence": {
+        "auprc": 0.222835,
+        "auroc": 0.566435,
+        "balanced_accuracy": 0.591739,
+        "balanced_accuracy_95ci": {
+          "high": 0.661905,
+          "low": 0.518743
+        },
+        "fn": 23,
+        "fp": 82,
+        "fpr_at_95_tpr": 1.0,
+        "known_recall": 0.643478,
+        "known_recall_95ci": {
+          "high": 0.707207,
+          "low": 0.577869
+        },
+        "known_rows": 230,
+        "mcc": 0.144119,
+        "rows": 280,
+        "tn": 148,
+        "tp": 27,
+        "tpr_at_05_fpr": 0.04,
+        "tpr_at_10_fpr": 0.16,
+        "tpr_at_20_fpr": 0.28,
+        "unknown_recall": 0.54,
+        "unknown_recall_95ci": {
+          "high": 0.666667,
+          "low": 0.395349
+        },
+        "unknown_rows": 50
+      },
+      "random_forest": {
+        "auprc": 0.897961,
+        "auroc": 0.978696,
+        "balanced_accuracy": 0.937826,
+        "balanced_accuracy_95ci": {
+          "high": 0.961373,
+          "low": 0.907278
+        },
+        "fn": 1,
+        "fp": 24,
+        "fpr_at_95_tpr": 0.1,
+        "known_recall": 0.895652,
+        "known_recall_95ci": {
+          "high": 0.929907,
+          "low": 0.855856
+        },
+        "known_rows": 230,
+        "mcc": 0.763895,
+        "rows": 280,
+        "tn": 206,
+        "tp": 49,
+        "tpr_at_05_fpr": 0.9,
+        "tpr_at_10_fpr": 0.96,
+        "tpr_at_20_fpr": 1.0,
+        "unknown_recall": 0.98,
+        "unknown_recall_95ci": {
+          "high": 1.0,
+          "low": 0.932203
+        },
+        "unknown_rows": 50
+      },
+      "rule_based_novelty": {
+        "auprc": 0.25891,
+        "auroc": 0.593652,
+        "balanced_accuracy": 0.581739,
+        "balanced_accuracy_95ci": {
+          "high": 0.653309,
+          "low": 0.510079
+        },
+        "fn": 14,
+        "fp": 128,
+        "fpr_at_95_tpr": 1.0,
+        "known_recall": 0.443478,
+        "known_recall_95ci": {
+          "high": 0.508547,
+          "low": 0.376569
+        },
+        "known_rows": 230,
+        "mcc": 0.127104,
+        "rows": 280,
+        "tn": 102,
+        "tp": 36,
+        "tpr_at_05_fpr": 0.14,
+        "tpr_at_10_fpr": 0.14,
+        "tpr_at_20_fpr": 0.26,
+        "unknown_recall": 0.72,
+        "unknown_recall_95ci": {
+          "high": 0.840909,
+          "low": 0.589286
+        },
+        "unknown_rows": 50
+      }
+    }
+  },
+  "detector_selection": {
+    "best_detector": "random_forest",
+    "selection_rule": "validation balanced accuracy, tie-broken by AUROC and known recall",
+    "threshold": 0.482213
+  },
+  "experiment_name": "phase4_open_set_assignee_detection",
+  "failure_counts": {
+    "false_negative": 13,
+    "false_positive": 28,
+    "high_confidence_unseen": 13
+  },
+  "final_recommendation": {
+    "A_frozen_test_best_auroc_detector": "rule_based_novelty",
+    "A_frozen_test_best_balanced_detector": "negative_calibrated_probability",
+    "A_frozen_test_best_unknown_recall_detector": "rule_based_novelty",
+    "A_validation_selected_detector": "random_forest",
+    "B_confidence_alone_vs_test_best_balanced_detector": {
+      "confidence_balanced_accuracy": 0.643554,
+      "test_best_balanced_accuracy": 0.643554,
+      "test_best_balanced_detector": "negative_calibrated_probability"
+    },
+    "B_confidence_alone_vs_validation_selected_detector": {
+      "auroc_delta": 0.02905,
+      "best_auroc": 0.677905,
+      "best_unknown_recall": 0.277778,
+      "confidence_auroc": 0.648855,
+      "confidence_unknown_recall": 0.722222
+    },
+    "C_unseen_assignee_recall_lift": -0.444444,
+    "D_unseen_false_auto_assign_reduction": -0.555555,
+    "E_frequent_seen_coverage_sacrifice": 0.088542,
+    "F_low_frequency_seen_over_rejection": {
+      "judgment": "not_severe",
+      "low_frequency_seen_coverage": 0.842857
+    },
+    "G_detector_temporal_stability": {
+      "auroc_mean": 0.712138,
+      "judgment": "requires_periodic_validation",
+      "threshold_max": 0.585646,
+      "threshold_min": 0.457787
+    },
+    "H_production_routing_readiness": "research_ready_not_full_production",
+    "I_ready_for_literature_llm_reproduction": "yes_with_shared_open_set_protocol",
+    "J_llm_should_share_open_set_detector_policy": "yes"
+  },
+  "multi_window": {
+    "aggregate": {
+      "auroc_mean": 0.712138,
+      "balanced_accuracy_mean": 0.605679,
+      "known_recall_mean": 0.826223,
+      "newcomer_assignee_total": 163,
+      "threshold_max": 0.585646,
+      "threshold_min": 0.457787,
+      "unknown_recall_mean": 0.385136
+    },
+    "best_detector": "random_forest",
+    "rows": [
+      {
+        "auprc": 0.096046,
+        "auroc": 0.673333,
+        "balanced_accuracy": 0.607692,
+        "global_auroc": 0.673333,
+        "global_balanced_accuracy": 0.607692,
+        "global_known_recall": 0.815385,
+        "global_unknown_recall": 0.4,
+        "hidden_assignee_count": 13,
+        "known_recall": 0.815385,
+        "mcc": 0.117074,
+        "newcomer_assignee_count": 10,
+        "test_count": 205,
+        "test_known_count": 195,
+        "test_unknown_count": 10,
+        "threshold": 0.494985,
+        "train_count": 1405,
+        "unknown_recall": 0.4,
+        "validation_count": 258,
+        "window_kind": "expanding",
+        "window_name": "expanding_w1"
+      },
+      {
+        "auprc": 0.189902,
+        "auroc": 0.727273,
+        "balanced_accuracy": 0.556818,
+        "global_auroc": 0.789256,
+        "global_balanced_accuracy": 0.704546,
+        "global_known_recall": 0.863636,
+        "global_unknown_recall": 0.545455,
+        "hidden_assignee_count": 12,
+        "known_recall": 0.886364,
+        "mcc": 0.086851,
+        "newcomer_assignee_count": 20,
+        "test_count": 330,
+        "test_known_count": 308,
+        "test_unknown_count": 22,
+        "threshold": 0.507786,
+        "train_count": 1663,
+        "unknown_recall": 0.227273,
+        "validation_count": 205,
+        "window_kind": "expanding",
+        "window_name": "expanding_w2"
+      },
+      {
+        "auprc": 0.281894,
+        "auroc": 0.737437,
+        "balanced_accuracy": 0.638814,
+        "global_auroc": 0.645522,
+        "global_balanced_accuracy": 0.638637,
+        "global_known_recall": 0.863481,
+        "global_unknown_recall": 0.413793,
+        "hidden_assignee_count": 17,
+        "known_recall": 0.829352,
+        "mcc": 0.200343,
+        "newcomer_assignee_count": 22,
+        "test_count": 322,
+        "test_known_count": 293,
+        "test_unknown_count": 29,
+        "threshold": 0.468274,
+        "train_count": 1868,
+        "unknown_recall": 0.448276,
+        "validation_count": 330,
+        "window_kind": "expanding",
+        "window_name": "expanding_w3"
+      },
+      {
+        "auprc": 0.165076,
+        "auroc": 0.729008,
+        "balanced_accuracy": 0.642069,
+        "global_auroc": 0.625106,
+        "global_balanced_accuracy": 0.546226,
+        "global_known_recall": 0.870229,
+        "global_unknown_recall": 0.222222,
+        "hidden_assignee_count": 14,
+        "known_recall": 0.839695,
+        "mcc": 0.181957,
+        "newcomer_assignee_count": 15,
+        "test_count": 280,
+        "test_known_count": 262,
+        "test_unknown_count": 18,
+        "threshold": 0.496089,
+        "train_count": 2198,
+        "unknown_recall": 0.444444,
+        "validation_count": 322,
+        "window_kind": "expanding",
+        "window_name": "expanding_w4"
+      },
+      {
+        "auprc": 0.157464,
+        "auroc": 0.638169,
+        "balanced_accuracy": 0.477116,
+        "global_auroc": 0.726252,
+        "global_balanced_accuracy": 0.646373,
+        "global_known_recall": 0.792746,
+        "global_unknown_recall": 0.5,
+        "hidden_assignee_count": 13,
+        "known_recall": 0.787565,
+        "mcc": -0.02639,
+        "newcomer_assignee_count": 12,
+        "test_count": 205,
+        "test_known_count": 193,
+        "test_unknown_count": 12,
+        "threshold": 0.516517,
+        "train_count": 1102,
+        "unknown_recall": 0.166667,
+        "validation_count": 258,
+        "window_kind": "sliding",
+        "window_name": "sliding_w1"
+      },
+      {
+        "auprc": 0.320135,
+        "auroc": 0.804889,
+        "balanced_accuracy": 0.69,
+        "global_auroc": 0.770889,
+        "global_balanced_accuracy": 0.683334,
+        "global_known_recall": 0.766667,
+        "global_unknown_recall": 0.6,
+        "hidden_assignee_count": 12,
+        "known_recall": 0.88,
+        "mcc": 0.302216,
+        "newcomer_assignee_count": 27,
+        "test_count": 330,
+        "test_known_count": 300,
+        "test_unknown_count": 30,
+        "threshold": 0.507425,
+        "train_count": 1117,
+        "unknown_recall": 0.5,
+        "validation_count": 205,
+        "window_kind": "sliding",
+        "window_name": "sliding_w2"
+      },
+      {
+        "auprc": 0.286043,
+        "auroc": 0.71035,
+        "balanced_accuracy": 0.65811,
+        "global_auroc": 0.586821,
+        "global_balanced_accuracy": 0.563113,
+        "global_known_recall": 0.76259,
+        "global_unknown_recall": 0.363636,
+        "hidden_assignee_count": 16,
+        "known_recall": 0.679856,
+        "mcc": 0.225823,
+        "newcomer_assignee_count": 33,
+        "test_count": 322,
+        "test_known_count": 278,
+        "test_unknown_count": 44,
+        "threshold": 0.457787,
+        "train_count": 1063,
+        "unknown_recall": 0.636364,
+        "validation_count": 330,
+        "window_kind": "sliding",
+        "window_name": "sliding_w3"
+      },
+      {
+        "auprc": 0.289058,
+        "auroc": 0.676642,
+        "balanced_accuracy": 0.574815,
+        "global_auroc": 0.687654,
+        "global_balanced_accuracy": 0.583106,
+        "global_known_recall": 0.779116,
+        "global_unknown_recall": 0.387097,
+        "hidden_assignee_count": 13,
+        "known_recall": 0.891566,
+        "mcc": 0.141966,
+        "newcomer_assignee_count": 24,
+        "test_count": 280,
+        "test_known_count": 249,
+        "test_unknown_count": 31,
+        "threshold": 0.585646,
+        "train_count": 1091,
+        "unknown_recall": 0.258065,
+        "validation_count": 322,
+        "window_kind": "sliding",
+        "window_name": "sliding_w4"
+      }
+    ]
+  },
+  "problem_definition": {
+    "closed_set_vs_open_set": "closed-set ranking selects among known roster; open-set detection predicts whether routing should abstain/manual_triage before trusting a roster candidate.",
+    "frequent_seen": "gold assignee is in train and train frequency >= 10",
+    "low_frequency_seen": "gold assignee is in train and train frequency 1-9",
+    "open_set_target": "known = frequent_seen + low_frequency_seen; unknown = unseen_assignee",
+    "unseen_assignee": "gold assignee is absent from train roster"
+  },
+  "routing_policies": [
+    {
+      "auto_assign_accuracy": 0.815789,
+      "auto_assign_count": 114,
+      "auto_assign_coverage": 0.407143,
+      "frequent_seen_coverage": 0.625,
+      "known_manual_triage_false_positive_rate": 0.435115,
+      "low_frequency_seen_coverage": 0.4,
+      "manual_triage_count": 127,
+      "manual_triage_rate": 0.453571,
+      "overall_routing_error": 0.135714,
+      "policy": "confidence_only",
+      "top3_count": 39,
+      "top3_coverage": 0.139286,
+      "top3_hit_at_3": 0.564103,
+      "total_coverage": 0.546429,
+      "unseen_false_auto_assign_rate": 0.166667,
+      "unseen_manual_triage_recall": 0.722222
+    },
+    {
+      "auto_assign_accuracy": 0.538462,
+      "auto_assign_count": 247,
+      "auto_assign_coverage": 0.882143,
+      "frequent_seen_coverage": 0.911458,
+      "known_manual_triage_false_positive_rate": 0.10687,
+      "low_frequency_seen_coverage": 0.842857,
+      "manual_triage_count": 33,
+      "manual_triage_rate": 0.117857,
+      "overall_routing_error": 0.407143,
+      "policy": "open_set_detector_only",
+      "top3_count": 0,
+      "top3_coverage": 0.0,
+      "top3_hit_at_3": 0.0,
+      "total_coverage": 0.882143,
+      "unseen_false_auto_assign_rate": 0.722222,
+      "unseen_manual_triage_recall": 0.277778
+    },
+    {
+      "auto_assign_accuracy": 0.831776,
+      "auto_assign_count": 107,
+      "auto_assign_coverage": 0.382143,
+      "frequent_seen_coverage": 0.59375,
+      "known_manual_triage_false_positive_rate": 0.477099,
+      "low_frequency_seen_coverage": 0.328571,
+      "manual_triage_count": 138,
+      "manual_triage_rate": 0.492857,
+      "overall_routing_error": 0.117857,
+      "policy": "open_set_plus_calibrated_confidence",
+      "top3_count": 35,
+      "top3_coverage": 0.125,
+      "top3_hit_at_3": 0.571429,
+      "total_coverage": 0.507143,
+      "unseen_false_auto_assign_rate": 0.166667,
+      "unseen_manual_triage_recall": 0.722222
+    },
+    {
+      "auto_assign_accuracy": 0.0,
+      "auto_assign_count": 0,
+      "auto_assign_coverage": 0.0,
+      "frequent_seen_coverage": 0.911458,
+      "known_manual_triage_false_positive_rate": 0.10687,
+      "low_frequency_seen_coverage": 0.842857,
+      "manual_triage_count": 33,
+      "manual_triage_rate": 0.117857,
+      "overall_routing_error": 0.239286,
+      "policy": "open_set_plus_top3_confirmation",
+      "top3_count": 247,
+      "top3_coverage": 0.882143,
+      "top3_hit_at_3": 0.728745,
+      "total_coverage": 0.882143,
+      "unseen_false_auto_assign_rate": 0.0,
+      "unseen_manual_triage_recall": 0.277778
+    }
+  ],
+  "test_setting": {
+    "ranking_check": {
+      "deltas": {
+        "hit_at_10": 0.0,
+        "hit_at_3": 0.0,
+        "hit_at_5": 0.0,
+        "mrr": 0.0,
+        "top1_accuracy": 0.0
+      },
+      "expected": {
+        "hit_at_10": 0.825,
+        "hit_at_3": 0.710714,
+        "hit_at_5": 0.771429,
+        "mrr": 0.624089,
+        "top1_accuracy": 0.517857
+      },
+      "observed": {
+        "hit_at_10": 0.825,
+        "hit_at_3": 0.710714,
+        "hit_at_5": 0.771429,
+        "mrr": 0.624089,
+        "top1_accuracy": 0.517857
+      },
+      "ranking_metrics_unchanged": true
+    },
+    "ranking_metrics": {
+      "hit_at_10": 0.825,
+      "hit_at_3": 0.710714,
+      "hit_at_5": 0.771429,
+      "mrr": 0.624089,
+      "rows": 280,
+      "top1_accuracy": 0.517857,
+      "top1_bootstrap_95ci": {
+        "high": 0.575,
+        "low": 0.460714
+      }
+    },
+    "roster_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k/prefilter_open_world_eval/data/prefilter_candidate_roster.json",
+    "roster_size": 276,
+    "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k/prefilter_open_world_eval/data/prefilter_test_set.jsonl",
+    "test_rows": 280,
+    "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k/prefilter_open_world_eval/data/prefilter_history_train.jsonl",
+    "train_rows": 2240
+  },
+  "validation_protocol": {
+    "hidden_assignee_count": 13,
+    "hidden_assignees": [
+      "dev_0007",
+      "dev_0013",
+      "dev_0019",
+      "dev_0062",
+      "dev_0080",
+      "dev_0095",
+      "dev_0144",
+      "dev_0145",
+      "dev_0150",
+      "dev_0152",
+      "dev_0184",
+      "dev_0245",
+      "dev_0257"
+    ],
+    "protocol": "leave_assignee_out_validation",
+    "pseudo_unknown_rows": 50,
+    "reduced_train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase4_open_set_detection/reports/bmo_paper_2024_3k/validation_protocol_data/leave_assignee_out_history_train.jsonl",
+    "reduced_train_rows": 2053,
+    "temporal_newcomer_validation_rows": 22,
+    "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k/prefilter_open_world_eval/data/prefilter_history_train.jsonl",
+    "train_rows": 2240,
+    "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k/prefilter_open_world_eval/data/prefilter_validation_set.jsonl",
+    "validation_ranking_metrics": {
+      "hit_at_10": 0.721429,
+      "hit_at_3": 0.610714,
+      "hit_at_5": 0.667857,
+      "mrr": 0.560332,
+      "rows": 280,
+      "top1_accuracy": 0.485714,
+      "top1_bootstrap_95ci": {
+        "high": 0.546429,
+        "low": 0.428571
+      }
+    },
+    "validation_rows": 280
+  }
+}

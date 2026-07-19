@@ -1,5 +1,5 @@
 {
-  "ticket_id": "FL-DEMO-001",
+  "ticket_id": "FL-DEMO-HIGH",
   "title": "Login crashes when auth token is missing",
   "description": "Submitting the login form without an auth token crashes because validate_token calls strip on None.",
   "component": "authentication",

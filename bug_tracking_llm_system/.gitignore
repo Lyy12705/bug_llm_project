@@ -1,5 +1,24 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.coverage
+htmlcov/
+build/
+.DS_Store
+.mplconfig/
 final_pipeline_result.json
 data/processed_tickets/*/
+
+# Assignee-triage outputs that are reproducible from source data and scripts.
+assignee_triage_accuracy/assignee_profiles/*.csv
+assignee_triage_accuracy/assignee_profiles/*.md
+assignee_triage_accuracy/**/reports/**/*.csv
+assignee_triage_accuracy/**/reports/**/*predictions*.jsonl
+assignee_triage_accuracy/**/reports/**/*cache*.jsonl
+assignee_triage_accuracy/**/reports/**/*.md
+assignee_triage_accuracy/phase2_temporal_description/**/feature_sliced_data/
+assignee_triage_accuracy/phase2_temporal_description/**/window_data/
+assignee_triage_accuracy/phase3_confidence_calibration/window_data/
+assignee_triage_accuracy/phase4_open_set_detection/window_data/
+assignee_triage_accuracy/phase5_llm_reproduction/**/datasets/
+assignee_triage_accuracy/phase6_candidate_ltr/open_set_protocol_v2/

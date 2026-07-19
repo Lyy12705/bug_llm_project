@@ -43,7 +43,7 @@ def weighted_similarity(parts: Iterable[tuple[str, str, float]]) -> float:
     total_weight = 0.0
     score = 0.0
     for left, right, weight in parts:
-        if weight <= 0:
+        if weight <= 0 or not str(left).strip() or not str(right).strip():
             continue
         score += cosine_text_similarity(left, right) * weight
         total_weight += weight

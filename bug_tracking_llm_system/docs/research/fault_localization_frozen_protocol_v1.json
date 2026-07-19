@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "protocol": "repository_disjoint_frozen_holdout_v1",
+  "created_at": "2026-07-19T14:00:17.397482+00:00",
+  "seed": "bug-llm-fault-localization-v1",
+  "requested_holdout_ratio": 0.3,
+  "development_repositories": [
+    "django/django",
+    "matplotlib/matplotlib",
+    "psf/requests",
+    "pydata/xarray",
+    "pylint-dev/pylint",
+    "pytest-dev/pytest",
+    "scikit-learn/scikit-learn",
+    "sphinx-doc/sphinx"
+  ],
+  "holdout_repositories": [
+    "astropy/astropy",
+    "mwaskom/seaborn",
+    "pallets/flask",
+    "sympy/sympy"
+  ],
+  "development_rows": 210,
+  "holdout_rows": 90,
+  "actual_holdout_ratio": 0.3,
+  "repository_overlap": [],
+  "prior_exposure": "previously-evaluated",
+  "holdout_status": "sealed_for_future_changes_prior_full_dataset_exposure",
+  "policy": "Use only development_* files for future feature, prompt, threshold, and model selection. These rows appeared in an earlier full-dataset evaluation, so this split is only a prospective guardrail for future changes and must not be described as an untouched final test.",
+  "inputs": {
+    "tickets": {
+      "path": "data/fault_localization/swebench_lite/test_tickets.jsonl",
+      "sha256": "e7b8a7e75b6222e829de56213e0f71575f60f0e5c114e2fca7d0ac0d80e64baa"
+    },
+    "gold": {
+      "path": "data/fault_localization/swebench_lite/test_gold.jsonl",
+      "sha256": "d4778c706d60f023912cf7076ed3cd53a2c591be3fe71cdbe54381c5054b19d2"
+    }
+  },
+  "outputs": {
+    "development_tickets": {
+      "path": "development_tickets.jsonl",
+      "sha256": "5bf8d8a6bf2ed365052d7c2cffa056842f06c093b2bfa64015fdb7f9004b9763"
+    },
+    "development_gold": {
+      "path": "development_gold.jsonl",
+      "sha256": "1137ce0531ea2ab8b1683497c5b078d51d77d3d6986f325004dee81847df95e6"
+    },
+    "holdout_tickets": {
+      "path": "frozen_holdout_tickets.jsonl",
+      "sha256": "742c94c2a8cb7f1ab0ac8ee4ce115c04022f5fc95650a83a3f2d8a5a6ec1439a"
+    },
+    "holdout_gold": {
+      "path": "frozen_holdout_gold.jsonl",
+      "sha256": "0f9e12c5776eae39f102c9a6564b6deb1bab994e18148ee464615cc7fe6b460f"
+    }
+  }
+}

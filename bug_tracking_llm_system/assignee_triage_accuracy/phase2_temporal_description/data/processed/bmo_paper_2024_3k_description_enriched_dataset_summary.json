@@ -1,0 +1,341 @@
+{
+  "dataset": "bmo_paper_2024_3k_description_enriched",
+  "raw_path": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/bmo_paper_2024_3k_description_enriched_raw.jsonl",
+  "usable_rows_before_frequency_filter": 2800,
+  "train_rows": 1569,
+  "validation_rows": 168,
+  "test_rows": 192,
+  "candidate_roster_size": 60,
+  "min_train_assignee_count": 10,
+  "assignees_anonymized": true,
+  "created_at_min": "2024-01-01T00:34:44Z",
+  "created_at_max": "2024-03-15T18:52:53Z",
+  "train_component_distribution": [
+    [
+      "dom: core & html",
+      142
+    ],
+    [
+      "css parsing and computation",
+      112
+    ],
+    [
+      "javascript engine",
+      58
+    ],
+    [
+      "address bar",
+      57
+    ],
+    [
+      "privacy: anti-tracking",
+      53
+    ],
+    [
+      "layout",
+      50
+    ],
+    [
+      "graphics: canvas2d",
+      49
+    ],
+    [
+      "search",
+      42
+    ],
+    [
+      "messaging system",
+      36
+    ],
+    [
+      "widget: gtk",
+      36
+    ],
+    [
+      "audio/video: playback",
+      35
+    ],
+    [
+      "pdf viewer",
+      32
+    ],
+    [
+      "graphics",
+      31
+    ],
+    [
+      "layout: text and fonts",
+      26
+    ],
+    [
+      "webrtc",
+      26
+    ],
+    [
+      "graphics: webgpu",
+      25
+    ],
+    [
+      "svg",
+      24
+    ],
+    [
+      "security: psm",
+      24
+    ],
+    [
+      "javascript engine: jit",
+      23
+    ],
+    [
+      "screenshots",
+      21
+    ]
+  ],
+  "test_component_distribution": [
+    [
+      "css parsing and computation",
+      28
+    ],
+    [
+      "dom: core & html",
+      13
+    ],
+    [
+      "javascript engine",
+      7
+    ],
+    [
+      "audio/video: playback",
+      6
+    ],
+    [
+      "layout",
+      6
+    ],
+    [
+      "search",
+      6
+    ],
+    [
+      "graphics: canvas2d",
+      6
+    ],
+    [
+      "dom: credential management",
+      6
+    ],
+    [
+      "graphics: canvaswebgl",
+      6
+    ],
+    [
+      "firefox view",
+      5
+    ],
+    [
+      "javascript: webassembly",
+      5
+    ],
+    [
+      "profile backup",
+      4
+    ],
+    [
+      "javascript: gc",
+      4
+    ],
+    [
+      "graphics",
+      4
+    ],
+    [
+      "layout: text and fonts",
+      4
+    ],
+    [
+      "dom: ui events & focus handling",
+      4
+    ],
+    [
+      "graphics: text",
+      3
+    ],
+    [
+      "javascript engine: jit",
+      3
+    ],
+    [
+      "tabbed browser",
+      3
+    ],
+    [
+      "address bar",
+      3
+    ]
+  ],
+  "train_assignee_distribution": [
+    [
+      "dev_0060",
+      432
+    ],
+    [
+      "dev_0019",
+      95
+    ],
+    [
+      "dev_0054",
+      40
+    ],
+    [
+      "dev_0011",
+      33
+    ],
+    [
+      "dev_0038",
+      30
+    ],
+    [
+      "dev_0048",
+      30
+    ],
+    [
+      "dev_0007",
+      30
+    ],
+    [
+      "dev_0055",
+      29
+    ],
+    [
+      "dev_0006",
+      29
+    ],
+    [
+      "dev_0022",
+      28
+    ],
+    [
+      "dev_0043",
+      28
+    ],
+    [
+      "dev_0004",
+      27
+    ],
+    [
+      "dev_0035",
+      26
+    ],
+    [
+      "dev_0001",
+      25
+    ],
+    [
+      "dev_0040",
+      24
+    ],
+    [
+      "dev_0013",
+      23
+    ],
+    [
+      "dev_0005",
+      22
+    ],
+    [
+      "dev_0045",
+      21
+    ],
+    [
+      "dev_0026",
+      21
+    ],
+    [
+      "dev_0029",
+      21
+    ]
+  ],
+  "test_assignee_distribution": [
+    [
+      "dev_0060",
+      74
+    ],
+    [
+      "dev_0019",
+      11
+    ],
+    [
+      "dev_0027",
+      8
+    ],
+    [
+      "dev_0054",
+      7
+    ],
+    [
+      "dev_0003",
+      6
+    ],
+    [
+      "dev_0043",
+      5
+    ],
+    [
+      "dev_0024",
+      5
+    ],
+    [
+      "dev_0049",
+      5
+    ],
+    [
+      "dev_0009",
+      5
+    ],
+    [
+      "dev_0007",
+      4
+    ],
+    [
+      "dev_0041",
+      4
+    ],
+    [
+      "dev_0004",
+      4
+    ],
+    [
+      "dev_0052",
+      4
+    ],
+    [
+      "dev_0040",
+      3
+    ],
+    [
+      "dev_0026",
+      3
+    ],
+    [
+      "dev_0034",
+      3
+    ],
+    [
+      "dev_0001",
+      3
+    ],
+    [
+      "dev_0029",
+      3
+    ],
+    [
+      "dev_0057",
+      3
+    ],
+    [
+      "dev_0006",
+      3
+    ]
+  ]
+}

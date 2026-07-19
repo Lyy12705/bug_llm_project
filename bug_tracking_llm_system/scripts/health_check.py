@@ -16,9 +16,7 @@ from typing import Callable
 
 SYSTEM_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = SYSTEM_ROOT.parent
-DUPLICATE_ROOT = WORKSPACE_ROOT / "bug-duplicate-detection"
-PRIORITY_ROOT = WORKSPACE_ROOT / "bug-priority-drone"
-TO_JSON_ROOT = WORKSPACE_ROOT / "ToJson"
+SMOKE_REPO = SYSTEM_ROOT / "tests" / "fixtures" / "smoke_repo"
 
 DEFAULT_OUTPUT = SYSTEM_ROOT / "reports" / "health_check" / "health_check_latest.json"
 DEFAULT_TMP_DIR = Path("/tmp") / "bug_llm_health_check"
@@ -100,6 +98,9 @@ def main() -> int:
 def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: bool) -> list[CheckSpec]:
     main_pipeline_output = tmp_dir / "main_pipeline_result.json"
     fault_output = tmp_dir / "fault_localization_result.json"
+    fault_progress = tmp_dir / "fault_localization_progress.jsonl"
+    fault_index_cache = tmp_dir / "fault_index_cache"
+    fault_job_dir = tmp_dir / "fault_jobs"
 
     checks: list[CheckSpec] = [
         CheckSpec(
@@ -111,7 +112,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 "--raw-ticket",
                 "data/raw_tickets/raw_ticket.example.json",
                 "--repo-path",
-                "../bug-duplicate-detection",
+                str(SMOKE_REPO),
                 "--fault-top-k",
                 "3",
                 "--fault-embedding-backend",
@@ -126,7 +127,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
             required_paths=(
                 SYSTEM_ROOT / "src" / "main.py",
                 SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
-                DUPLICATE_ROOT,
+                SMOKE_REPO / "src" / "auth" / "validator.py",
             ),
             validator=validate_main_pipeline(main_pipeline_output),
         ),
@@ -139,11 +140,19 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 "--ticket",
                 "data/raw_tickets/raw_ticket.example.json",
                 "--repo-path",
-                "../bug-duplicate-detection",
+                str(SMOKE_REPO),
                 "--top-k",
                 "3",
                 "--embedding-backend",
                 "tfidf",
+                "--output-format",
+                "user-facing",
+                "--index-cache-dir",
+                str(fault_index_cache),
+                "--progress",
+                "json",
+                "--progress-file",
+                str(fault_progress),
                 "--output",
                 str(fault_output),
             ],
@@ -153,73 +162,67 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
             required_paths=(
                 SYSTEM_ROOT / "scripts" / "fault_localization.py",
                 SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
-                DUPLICATE_ROOT / "src",
+                SMOKE_REPO / "src" / "auth" / "validator.py",
             ),
-            validator=validate_fault_localization(fault_output),
+            validator=validate_fault_localization(fault_output, progress_path=fault_progress),
+        ),
+        CheckSpec(
+            name="fault_localization_job_smoke",
+            description="Run one foreground pollable fault-localization job with index cache and progress file.",
+            command=[
+                sys.executable,
+                "scripts/fault_localization_job.py",
+                "start",
+                "--foreground",
+                "--ticket",
+                "data/raw_tickets/raw_ticket.example.json",
+                "--repo-path",
+                str(SMOKE_REPO),
+                "--top-k",
+                "3",
+                "--embedding-backend",
+                "tfidf",
+                "--jobs-dir",
+                str(fault_job_dir),
+                "--index-cache-dir",
+                str(fault_index_cache),
+            ],
+            cwd=SYSTEM_ROOT,
+            env=pythonpath_env(SYSTEM_ROOT / "src"),
+            timeout_seconds=timeout_seconds,
+            required_paths=(
+                SYSTEM_ROOT / "scripts" / "fault_localization_job.py",
+                SYSTEM_ROOT / "scripts" / "fault_localization.py",
+                SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
+                SMOKE_REPO / "src" / "auth" / "validator.py",
+            ),
+            validator=validate_fault_localization_job(),
         ),
         CheckSpec(
             name="duplicate_detection_smoke",
-            description="Evaluate the duplicate detection TF-IDF baseline on the bundled sample tickets.",
-            command=[
-                sys.executable,
-                "-m",
-                "duplicate_ticket_detection.cli",
-                "evaluate",
-                "--tickets",
-                "examples/sample_tickets.csv",
-                "--method",
-                "tfidf",
-                "--combine",
-                "max",
-                "--top-k",
-                "5",
-            ],
-            cwd=DUPLICATE_ROOT,
-            env=pythonpath_env(DUPLICATE_ROOT / "src"),
+            description="Evaluate the duplicate detector used by the integrated pipeline on a frozen labeled fixture.",
+            command=[sys.executable, "scripts/evaluate_integrated_baselines.py", "--section", "duplicate"],
+            cwd=SYSTEM_ROOT,
+            env=pythonpath_env(SYSTEM_ROOT / "src"),
             timeout_seconds=timeout_seconds,
             required_paths=(
-                DUPLICATE_ROOT / "src" / "duplicate_ticket_detection" / "cli.py",
-                DUPLICATE_ROOT / "examples" / "sample_tickets.csv",
+                SYSTEM_ROOT / "scripts" / "evaluate_integrated_baselines.py",
+                SYSTEM_ROOT / "tests" / "fixtures" / "integrated_baseline_eval.json",
             ),
-            validator=validate_contains("MAP=", "duplicate MAP was reported"),
+            validator=validate_contains('"precision"', "integrated duplicate precision/recall/F1 were reported"),
         ),
         CheckSpec(
             name="priority_prediction_smoke",
-            description="Read the existing priority-prediction evaluation CSV and print headline metrics.",
-            command=[
-                sys.executable,
-                "scripts/show_model_metrics.py",
-            ],
-            cwd=PRIORITY_ROOT,
-            env=os.environ.copy(),
+            description="Evaluate the priority classifier used by the integrated pipeline on a frozen labeled fixture.",
+            command=[sys.executable, "scripts/evaluate_integrated_baselines.py", "--section", "priority"],
+            cwd=SYSTEM_ROOT,
+            env=pythonpath_env(SYSTEM_ROOT / "src"),
             timeout_seconds=timeout_seconds,
             required_paths=(
-                PRIORITY_ROOT / "scripts" / "show_model_metrics.py",
-                PRIORITY_ROOT / "reports" / "recall_balanced_best_eval.csv",
+                SYSTEM_ROOT / "scripts" / "evaluate_integrated_baselines.py",
+                SYSTEM_ROOT / "tests" / "fixtures" / "integrated_baseline_eval.json",
             ),
-            validator=validate_contains("Accuracy", "priority metrics were reported"),
-        ),
-        CheckSpec(
-            name="ticket_json_evaluation_smoke",
-            description="Evaluate existing bug-report-to-JSON predictions against the local labeled sample.",
-            command=[
-                sys.executable,
-                "scripts/To_Json/evaluate_results.py",
-                "--gold",
-                "dataset/labeled/test.jsonl",
-                "--pred",
-                "dataset/predicted/predicted.jsonl",
-                "--no-source-consistency",
-            ],
-            cwd=TO_JSON_ROOT,
-            env=os.environ.copy(),
-            timeout_seconds=timeout_seconds,
-            required_paths=(
-                TO_JSON_ROOT / "scripts" / "To_Json" / "evaluate_results.py",
-                TO_JSON_ROOT / "dataset" / "labeled" / "test.jsonl",
-                TO_JSON_ROOT / "dataset" / "predicted" / "predicted.jsonl",
-            ),
-            validator=validate_contains("Overall field accuracy", "ticket JSON accuracy was reported"),
+            validator=validate_contains('"macro_f1"', "integrated priority accuracy/macro-F1/calibration were reported"),
         ),
     ]
 
@@ -363,23 +366,65 @@ def validate_main_pipeline(output_path: Path) -> Callable[[subprocess.CompletedP
         candidates = location.get("localized_candidates") if isinstance(location, dict) else []
         if not isinstance(candidates, list) or not candidates:
             raise ValueError("missing fault-localization candidates in pipeline result")
+        user_facing = data.get("bug_location_user_facing") if isinstance(data.get("bug_location_user_facing"), dict) else {}
+        user_candidates = user_facing.get("top_k_suspicious_files") if isinstance(user_facing, dict) else []
+        if not isinstance(user_candidates, list) or not user_candidates:
+            raise ValueError("missing user-facing fault-localization candidates in pipeline result")
         patch = data.get("patch") if isinstance(data.get("patch"), dict) else {}
         patch_status = patch.get("patch_status", "unknown")
-        return f"pipeline status={status}; patch_status={patch_status}; localization_candidates={len(candidates)}"
+        return (
+            f"pipeline status={status}; patch_status={patch_status}; "
+            f"localization_candidates={len(candidates)}; user_facing_candidates={len(user_candidates)}"
+        )
 
     return _validate
 
 
-def validate_fault_localization(output_path: Path) -> Callable[[subprocess.CompletedProcess[str]], str]:
+def validate_fault_localization(output_path: Path, *, progress_path: Path | None = None) -> Callable[[subprocess.CompletedProcess[str]], str]:
     def _validate(_: subprocess.CompletedProcess[str]) -> str:
         data = read_json(output_path)
-        candidates = data.get("localized_candidates")
+        if "top_k_suspicious_files" in data:
+            candidates = data.get("top_k_suspicious_files")
+            summary = data.get("summary") if isinstance(data.get("summary"), dict) else {}
+            if not isinstance(summary, dict) or not summary.get("confidence_level"):
+                raise ValueError("missing user-facing summary confidence")
+        else:
+            candidates = data.get("localized_candidates")
         if not isinstance(candidates, list) or not candidates:
-            raise ValueError("no localized_candidates were produced")
+            raise ValueError("no localization candidates were produced")
         top = candidates[0] if isinstance(candidates[0], dict) else {}
         file_path = top.get("file_path") or top.get("file") or "unknown"
         score = top.get("score", top.get("final_score", "unknown"))
-        return f"localized_candidates={len(candidates)}; top_file={file_path}; top_score={score}"
+        progress_detail = ""
+        if progress_path is not None:
+            progress_events = read_jsonl(progress_path)
+            event_names = {str(row.get("event")) for row in progress_events}
+            if "index_ready" not in event_names or "localization_completed" not in event_names:
+                raise ValueError("progress file did not include index_ready and localization_completed")
+            progress_detail = f"; progress_events={len(progress_events)}"
+        return f"localized_candidates={len(candidates)}; top_file={file_path}; top_score={score}{progress_detail}"
+
+    return _validate
+
+
+def validate_fault_localization_job() -> Callable[[subprocess.CompletedProcess[str]], str]:
+    def _validate(completed: subprocess.CompletedProcess[str]) -> str:
+        try:
+            data = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"job output was not JSON: {exc}") from exc
+        if data.get("status") != "succeeded":
+            raise ValueError(f"job did not succeed: {data.get('status')}")
+        status_path = Path(str(data.get("status_path") or ""))
+        result_path = Path(str(data.get("result_path") or ""))
+        progress_path = Path(str(data.get("progress_path") or ""))
+        if not status_path.exists() or not result_path.exists() or not progress_path.exists():
+            raise ValueError("job did not create status, result, and progress files")
+        progress_events = read_jsonl(progress_path)
+        event_names = {str(row.get("event")) for row in progress_events}
+        if "index_ready" not in event_names or "localization_completed" not in event_names:
+            raise ValueError("job progress file is missing required events")
+        return f"job status=succeeded; progress_events={len(progress_events)}; result={result_path}"
 
     return _validate
 
@@ -402,6 +447,20 @@ def read_json(path: Path) -> dict[str, object]:
     if not isinstance(value, dict):
         raise ValueError(f"expected JSON object in {path}")
     return value
+
+
+def read_jsonl(path: Path) -> list[dict[str, object]]:
+    if not path.exists():
+        raise ValueError(f"expected JSONL file was not created: {path}")
+    rows: list[dict[str, object]] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            value = json.loads(line)
+            if isinstance(value, dict):
+                rows.append(value)
+    return rows
 
 
 def command_text(command: list[str]) -> str:

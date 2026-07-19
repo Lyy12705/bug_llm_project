@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_candidate_ranker",
+  "name": "candidate_hist_gradient_boosting_ltr_v1",
+  "deployment_status": "research_only",
+  "validation_candidate": true,
+  "feature_names": [
+    "base_score",
+    "global_log_count",
+    "component_log_count",
+    "product_component_log_count",
+    "product_log_count",
+    "component_share_smoothed",
+    "product_component_share_smoothed",
+    "product_share_smoothed",
+    "recency_component_share",
+    "recency_product_component_share",
+    "recent_30d_component_share",
+    "recent_90d_component_share",
+    "owner_recency",
+    "bm25_owner_score",
+    "bm25_best_issue_score",
+    "bm25_owner_issue_count",
+    "component_support_log",
+    "product_component_support_log",
+    "sbert_owner_score"
+  ],
+  "model_file": "candidate_ltr_model.joblib",
+  "parameters": {
+    "candidate_pool_size": 20,
+    "half_life_days": 90.0,
+    "smoothing_alpha": 5.0,
+    "description_cleaner": "section_weighted_v1",
+    "embedding_backend": "sbert"
+  },
+  "training_protocol": [
+    {
+      "fold": 1,
+      "history_rows": 2928,
+      "query_rows": 1193,
+      "candidate_examples": 23961,
+      "positive_examples": 1193,
+      "history_end": "2020-03-13T20:18:54Z",
+      "query_start": "2020-03-13T20:35:10Z",
+      "leakage_free": true
+    },
+    {
+      "fold": 2,
+      "history_rows": 4121,
+      "query_rows": 1193,
+      "candidate_examples": 23836,
+      "positive_examples": 1187,
+      "history_end": "2020-04-08T08:57:11Z",
+      "query_start": "2020-04-08T09:10:11Z",
+      "leakage_free": true
+    },
+    {
+      "fold": 3,
+      "history_rows": 5314,
+      "query_rows": 1193,
+      "candidate_examples": 23961,
+      "positive_examples": 1193,
+      "history_end": "2020-04-30T06:14:15Z",
+      "query_start": "2020-04-30T06:19:31Z",
+      "leakage_free": true
+    }
+  ],
+  "validation_metrics": {
+    "rows": 788,
+    "candidate_recall_at_pool": 0.930203,
+    "base_top1_accuracy": 0.564721,
+    "top1_accuracy": 0.63198,
+    "base_macro_f1": 0.324158,
+    "macro_f1": 0.417022,
+    "hit_at_3": 0.796954,
+    "hit_at_5": 0.860406,
+    "hit_at_10": 0.909898,
+    "mrr": 0.727893,
+    "base_mrr": 0.686748,
+    "top1_delta_vs_v2_base": 0.067259,
+    "mrr_delta_vs_v2_base": 0.041145,
+    "macro_f1_delta_vs_v2_base": 0.092864
+  },
+  "approval_note": "Requires a new untouched temporal holdout and explicit approval before runtime use."
+}

@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_open_set_routing_bundle",
+  "name": "assignee_open_set_logistic_v2",
+  "deployment_status": "research_only",
+  "ranker_name": "candidate_hist_gradient_boosting_shallow_ltr_v1",
+  "ranker_model_dir": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase6_candidate_ltr/reports/bmo_public_q4_holdout_source_quota_sbert",
+  "ranker_requirements": {
+    "candidate_pool_size": 30,
+    "half_life_days": 90.0,
+    "smoothing_alpha": 5.0,
+    "embedding_backend": "sbert",
+    "sbert_model": "sentence-transformers/all-MiniLM-L6-v2"
+  },
+  "calibrator": {
+    "model_type": "standardized_logistic_regression",
+    "feature_names": [
+      "top_probability",
+      "probability_margin",
+      "one_minus_entropy",
+      "component_support_log",
+      "product_component_support_log",
+      "owner_recency"
+    ],
+    "scaler_mean": [
+      0.5570880750460344,
+      0.4372025697296504,
+      0.5498508641723654,
+      4.406055397584688,
+      4.404062698583306,
+      0.9412513904424556
+    ],
+    "scaler_scale": [
+      0.3048132403692175,
+      0.335812798059101,
+      0.18588301077902744,
+      1.1254090136844013,
+      1.1264440035945178,
+      0.04884046074520757
+    ],
+    "coefficients": [
+      0.30171168736605325,
+      0.8756177993190861,
+      0.45558813836420664,
+      0.12474577846189748,
+      0.06210763254475061,
+      0.2007091624368956
+    ],
+    "intercept": 1.047746905528022
+  },
+  "open_set_detector": {
+    "model_type": "standardized_logistic_regression",
+    "feature_names": [
+      "calibrated_probability",
+      "probability_margin",
+      "one_minus_entropy",
+      "component_support_log",
+      "product_component_support_log",
+      "predicted_owner_global_log_count",
+      "predicted_owner_component_log_count",
+      "predicted_owner_pair_log_count",
+      "component_owner_share",
+      "product_component_owner_share",
+      "recent_component_owner_share",
+      "owner_recency",
+      "bm25_owner_score",
+      "bm25_best_issue_score",
+      "sbert_owner_score",
+      "candidate_source_count",
+      "strong_source_agreement",
+      "component_recency_drift",
+      "candidate_count"
+    ],
+    "scaler_mean": [
+      0.589257177664975,
+      0.4132502908969488,
+      0.5361611890127066,
+      4.350059388513289,
+      4.346812709758787,
+      4.50723471234881,
+      3.168682903285967,
+      3.167653804026809,
+      0.35722975160672377,
+      0.3575909610750259,
+      0.4150849444815434,
+      0.8777638999156505,
+      5.518730028994102,
+      28.328364867779754,
+      1.2872831718268785,
+      4.9238578680203045,
+      3.736040609137056,
+      0.08599968610533357,
+      30.0
+    ],
+    "scaler_scale": [
+      0.3035097668302071,
+      0.34034829737152306,
+      0.1910842514849579,
+      1.3137319591396952,
+      1.3158082479189024,
+      1.5572641276272228,
+      1.4106386824967119,
+      1.4122954059349477,
+      0.24507704507477499,
+      0.24489611645910467,
+      0.293298958232311,
+      0.058405219399509364,
+      3.672842040446883,
+      14.526082137837681,
+      0.9836573505508037,
+      1.3515508445420248,
+      0.6057009685690767,
+      0.14406213468092952,
+      1.0
+    ],
+    "coefficients": [
+      -0.019391802662544946,
+      0.6754508733551688,
+      -0.6447944662260849,
+      -0.06631252713973558,
+      -0.10768867341495808,
+      -0.38030091798271076,
+      -0.3510538532778703,
+      -0.33477413097290964,
+      0.06765886302727565,
+      0.17137255077704894,
+      0.2762423791725106,
+      -0.10092895413883604,
+      -0.15364784173689155,
+      0.22858431362008022,
+      -1.0744413942944397,
+      -0.13020380252936442,
+      0.4250688362993845,
+      -0.49459712394365357,
+      0.0
+    ],
+    "intercept": -0.681286536745834
+  },
+  "routing_policy": {
+    "found": true,
+    "open_set_threshold": 0.50651379,
+    "t_high": 0.47135307,
+    "auto_assignment_rows": 652,
+    "auto_assignment_accuracy": 0.860429,
+    "auto_assignment_coverage": 0.237956,
+    "unseen_auto_assignment_rate": 0.04918,
+    "t_low": 0.1482257,
+    "top3_confirmation_rows": 375,
+    "top3_confirmation_accuracy": 0.704
+  },
+  "development_gate": {
+    "passed": true,
+    "checks": {
+      "auto_assignment_accuracy": true,
+      "auto_assignment_coverage": true,
+      "unseen_auto_assignment_rate": true
+    },
+    "targets": {
+      "target_auto_accuracy": 0.85,
+      "minimum_auto_coverage": 0.1,
+      "maximum_unseen_auto_rate": 0.05
+    },
+    "blocker": "explicit_operator_and_roster_approval_required"
+  },
+  "approval_note": "Frozen on development data. A new untouched temporal holdout, reviewed roster, and explicit operator approval are required before runtime integration."
+}

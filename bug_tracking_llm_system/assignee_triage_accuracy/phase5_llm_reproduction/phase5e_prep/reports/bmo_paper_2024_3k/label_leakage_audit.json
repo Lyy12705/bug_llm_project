@@ -1,0 +1,31 @@
+{
+  "candidate_roster_size": 60,
+  "candidate_roster_train_derived_only": true,
+  "errors": [],
+  "generated_at_utc": "2026-07-09T11:42:56.879783+00:00",
+  "passed": true,
+  "prompt_policy": {
+    "gold_assignee_allowed_locations": [
+      "assistant.content",
+      "metadata.expected_assignee"
+    ],
+    "gold_assignee_forbidden_locations": [
+      "messages[system].content",
+      "messages[user].content"
+    ],
+    "prompt_must_end_with": "### Assignee:"
+  },
+  "records_audited": 6948,
+  "source_phase5_report_dir": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase5_llm_reproduction/reports/bmo_paper_2024_3k",
+  "status_counts": {
+    "pass": 6948
+  },
+  "test_only_assignees_in_roster": [],
+  "test_ticket_overlap_with_train_by_variant": {
+    "sanitized_title_plus_description": 0,
+    "sanitized_title_plus_description_plus_metadata": 0,
+    "title_only": 0,
+    "title_plus_metadata": 0
+  },
+  "warnings": []
+}

@@ -1,0 +1,147 @@
+{
+  "dataset": "bmo_public_10k",
+  "train_path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_history_train.jsonl",
+  "test_path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_validation_set.jsonl",
+  "roster_path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_candidate_roster.json",
+  "train_rows": 6507,
+  "test_rows": 788,
+  "candidate_roster_size": 154,
+  "top_k": 10,
+  "bm25_neighbors": 25,
+  "bootstrap_samples": 300,
+  "class_imbalance": {
+    "train_assignee_count": 154,
+    "test_assignee_count": 129,
+    "train_max_count": 1452,
+    "train_min_count": 10,
+    "train_imbalance_ratio": 145.2,
+    "train_top_assignee_share": 0.223144,
+    "train_singleton_assignees": 0,
+    "test_assignees_absent_from_train": [],
+    "test_assignees_absent_from_roster": [],
+    "roster_coverage_rate": 1.0,
+    "top_train_assignees": [
+      {
+        "assignee": "dev_0152",
+        "count": 1452
+      },
+      {
+        "assignee": "dev_0050",
+        "count": 304
+      },
+      {
+        "assignee": "dev_0011",
+        "count": 108
+      },
+      {
+        "assignee": "dev_0071",
+        "count": 91
+      },
+      {
+        "assignee": "dev_0070",
+        "count": 89
+      },
+      {
+        "assignee": "dev_0010",
+        "count": 87
+      },
+      {
+        "assignee": "dev_0142",
+        "count": 86
+      },
+      {
+        "assignee": "dev_0136",
+        "count": 86
+      },
+      {
+        "assignee": "dev_0143",
+        "count": 85
+      },
+      {
+        "assignee": "dev_0141",
+        "count": 82
+      }
+    ]
+  },
+  "leakage_audit": {
+    "ticket_id_overlap_count": 0,
+    "exact_title_overlap_count": 0,
+    "exact_title_description_overlap_count": 0,
+    "created_at_available": true,
+    "test_start": "2020-05-25T23:25:38+00:00",
+    "history_rows_after_test_start": 0,
+    "risk_flags": []
+  },
+  "baselines": {
+    "bm25_text_knn": {
+      "rows": 788,
+      "top1_accuracy": 0.574873,
+      "hit_at_3": 0.747462,
+      "hit_at_5": 0.810914,
+      "hit_at_10": 0.859137,
+      "mrr": 0.672738,
+      "macro_f1": 0.328573,
+      "macro_top1_by_assignee": 0.408471,
+      "macro_top1_by_component": 0.537385,
+      "unable_to_decide_rate": 0.0,
+      "fallback_trigger_rate": 0.0,
+      "auto_assignment_coverage": 1.0,
+      "auto_assignment_accuracy": 0.574873,
+      "end_to_end_routing_accuracy": 0.574873,
+      "routing_status_breakdown": {
+        "none": 788
+      },
+      "fallback_reason_breakdown": {
+        "none": 788
+      },
+      "top1_bootstrap_95ci": {
+        "low": 0.535533,
+        "high": 0.609137
+      },
+      "error_breakdown": {
+        "cold_start_component": 4,
+        "correct": 453,
+        "long_tail_assignee": 81,
+        "wrong_assignee": 250
+      },
+      "top1_delta_vs_current_triager": {
+        "delta": 0.001269,
+        "low": -0.021574,
+        "high": 0.022843
+      }
+    },
+    "current_assignee_triager": {
+      "rows": 788,
+      "top1_accuracy": 0.573604,
+      "hit_at_3": 0.794416,
+      "hit_at_5": 0.856599,
+      "hit_at_10": 0.898477,
+      "mrr": 0.692038,
+      "macro_f1": 0.335428,
+      "macro_top1_by_assignee": 0.389593,
+      "macro_top1_by_component": 0.544637,
+      "unable_to_decide_rate": 1.0,
+      "fallback_trigger_rate": 1.0,
+      "auto_assignment_coverage": 0.0,
+      "auto_assignment_accuracy": 0.0,
+      "end_to_end_routing_accuracy": 0.0,
+      "routing_status_breakdown": {
+        "needs_manual_triage": 788
+      },
+      "fallback_reason_breakdown": {
+        "text_only_or_broad_history_only": 39,
+        "uncalibrated_recommendation_only": 749
+      },
+      "top1_bootstrap_95ci": {
+        "low": 0.53934,
+        "high": 0.60533
+      },
+      "error_breakdown": {
+        "cold_start_component": 4,
+        "correct": 452,
+        "long_tail_assignee": 83,
+        "wrong_assignee": 249
+      }
+    }
+  }
+}

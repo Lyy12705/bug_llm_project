@@ -1,0 +1,68 @@
+{
+  "checks": {
+    "bitsandbytes_cuda_backend_ok": false,
+    "cuda_tensor_operation_ok": false,
+    "environment_ok": false,
+    "torch_cuda_available": false
+  },
+  "failed_checks": [
+    "peft not installed",
+    "trl not installed",
+    "bitsandbytes not installed",
+    "runtime import failed: No module named 'peft'"
+  ],
+  "generated_at_utc": "2026-07-09T11:44:27.256174+00:00",
+  "nvcc": {
+    "available": false,
+    "returncode": null,
+    "stderr": "command not found",
+    "stdout": ""
+  },
+  "nvidia_smi": {
+    "available": false,
+    "returncode": null,
+    "stderr": "command not found",
+    "stdout": ""
+  },
+  "os": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "accelerate": {
+      "installed": true,
+      "version": "1.13.0"
+    },
+    "bitsandbytes": {
+      "installed": false,
+      "version": null
+    },
+    "datasets": {
+      "installed": true,
+      "version": "4.8.5"
+    },
+    "peft": {
+      "installed": false,
+      "version": null
+    },
+    "safetensors": {
+      "installed": true,
+      "version": "0.7.0"
+    },
+    "torch": {
+      "installed": true,
+      "version": "2.12.0"
+    },
+    "transformers": {
+      "installed": true,
+      "version": "5.8.1"
+    },
+    "trl": {
+      "installed": false,
+      "version": null
+    }
+  },
+  "python": "3.13.1 (v3.13.1:06714517797, Dec  3 2024, 14:00:22) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "torch": {
+    "cuda_available": false,
+    "gpu_count": 0,
+    "gpus": []
+  }
+}

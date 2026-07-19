@@ -152,11 +152,20 @@ def _first_patch(ticket_json: dict[str, Any]) -> str:
 
 def _confidence_policy(bug_location: dict[str, Any]) -> dict[str, Any]:
     location = bug_location.get("bug_location", {}) if isinstance(bug_location, dict) else {}
-    level = str(bug_location.get("confidence_level") or location.get("confidence_level") or "high")
-    should_manual_review = bool(bug_location.get("should_manual_review", location.get("should_manual_review", False)))
-    recommend_patch_generation = bool(
-        bug_location.get("recommend_patch_generation", location.get("recommend_patch_generation", True))
-    )
+    level_value = bug_location.get("confidence_level") or location.get("confidence_level")
+    manual_value = bug_location.get("should_manual_review", location.get("should_manual_review"))
+    recommend_value = bug_location.get("recommend_patch_generation", location.get("recommend_patch_generation"))
+    if level_value is None and manual_value is None and recommend_value is None:
+        return {
+            "confidence_level": "low",
+            "uncertainty_reason": "Localization confidence metadata is missing; manual review is required before patch generation.",
+            "should_manual_review": True,
+            "recommend_patch_generation": False,
+        }
+
+    level = str(level_value or "low")
+    should_manual_review = bool(manual_value if manual_value is not None else level != "high")
+    recommend_patch_generation = bool(recommend_value if recommend_value is not None else level == "high" and not should_manual_review)
     return {
         "confidence_level": level,
         "uncertainty_reason": str(bug_location.get("uncertainty_reason") or location.get("uncertainty_reason") or ""),

@@ -261,15 +261,32 @@ function renderPriority(priority) {
 
 function renderAssignee(assignee) {
   const ranked = assignee.ranked_candidates || [];
+  const needsReview = Boolean(assignee.needs_manual_triage || assignee.routing_status === "needs_manual_triage");
+  const chipClass = needsReview ? "status-warn" : "status-good";
+  const chipText = needsReview ? "待人工分流" : "assigned";
+  const suggested = needsReview && assignee.suggested_assignee
+    ? field("Suggested", assignee.suggested_assignee)
+    : "";
+  const fallback = assignee.fallback_reason
+    ? field("Fallback", assignee.fallback_reason)
+    : "";
   return `
     <article class="result-card">
       <div class="module-head">
         <h3>分配負責人</h3>
-        <span class="status-chip status-good">assigned</span>
+        <span class="status-chip ${chipClass}">${escapeHtml(chipText)}</span>
       </div>
       <div class="field-grid">
         ${field("Assignee", assignee.assignee)}
         ${field("Confidence", toScore(assignee.confidence))}
+        ${field("Raw confidence", toScore(assignee.raw_confidence ?? assignee.confidence))}
+        ${field("Calibration", assignee.calibration_status || "not configured")}
+        ${suggested}
+        ${fallback}
+        ${field("Status", assignee.routing_status || "")}
+        ${field("Open-set", assignee.open_set_status || "disabled")}
+        ${field("Open-set risk", assignee.open_set_risk == null ? "" : toScore(assignee.open_set_risk))}
+        ${field("Reason", assignee.reason || "")}
       </div>
       <div class="mini-list">
         ${ranked.map((candidate, index) => `<span>#${index + 1} ${escapeHtml(candidate)}</span>`).join("")}

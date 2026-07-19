@@ -14,6 +14,11 @@ The workflow follows common bug-triage papers:
 - compare the current project baseline against simple research baselines;
 - report Top-1, Hit@K, MRR, macro accuracy, and bootstrap confidence intervals.
 
+The separate `bug-duplicate-detection` feature remains responsible for online
+duplicate classification before assignee triage. Any exact-link/content
+handling in this benchmark is offline train/test leakage prevention only; it
+is not called by `AssigneeTriager` and does not form part of routing.
+
 ## Folder Layout
 
 ```text
@@ -112,9 +117,11 @@ Output:
 
 ```text
 reports/bmo_paper_metrics.json
-reports/bmo_paper_predictions.jsonl
-reports/bmo_paper_error_analysis.csv
 ```
+
+Add `--write-details` to also generate row-level predictions and CSV error
+analysis. These detail files are reproducible and intentionally not kept in
+the repository.
 
 ## Smoke Run Already Verified
 
@@ -126,7 +133,6 @@ data/raw/bmo_bugs_raw.jsonl
 data/raw/bmo_fetch_manifest.json
 data/processed/bmo_smoke_*.jsonl
 reports/bmo_smoke_metrics.json
-reports/bmo_smoke_error_analysis.csv
 ```
 
 This smoke sample is intentionally small and should not be reported as a final

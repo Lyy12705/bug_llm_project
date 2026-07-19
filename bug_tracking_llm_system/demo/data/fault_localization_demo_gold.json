@@ -1,5 +1,5 @@
 {
-  "ticket_id": "FL-DEMO-001",
+  "ticket_id": "FL-DEMO-HIGH",
   "repo_path": "demo/fault_localization_auth_repo",
   "fixed_files": ["src/auth/validator.py"],
   "fixed_symbols": ["validate_token"]

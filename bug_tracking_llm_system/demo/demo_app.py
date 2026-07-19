@@ -16,6 +16,7 @@ PROJECT_ROOT = DEMO_ROOT.parent
 STATIC_ROOT = DEMO_ROOT / "static"
 DATA_PATH = DEMO_ROOT / "data" / "scenarios.json"
 SRC_ROOT = PROJECT_ROOT / "src"
+MAX_REQUEST_BYTES = 1_000_000
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
@@ -146,6 +147,16 @@ DEMO_HISTORICAL_TICKETS = [
     },
 ]
 
+DEMO_COMPONENT_OWNERS = {
+    "authentication": "auth-team@example.com",
+    "email": "backend-team@example.com",
+    "frontend": "frontend-team@example.com",
+    "backend": "backend-team@example.com",
+    "database": "data-team@example.com",
+    "search": "backend-team@example.com",
+    "api": "backend-team@example.com",
+}
+
 
 def load_scenarios() -> dict:
     with DATA_PATH.open("r", encoding="utf-8") as handle:
@@ -204,6 +215,9 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
         try:
             length = int(self.headers.get("Content-Length", "0"))
+            if length < 0 or length > MAX_REQUEST_BYTES:
+                self.send_error(413, f"Request body must be at most {MAX_REQUEST_BYTES} bytes")
+                return
             payload = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
             text = str(payload.get("text") or "")
             if not text.strip():
@@ -243,7 +257,12 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
 
 def analyze_text(text: str, *, duplicate_decision: str = "", selected_duplicate_id: str = "") -> dict[str, Any]:
-    config = PipelineConfig(project_root=PROJECT_ROOT, duplicate_threshold=0.50, duplicate_top_k=10)
+    config = PipelineConfig(
+        project_root=PROJECT_ROOT,
+        duplicate_threshold=0.50,
+        duplicate_top_k=10,
+        component_owner_mapping=DEMO_COMPONENT_OWNERS,
+    )
     structured_ticket = normalize_structured_ticket(parse_user_input(text))
     matching_ticket = dict(structured_ticket)
     matching_ticket["title"] = _with_demo_keywords(str(structured_ticket.get("title", "")), text)

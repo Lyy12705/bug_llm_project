@@ -1,0 +1,252 @@
+{
+  "windows": [
+    {
+      "component_count": 75,
+      "head_tail_gap_current": 0.254401,
+      "head_top1_current": 0.816901,
+      "low_frequency_assignee_count": 92,
+      "product_count": 2,
+      "roster_size": 33,
+      "seen_unseen_ratio": 10.3,
+      "tail_top1_current": 0.5625,
+      "test_count": 103,
+      "test_count_raw": 205,
+      "test_date_range": [
+        "2024-02-15",
+        "2024-02-22"
+      ],
+      "train_count": 794,
+      "train_count_raw": 1405,
+      "train_date_range": [
+        "2024-01-01",
+        "2024-02-08"
+      ],
+      "unseen_assignee_count": 10,
+      "validation_count": 136,
+      "validation_count_raw": 258,
+      "validation_date_range": [
+        "2024-02-08",
+        "2024-02-15"
+      ],
+      "window_kind": "expanding",
+      "window_name": "expanding_w1"
+    },
+    {
+      "component_count": 99,
+      "head_tail_gap_current": 0.135383,
+      "head_top1_current": 0.758333,
+      "low_frequency_assignee_count": 127,
+      "product_count": 2,
+      "roster_size": 41,
+      "seen_unseen_ratio": 8.227273,
+      "tail_top1_current": 0.622951,
+      "test_count": 181,
+      "test_count_raw": 330,
+      "test_date_range": [
+        "2024-02-22",
+        "2024-03-01"
+      ],
+      "train_count": 1024,
+      "train_count_raw": 1663,
+      "train_date_range": [
+        "2024-01-01",
+        "2024-02-15"
+      ],
+      "unseen_assignee_count": 22,
+      "validation_count": 122,
+      "validation_count_raw": 205,
+      "validation_date_range": [
+        "2024-02-15",
+        "2024-02-22"
+      ],
+      "window_kind": "expanding",
+      "window_name": "expanding_w2"
+    },
+    {
+      "component_count": 89,
+      "head_tail_gap_current": -0.016791,
+      "head_top1_current": 0.625,
+      "low_frequency_assignee_count": 114,
+      "product_count": 2,
+      "roster_size": 49,
+      "seen_unseen_ratio": 6.172414,
+      "tail_top1_current": 0.641791,
+      "test_count": 179,
+      "test_count_raw": 322,
+      "test_date_range": [
+        "2024-03-01",
+        "2024-03-08"
+      ],
+      "train_count": 1230,
+      "train_count_raw": 1868,
+      "train_date_range": [
+        "2024-01-01",
+        "2024-02-22"
+      ],
+      "unseen_assignee_count": 29,
+      "validation_count": 196,
+      "validation_count_raw": 330,
+      "validation_date_range": [
+        "2024-02-22",
+        "2024-03-01"
+      ],
+      "window_kind": "expanding",
+      "window_name": "expanding_w3"
+    },
+    {
+      "component_count": 87,
+      "head_tail_gap_current": 0.214815,
+      "head_top1_current": 0.814815,
+      "low_frequency_assignee_count": 77,
+      "product_count": 2,
+      "roster_size": 57,
+      "seen_unseen_ratio": 10.277778,
+      "tail_top1_current": 0.6,
+      "test_count": 185,
+      "test_count_raw": 280,
+      "test_date_range": [
+        "2024-03-08",
+        "2024-03-16"
+      ],
+      "train_count": 1511,
+      "train_count_raw": 2198,
+      "train_date_range": [
+        "2024-01-01",
+        "2024-03-01"
+      ],
+      "unseen_assignee_count": 18,
+      "validation_count": 192,
+      "validation_count_raw": 322,
+      "validation_date_range": [
+        "2024-03-01",
+        "2024-03-08"
+      ],
+      "window_kind": "expanding",
+      "window_name": "expanding_w4"
+    },
+    {
+      "component_count": 75,
+      "head_tail_gap_current": 0.09127,
+      "head_top1_current": 0.84127,
+      "low_frequency_assignee_count": 102,
+      "product_count": 2,
+      "roster_size": 22,
+      "seen_unseen_ratio": 7.583333,
+      "tail_top1_current": 0.75,
+      "test_count": 91,
+      "test_count_raw": 205,
+      "test_date_range": [
+        "2024-02-15",
+        "2024-02-22"
+      ],
+      "train_count": 547,
+      "train_count_raw": 1102,
+      "train_date_range": [
+        "2024-01-11",
+        "2024-02-08"
+      ],
+      "unseen_assignee_count": 12,
+      "validation_count": 119,
+      "validation_count_raw": 258,
+      "validation_date_range": [
+        "2024-02-08",
+        "2024-02-15"
+      ],
+      "window_kind": "sliding",
+      "window_name": "sliding_w1"
+    },
+    {
+      "component_count": 99,
+      "head_tail_gap_current": 0.163161,
+      "head_top1_current": 0.807229,
+      "low_frequency_assignee_count": 158,
+      "product_count": 2,
+      "roster_size": 23,
+      "seen_unseen_ratio": 4.733333,
+      "tail_top1_current": 0.644068,
+      "test_count": 142,
+      "test_count_raw": 330,
+      "test_date_range": [
+        "2024-02-22",
+        "2024-03-01"
+      ],
+      "train_count": 550,
+      "train_count_raw": 1117,
+      "train_date_range": [
+        "2024-01-18",
+        "2024-02-15"
+      ],
+      "unseen_assignee_count": 30,
+      "validation_count": 101,
+      "validation_count_raw": 205,
+      "validation_date_range": [
+        "2024-02-15",
+        "2024-02-22"
+      ],
+      "window_kind": "sliding",
+      "window_name": "sliding_w2"
+    },
+    {
+      "component_count": 89,
+      "head_tail_gap_current": 0.197551,
+      "head_top1_current": 0.877551,
+      "low_frequency_assignee_count": 179,
+      "product_count": 2,
+      "roster_size": 19,
+      "seen_unseen_ratio": 2.25,
+      "tail_top1_current": 0.68,
+      "test_count": 99,
+      "test_count_raw": 322,
+      "test_date_range": [
+        "2024-03-01",
+        "2024-03-08"
+      ],
+      "train_count": 509,
+      "train_count_raw": 1063,
+      "train_date_range": [
+        "2024-01-25",
+        "2024-02-22"
+      ],
+      "unseen_assignee_count": 44,
+      "validation_count": 136,
+      "validation_count_raw": 330,
+      "validation_date_range": [
+        "2024-02-22",
+        "2024-03-01"
+      ],
+      "window_kind": "sliding",
+      "window_name": "sliding_w3"
+    },
+    {
+      "component_count": 87,
+      "head_tail_gap_current": 0.261918,
+      "head_top1_current": 0.920455,
+      "low_frequency_assignee_count": 120,
+      "product_count": 2,
+      "roster_size": 21,
+      "seen_unseen_ratio": 4.16129,
+      "tail_top1_current": 0.658537,
+      "test_count": 129,
+      "test_count_raw": 280,
+      "test_date_range": [
+        "2024-03-08",
+        "2024-03-16"
+      ],
+      "train_count": 525,
+      "train_count_raw": 1091,
+      "train_date_range": [
+        "2024-02-01",
+        "2024-03-01"
+      ],
+      "unseen_assignee_count": 31,
+      "validation_count": 117,
+      "validation_count_raw": 322,
+      "validation_date_range": [
+        "2024-03-01",
+        "2024-03-08"
+      ],
+      "window_kind": "sliding",
+      "window_name": "sliding_w4"
+    }
+  ]
+}

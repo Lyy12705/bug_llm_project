@@ -422,6 +422,7 @@ def _compact_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
             "keyword_score": signals.get("keyword_score"),
             "symbol_score": signals.get("symbol_score"),
             "path_hint_score": signals.get("path_hint_score"),
+            "repository_proximity_score": signals.get("repository_proximity_score"),
             "wrapper_penalty": signals.get("wrapper_penalty"),
             "final_score": signals.get("final_score"),
         },

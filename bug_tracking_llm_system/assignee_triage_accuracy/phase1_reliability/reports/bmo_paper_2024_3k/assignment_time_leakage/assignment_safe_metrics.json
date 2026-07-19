@@ -1,0 +1,74 @@
+{
+  "assignment_history_available": false,
+  "audit_counts": {
+    "raw_rows_with_dupe_or_last_change_fields": 3000,
+    "train_rows_with_last_change_after_test_end": 446,
+    "train_rows_with_last_change_after_test_start": 519
+  },
+  "creation_time_assignment_semantics_fully_verifiable": false,
+  "dataset": "bmo_paper_2024_3k",
+  "experiment_name": "assignment_time_leakage_audit",
+  "limitation": "creation-time assignment semantics not fully verifiable from current Bugzilla snapshot fields",
+  "notes": [
+    "Bugzilla REST assigned_to is fetched as a snapshot field by the current fetch script; no assignment history is stored.",
+    "Conservative view reduces future-state risk but still does not prove creation-time assignment semantics.",
+    "Strict view intentionally reports metrics as null instead of pretending to be leakage-free."
+  ],
+  "raw_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_paper_2024_3k_raw.jsonl",
+  "test_end": "2024-03-15T18:10:26+00:00",
+  "test_start_cutoff": "2024-03-08T00:41:22+00:00",
+  "views": {
+    "conservative": {
+      "description": "History restricted to train tickets whose last_change_time is not after the test-start cutoff.",
+      "excluded_count": 41,
+      "exclusion_reason": "expected assignee absent from conservative train-frequency roster",
+      "metrics": {
+        "hit_at_10": 0.993377,
+        "hit_at_3": 0.953642,
+        "hit_at_5": 0.966887,
+        "mrr": 0.907248,
+        "rows": 151,
+        "top1_accuracy": 0.854305,
+        "top1_bootstrap_95ci": {
+          "high": 0.913907,
+          "low": 0.794702
+        }
+      },
+      "roster_size": 29,
+      "test_count": 151,
+      "train_count": 1050,
+      "validation_count": 121
+    },
+    "current_snapshot": {
+      "description": "Retrospective snapshot evaluation matching the existing closed-set benchmark.",
+      "excluded_count": 0,
+      "exclusion_reason": "",
+      "metrics": {
+        "hit_at_10": 0.958333,
+        "hit_at_3": 0.90625,
+        "hit_at_5": 0.9375,
+        "mrr": 0.838777,
+        "rows": 192,
+        "top1_accuracy": 0.765625,
+        "top1_bootstrap_95ci": {
+          "high": 0.828125,
+          "low": 0.703125
+        }
+      },
+      "roster_size": 60,
+      "test_count": 192,
+      "train_count": 1569,
+      "validation_count": 168
+    },
+    "strict": {
+      "description": "Creation-time label-safe evaluation cannot be computed without assignment history.",
+      "excluded_count": 192,
+      "exclusion_reason": "assignment history unavailable; creation-time assignee cannot be verified",
+      "metrics": null,
+      "roster_size": 0,
+      "test_count": 0,
+      "train_count": 0,
+      "validation_count": 0
+    }
+  }
+}

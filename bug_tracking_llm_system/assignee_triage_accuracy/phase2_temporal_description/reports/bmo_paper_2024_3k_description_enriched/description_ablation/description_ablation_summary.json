@@ -1,0 +1,371 @@
+{
+  "config_snapshot": {
+    "baselines": [
+      "bm25_text_knn",
+      "current_assignee_triager"
+    ],
+    "bootstrap_samples": 500,
+    "data_dir": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/processed",
+    "dataset": "bmo_paper_2024_3k_description_enriched",
+    "feature_configs": {
+      "description_only": {
+        "description": true,
+        "metadata": false,
+        "title": false
+      },
+      "metadata_only": {
+        "description": false,
+        "metadata": true,
+        "title": false
+      },
+      "title_only": {
+        "description": false,
+        "metadata": false,
+        "title": true
+      },
+      "title_plus_description": {
+        "description": true,
+        "metadata": false,
+        "title": true
+      },
+      "title_plus_description_plus_metadata": {
+        "description": true,
+        "metadata": true,
+        "title": true
+      },
+      "title_plus_metadata": {
+        "description": false,
+        "metadata": true,
+        "title": true
+      }
+    },
+    "metadata_fields": [
+      "product",
+      "component",
+      "priority",
+      "severity",
+      "status",
+      "resolution",
+      "bug_type"
+    ],
+    "output_dir": null,
+    "seed": 3407,
+    "top_k": 10
+  },
+  "data_snapshot": {
+    "roster_size": 60,
+    "test_description_nonempty": 173,
+    "test_description_nonempty_ratio": 0.901042,
+    "test_rows": 192,
+    "train_rows": 1569,
+    "validation_rows": 168
+  },
+  "dataset": "bmo_paper_2024_3k_description_enriched",
+  "experiment_name": "description_feature_ablation",
+  "feature_slices": [
+    {
+      "feature_config": "title_only",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_only/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_only/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": false,
+      "uses_metadata": false,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_only/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "description_only",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/description_only/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/description_only/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": true,
+      "uses_metadata": false,
+      "uses_title": false,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/description_only/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "metadata_only",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/metadata_only/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/metadata_only/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": false,
+      "uses_metadata": true,
+      "uses_title": false,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/metadata_only/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "title_plus_metadata",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_metadata/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_metadata/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": false,
+      "uses_metadata": true,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_metadata/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "title_plus_description",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": true,
+      "uses_metadata": false,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "title_plus_description_plus_metadata",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description_plus_metadata/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description_plus_metadata/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": true,
+      "uses_metadata": true,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description_plus_metadata/validation_set.jsonl",
+      "validation_rows": 168
+    }
+  ],
+  "headline": {
+    "best_by_baseline": {
+      "bm25_text_knn": {
+        "feature_config": "title_plus_metadata",
+        "hit_at_10": 0.963542,
+        "mrr": 0.801893,
+        "top1_accuracy": 0.713542
+      },
+      "current_assignee_triager": {
+        "feature_config": "title_plus_metadata",
+        "hit_at_10": 0.958333,
+        "mrr": 0.838777,
+        "top1_accuracy": 0.765625
+      }
+    },
+    "description_effects": {
+      "bm25_text_knn": {
+        "all_minus_title_plus_metadata_mrr": -0.050827,
+        "all_minus_title_plus_metadata_top1": -0.041667,
+        "description_only_minus_title_only_top1": -0.005209,
+        "title_plus_description_minus_title_only_top1": 0.057291
+      },
+      "current_assignee_triager": {
+        "all_minus_title_plus_metadata_mrr": -0.026091,
+        "all_minus_title_plus_metadata_top1": -0.020833,
+        "description_only_minus_title_only_top1": -0.015625,
+        "title_plus_description_minus_title_only_top1": 0.052084
+      }
+    }
+  },
+  "input_paths": {
+    "roster": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/processed/bmo_paper_2024_3k_description_enriched_candidate_roster.json",
+    "summary": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/processed/bmo_paper_2024_3k_description_enriched_dataset_summary.json",
+    "test": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/processed/bmo_paper_2024_3k_description_enriched_test_set.jsonl",
+    "train": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/processed/bmo_paper_2024_3k_description_enriched_history_train.jsonl",
+    "validation": "bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/data/processed/bmo_paper_2024_3k_description_enriched_validation_set.jsonl"
+  },
+  "input_sha256": {
+    "roster": "ffd80999d2d2330a2eeb17a2fc9d2140230bec7e0be2d4ec899dd9e339c2aa88",
+    "summary": "aadaceffc6908f1eefdcc4eb8eefb6e83826a294bc14faeb3d43ca37a45dcce3",
+    "test": "24249b8227ad1ca22a466027aa9e9147a0312c6bb93add563bcf504b1a380c2c",
+    "train": "48348dfa05077b6e730b513dfb1d445a141f7691d7bf0e6557eafae14481dff2",
+    "validation": "ed6f7fc7677e3ddeffe462f3b61673bfa5d089f1cfea3ca7e76b3c7d5904ac0f"
+  },
+  "metrics": {
+    "description_only": {
+      "bm25_text_knn": {
+        "hit_at_10": 0.817708,
+        "hit_at_3": 0.677083,
+        "hit_at_5": 0.723958,
+        "macro_assignee_top1": 0.305785,
+        "macro_component_top1": 0.552083,
+        "mrr": 0.635954,
+        "rows": 192,
+        "top1_accuracy": 0.552083,
+        "top1_bootstrap_95ci": {
+          "high": 0.630208,
+          "low": 0.484375
+        }
+      },
+      "current_assignee_triager": {
+        "hit_at_10": 0.729167,
+        "hit_at_3": 0.682292,
+        "hit_at_5": 0.708333,
+        "macro_assignee_top1": 0.305785,
+        "macro_component_top1": 0.552083,
+        "mrr": 0.620102,
+        "rows": 192,
+        "top1_accuracy": 0.552083,
+        "top1_bootstrap_95ci": {
+          "high": 0.630208,
+          "low": 0.484375
+        }
+      }
+    },
+    "metadata_only": {
+      "bm25_text_knn": {
+        "hit_at_10": 0.953125,
+        "hit_at_3": 0.869792,
+        "hit_at_5": 0.916667,
+        "macro_assignee_top1": 0.527344,
+        "macro_component_top1": 0.635045,
+        "mrr": 0.795275,
+        "rows": 192,
+        "top1_accuracy": 0.708333,
+        "top1_bootstrap_95ci": {
+          "high": 0.770833,
+          "low": 0.645833
+        }
+      },
+      "current_assignee_triager": {
+        "hit_at_10": 0.932292,
+        "hit_at_3": 0.880208,
+        "hit_at_5": 0.921875,
+        "macro_assignee_top1": 0.544395,
+        "macro_component_top1": 0.626674,
+        "mrr": 0.790544,
+        "rows": 192,
+        "top1_accuracy": 0.703125,
+        "top1_bootstrap_95ci": {
+          "high": 0.760417,
+          "low": 0.640625
+        }
+      }
+    },
+    "title_only": {
+      "bm25_text_knn": {
+        "hit_at_10": 0.807292,
+        "hit_at_3": 0.640625,
+        "hit_at_5": 0.723958,
+        "macro_assignee_top1": 0.326491,
+        "macro_component_top1": 0.557292,
+        "mrr": 0.619763,
+        "rows": 192,
+        "top1_accuracy": 0.557292,
+        "top1_bootstrap_95ci": {
+          "high": 0.630208,
+          "low": 0.494792
+        }
+      },
+      "current_assignee_triager": {
+        "hit_at_10": 0.75,
+        "hit_at_3": 0.645833,
+        "hit_at_5": 0.71875,
+        "macro_assignee_top1": 0.342968,
+        "macro_component_top1": 0.567708,
+        "mrr": 0.621745,
+        "rows": 192,
+        "top1_accuracy": 0.567708,
+        "top1_bootstrap_95ci": {
+          "high": 0.640625,
+          "low": 0.5
+        }
+      }
+    },
+    "title_plus_description": {
+      "bm25_text_knn": {
+        "hit_at_10": 0.859375,
+        "hit_at_3": 0.734375,
+        "hit_at_5": 0.765625,
+        "macro_assignee_top1": 0.398872,
+        "macro_component_top1": 0.614583,
+        "mrr": 0.690952,
+        "rows": 192,
+        "top1_accuracy": 0.614583,
+        "top1_bootstrap_95ci": {
+          "high": 0.6875,
+          "low": 0.546875
+        }
+      },
+      "current_assignee_triager": {
+        "hit_at_10": 0.791667,
+        "hit_at_3": 0.729167,
+        "hit_at_5": 0.765625,
+        "macro_assignee_top1": 0.391372,
+        "macro_component_top1": 0.619792,
+        "mrr": 0.681473,
+        "rows": 192,
+        "top1_accuracy": 0.619792,
+        "top1_bootstrap_95ci": {
+          "high": 0.692708,
+          "low": 0.552083
+        }
+      }
+    },
+    "title_plus_description_plus_metadata": {
+      "bm25_text_knn": {
+        "hit_at_10": 0.932292,
+        "hit_at_3": 0.791667,
+        "hit_at_5": 0.848958,
+        "macro_assignee_top1": 0.465103,
+        "macro_component_top1": 0.621949,
+        "mrr": 0.751066,
+        "rows": 192,
+        "top1_accuracy": 0.671875,
+        "top1_bootstrap_95ci": {
+          "high": 0.744792,
+          "low": 0.604167
+        }
+      },
+      "current_assignee_triager": {
+        "hit_at_10": 0.942708,
+        "hit_at_3": 0.854167,
+        "hit_at_5": 0.916667,
+        "macro_assignee_top1": 0.564467,
+        "macro_component_top1": 0.68497,
+        "mrr": 0.812686,
+        "rows": 192,
+        "top1_accuracy": 0.744792,
+        "top1_bootstrap_95ci": {
+          "high": 0.802083,
+          "low": 0.677083
+        }
+      }
+    },
+    "title_plus_metadata": {
+      "bm25_text_knn": {
+        "hit_at_10": 0.963542,
+        "hit_at_3": 0.869792,
+        "hit_at_5": 0.932292,
+        "macro_assignee_top1": 0.507286,
+        "macro_component_top1": 0.651414,
+        "mrr": 0.801893,
+        "rows": 192,
+        "top1_accuracy": 0.713542,
+        "top1_bootstrap_95ci": {
+          "high": 0.776042,
+          "low": 0.645833
+        }
+      },
+      "current_assignee_triager": {
+        "hit_at_10": 0.958333,
+        "hit_at_3": 0.90625,
+        "hit_at_5": 0.9375,
+        "macro_assignee_top1": 0.615539,
+        "macro_component_top1": 0.704167,
+        "mrr": 0.838777,
+        "rows": 192,
+        "top1_accuracy": 0.765625,
+        "top1_bootstrap_95ci": {
+          "high": 0.828125,
+          "low": 0.703125
+        }
+      }
+    }
+  }
+}

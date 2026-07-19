@@ -1,0 +1,55 @@
+{
+  "base_model": "DeepSeek-R1-Distill-Llama-8B",
+  "dataset": "bmo_paper_2024_3k",
+  "inference_plan": {
+    "candidate_roster_policy": "train_labels_only",
+    "invalid_assignee_prevention": "decode only valid candidate token sequences when feasible; otherwise score every roster candidate and sort",
+    "preferred_method": "candidate_scoring_or_true_constrained_decoding; never free-form hallucinated assignee",
+    "top_k": [
+      1,
+      3,
+      5,
+      10
+    ]
+  },
+  "lora": {
+    "alpha": 16,
+    "bias": "none",
+    "dropout": 0.0,
+    "r": 16,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "task_type": "CAUSAL_LM"
+  },
+  "quantization": {
+    "bnb_4bit_compute_dtype": "bfloat16",
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true,
+    "load_in_4bit": true
+  },
+  "reproduction_mode": "exact_config_recorded_but_training_requires_remote_gpu_or_adaptation",
+  "seed": 3407,
+  "sft": {
+    "checkpoint_selection": "validation_loss_only_no_test_selection",
+    "evaluation_strategy": "epoch",
+    "format": "conversational_jsonl_with_strict_sft_text",
+    "gradient_accumulation_steps": 16,
+    "learning_rate": 0.0002,
+    "max_seq_length": 4096,
+    "num_train_epochs": 3,
+    "objective": "next_token_prediction",
+    "per_device_train_batch_size": 1,
+    "primary_input_variant": "sanitized_title_plus_description_plus_metadata",
+    "save_strategy": "epoch",
+    "train_jsonl": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase5_llm_reproduction/reports/bmo_paper_2024_3k/datasets/sanitized_title_plus_description_plus_metadata/train.jsonl",
+    "validation_jsonl": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase5_llm_reproduction/reports/bmo_paper_2024_3k/datasets/sanitized_title_plus_description_plus_metadata/validation.jsonl"
+  },
+  "status": "not_trained_yet"
+}

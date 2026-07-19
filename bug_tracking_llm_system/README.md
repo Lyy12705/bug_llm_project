@@ -86,6 +86,14 @@ Step-level JSON checkpoints are written under:
 data/processed_tickets/<ticket_id>/
 ```
 
+Patch validation reports `patch_applied_unverified`, `tests_passed`, or
+`completed_verified`. The final status is only `completed_verified` when an
+executable reproduction test fails before the patch, passes after it, and the
+configured regression suite also passes. Ticket-supplied commands are blocked
+by default; use `--allow-ticket-test-commands` only for trusted ticket inputs
+and repositories. Each command is limited by `--test-timeout` (300 seconds by
+default).
+
 Fault localization consumes the structured ticket JSON produced by
 `TicketExtractor`. The most useful fields are `title`, `description`/`body`/
 `bug_report`, `component`, `product`, `bug_type`, `error_message`, `logs` or
@@ -106,11 +114,21 @@ Run a lightweight full-system health check:
 PYTHONPATH=src python3 scripts/health_check.py
 ```
 
+Audit generated repository/index/embedding caches without deleting anything:
+
+```bash
+python3 scripts/manage_artifact_cache.py --max-age-days 30 --max-total-gb 8
+```
+
+Review the dry-run JSON before adding `--apply`. The command is restricted to
+cache roots inside this project.
+
 The health check runs only local smoke tests. It verifies the integrated
-pipeline, retrieval-first fault localization, duplicate detection, priority
-metric loading, and ticket JSON evaluation. It intentionally does not call
-Ollama, download embedding models, rerun the full SWE-bench Lite experiment, or
-retrain classifiers. The latest JSON report is written to:
+pipeline, retrieval-first fault localization, pollable localization job,
+duplicate detector, and priority classifier using source-controlled fixtures.
+It intentionally does not call Ollama, download embedding models, rerun the full
+SWE-bench Lite experiment, or retrain classifiers. The latest JSON report is
+written to:
 
 ```text
 reports/health_check/health_check_latest.json
@@ -135,12 +153,30 @@ persist SBERT embeddings across tickets and reruns. This keeps the method usable
 on real repositories where sending all source code to an LLM would be too slow,
 too expensive, and too unreliable.
 
-The current best practical configuration is the domain-aware
+The current best development configuration is the domain-aware
 `tfidf-sbert-rerank` pipeline with file-level aggregation. On the full 300-ticket
-SWE-bench Lite test split, it achieved file-level Top-1 `0.5500`, Top-3
-`0.7567`, Top-5 `0.8133`, and MRR `0.6559`. These numbers should be presented as
-file-level localization results; symbol-level ground truth is not available in
-the prepared split yet.
+SWE-bench Lite split, it achieved development file-level Top-1 `0.5500`, Top-3
+`0.7567`, Top-5 `0.8133`, and MRR `0.6559`. The same split was used for earlier
+30/100-ticket method selection, so these are not untouched final-test numbers.
+They should be presented as file-level development results; symbol-level ground
+truth is not available in the prepared split yet.
+
+Create a repository-disjoint frozen holdout before further tuning:
+
+```bash
+PYTHONPATH=src python3 scripts/create_fault_localization_frozen_split.py \
+  --tickets data/fault_localization/swebench_lite/test_tickets.jsonl \
+  --gold data/fault_localization/swebench_lite/test_gold.jsonl \
+  --output-dir data/fault_localization/swebench_lite/frozen_protocol_v1 \
+  --prior-exposure previously-evaluated
+```
+
+Because the current method was already evaluated on all 300 rows, this
+repository-disjoint split is a prospective guardrail for future changes, not an
+untouched final test. Use only `development_*` during further feature and
+threshold work. A paper-grade final claim still requires newly collected,
+time-separated or repository-separated tickets that have never appeared in
+method selection or prior aggregate results.
 
 Optional LLM reranking is implemented as a small, practical second-stage
 reranker. It does not replace retrieval and does not send a full repository to
@@ -374,11 +410,14 @@ Then open:
 http://127.0.0.1:8765
 ```
 
-The demo includes two cases:
+The web demo currently covers duplicate review, priority, and assignee triage:
 
 - a duplicate-ticket case that stops after duplicate recommendation;
-- a non-duplicate case that continues through priority, assignee, localization,
-  patch, tests, regression, and commit message.
+- a non-duplicate case that continues through priority and assignee triage.
+
+Fault localization and patch-handoff demonstrations are separate CLI workflows;
+see `reports/fault_localization/demo_commands.md` and
+`demo/data/fault_localization_demo_commands.md`.
 
 ## Module Files
 
@@ -418,5 +457,5 @@ Keep each replacement behind the same method names:
 - `BugLocalizer.localize(ticket_json, repo_path) -> bug_location_result`
 - `PatchGenerator.generate(ticket_json, bug_location, repo_path) -> patch_result`
 - `TestGenerator.generate_tests(ticket_json, patch) -> generated_tests_result`
-- `RegressionTester.run(patch, repo_path) -> regression_test_result`
+- `RegressionTester.run(patch, repo_path, reproduction_tests) -> regression_test_result`
 - `CommitMessageGenerator.generate(ticket_json, patch, test_result) -> commit_message_result`

@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_rolling_open_set_routing_bundle",
+  "name": "assignee_rolling_open_set_logistic_v1",
+  "deployment_status": "research_only",
+  "ranker_name": "candidate_hist_gradient_boosting_shallow_ltr_v1",
+  "ranker_requirements": {
+    "candidate_pool_size": 30,
+    "half_life_days": 90.0,
+    "smoothing_alpha": 5.0,
+    "embedding_backend": "sbert",
+    "sbert_model": "sentence-transformers/all-MiniLM-L6-v2"
+  },
+  "history_windows": [
+    "validation",
+    "2020_q3",
+    "2020_q4",
+    "2021_q1",
+    "2021_q2",
+    "2021_q3"
+  ],
+  "label_availability_policy": "last_change_time_at_or_before_query_start",
+  "calibrator": {
+    "model_type": "standardized_logistic_regression",
+    "feature_names": [
+      "top_probability",
+      "probability_margin",
+      "one_minus_entropy",
+      "component_owner_share",
+      "product_component_owner_share",
+      "owner_recency",
+      "strong_source_agreement"
+    ],
+    "scaler_mean": [
+      0.4497225003818748,
+      0.32977628931583386,
+      0.45775915968993525,
+      0.3212814939942551,
+      0.32174311351099893,
+      0.6448780258731834,
+      3.550827043520154
+    ],
+    "scaler_scale": [
+      0.300683837280048,
+      0.3116624853323407,
+      0.18437844575983964,
+      0.2480339296399599,
+      0.2477890036799019,
+      0.13540271389090225,
+      0.9059395077141543
+    ],
+    "coefficients": [
+      0.24250808645329303,
+      0.9261161520436584,
+      -0.02995823367850888,
+      0.1547812514955843,
+      0.15993291620048086,
+      0.18279051266064283,
+      0.230773028156219
+    ],
+    "intercept": -0.21871086387963418
+  },
+  "open_set_detector": {
+    "model_type": "standardized_logistic_regression",
+    "feature_names": [
+      "calibrated_probability",
+      "probability_margin",
+      "one_minus_entropy",
+      "component_support_log",
+      "product_component_support_log",
+      "predicted_owner_global_log_count",
+      "predicted_owner_component_log_count",
+      "predicted_owner_pair_log_count",
+      "component_owner_share",
+      "product_component_owner_share",
+      "recent_component_owner_share",
+      "owner_recency",
+      "bm25_owner_score",
+      "bm25_best_issue_score",
+      "sbert_owner_score",
+      "candidate_source_count",
+      "strong_source_agreement",
+      "component_recency_drift",
+      "candidate_count"
+    ],
+    "scaler_mean": [
+      0.4500282996226113,
+      0.33312042215190163,
+      0.48355584101375415,
+      4.2275558344473705,
+      4.221297273624026,
+      4.277216317353006,
+      2.9164557179098445,
+      2.9162141766545404,
+      0.3356709454855522,
+      0.3360360971877297,
+      0.3462685818819483,
+      0.6472442022689766,
+      4.824550606301909,
+      25.24146208346514,
+      1.111951375977613,
+      4.509555162999839,
+      3.5278625341255823,
+      0.16049697293422083,
+      30.0
+    ],
+    "scaler_scale": [
+      0.28840704049135646,
+      0.31547608707078595,
+      0.19116190513447967,
+      1.3968666864065111,
+      1.4011573445096344,
+      1.7048543348903367,
+      1.4861421751689097,
+      1.4865116553264766,
+      0.25714014271558183,
+      0.25693143503171534,
+      0.34651484633625473,
+      0.13708298512623127,
+      3.662189843228142,
+      14.1804723950735,
+      0.9543458059669014,
+      1.5835076957245062,
+      0.957077534220023,
+      0.19009408461225213,
+      1.0
+    ],
+    "coefficients": [
+      0.39280541854590484,
+      -0.5253142658104526,
+      -0.10470106144055608,
+      0.1023511754048578,
+      -0.20996241340595387,
+      -0.06994137420080782,
+      -0.22888522176889017,
+      -0.08042136524673897,
+      -0.3259987616649873,
+      0.4056016835372048,
+      0.1711705621773546,
+      -0.07928676429537772,
+      -0.20969037444076968,
+      -0.020250347667785933,
+      -0.4312627417777431,
+      -0.3170229684667243,
+      0.355249968549356,
+      -0.025266498853679764,
+      0.0
+    ],
+    "intercept": -0.3189946371544823
+  },
+  "routing_policy": {
+    "found": true,
+    "open_set_threshold": 0.16378581,
+    "t_high": 0.5157215,
+    "minimum_high_confidence": 0.5,
+    "selection_window_metrics": {
+      "2021_q1": {
+        "auto_assignment_rows": 438,
+        "auto_assignment_accuracy": 0.9863013698630136,
+        "auto_assignment_coverage": 0.16398352676900038,
+        "unseen_auto_assignment_rate": 0.018072289156626505
+      },
+      "2021_q2": {
+        "auto_assignment_rows": 433,
+        "auto_assignment_accuracy": 0.9953810623556582,
+        "auto_assignment_coverage": 0.16253753753753752,
+        "unseen_auto_assignment_rate": 0.0
+      },
+      "2021_q3": {
+        "auto_assignment_rows": 491,
+        "auto_assignment_accuracy": 0.9857433808553971,
+        "auto_assignment_coverage": 0.18212166172106825,
+        "unseen_auto_assignment_rate": 0.0
+      }
+    },
+    "minimum_window_coverage": 0.162538,
+    "mean_window_coverage": 0.169548,
+    "mean_window_accuracy": 0.989142,
+    "maximum_window_unseen_auto_rate": 0.018072,
+    "open_set_review_threshold": 0.50673969,
+    "t_low": 0.39912685,
+    "minimum_review_confidence": 0.2,
+    "review_window_metrics": {
+      "2021_q1": {
+        "top3_confirmation_rows": 645,
+        "top3_confirmation_accuracy": 0.7596899224806202,
+        "top3_confirmation_rate": 0.2414825907899663
+      },
+      "2021_q2": {
+        "top3_confirmation_rows": 524,
+        "top3_confirmation_accuracy": 0.700381679389313,
+        "top3_confirmation_rate": 0.1966966966966967
+      },
+      "2021_q3": {
+        "top3_confirmation_rows": 512,
+        "top3_confirmation_accuracy": 0.78125,
+        "top3_confirmation_rate": 0.18991097922848665
+      }
+    },
+    "minimum_window_review_rate": 0.189911,
+    "mean_window_review_rate": 0.209363
+  },
+  "drift_reference": {
+    "method": "population_stability_index_v1",
+    "maximum_psi": 0.25,
+    "reference_rows": 8031,
+    "features": {
+      "calibrated_probability": {
+        "boundaries": [
+          0.07532275,
+          0.13016489,
+          0.17696759000000004,
+          0.22446453,
+          0.28310885,
+          0.3991268500000001,
+          0.5778594400000001,
+          0.77953248,
+          0.89482529
+        ],
+        "expected_proportions": [
+          0.09998755599800896,
+          0.09998755599800896,
+          0.10011199601791937,
+          0.09986311597809856,
+          0.09998755599800896,
+          0.10011199601791937,
+          0.09998755599800896,
+          0.09986311597809856,
+          0.09998755599800896,
+          0.10011199601791937
+        ],
+        "reference_distribution": {
+          "minimum": 0.02726245,
+          "p25": 0.15527485,
+          "median": 0.28310885,
+          "p75": 0.6783477,
+          "maximum": 0.95031492
+        }
+      },
+      "open_set_probability": {
+        "boundaries": [
+          0.07400542,
+          0.2179646,
+          0.33076676000000005,
+          0.40619683,
+          0.47079161,
+          0.53137566,
+          0.58180801,
+          0.63788446,
+          0.68241407
+        ],
+        "expected_proportions": [
+          0.09998755599800896,
+          0.09998755599800896,
+          0.10011199601791937,
+          0.09986311597809856,
+          0.09998755599800896,
+          0.09998755599800896,
+          0.09998755599800896,
+          0.09998755599800896,
+          0.09998755599800896,
+          0.10011199601791937
+        ],
+        "reference_distribution": {
+          "minimum": 0.02510327,
+          "p25": 0.28508631,
+          "median": 0.47079161,
+          "p75": 0.61175633,
+          "maximum": 0.81615431
+        }
+      },
+      "top_probability": {
+        "boundaries": [
+          0.090535437390353,
+          0.1399505777200691,
+          0.1904987947525377,
+          0.25322717398134453,
+          0.33863241995572435,
+          0.49910527377648267,
+          0.6460427938599951,
+          0.8199141873350807,
+          0.9353692712912285
+        ],
+        "expected_proportions": [
+          0.09998755599800896,
+          0.09986311597809856,
+          0.10023643603782977,
+          0.09986311597809856,
+          0.09998755599800896,
+          0.09986311597809856,
+          0.10011199601791937,
+          0.09986311597809856,
+          0.10011199601791937,
+          0.10011199601791937
+        ],
+        "reference_distribution": {
+          "minimum": 0.01476846,
+          "p25": 0.16443035,
+          "median": 0.33863242,
+          "p75": 0.73800775,
+          "maximum": 0.98649554
+        }
+      },
+      "probability_margin": {
+        "boundaries": [
+          0.01373814893155234,
+          0.03182431804444203,
+          0.05957905579831725,
+          0.1014871998951426,
+          0.16840672408368373,
+          0.290286291573373,
+          0.4631487961309403,
+          0.6724359468755661,
+          0.8826023903819292
+        ],
+        "expected_proportions": [
+          0.09500995520159283,
+          0.10496515679442509,
+          0.10011199601791937,
+          0.09986311597809856,
+          0.09998755599800896,
+          0.09998755599800896,
+          0.10011199601791937,
+          0.09986311597809856,
+          0.09961423593827776,
+          0.10048531607765057
+        ],
+        "reference_distribution": {
+          "minimum": 0.0,
+          "p25": 0.04483531,
+          "median": 0.16840672,
+          "p75": 0.55912196,
+          "maximum": 0.95549909
+        }
+      }
+    }
+  },
+  "development_gate": {
+    "passed": true,
+    "requires_every_selection_window": true,
+    "blocker": "new_untouched_holdout_required"
+  },
+  "targets": {
+    "target_auto_accuracy": 0.85,
+    "minimum_auto_coverage": 0.1,
+    "maximum_unseen_auto_rate": 0.05
+  },
+  "approval_note": "Frozen after 2021 Q3 development. Requires one new untouched temporal holdout, reviewed active roster, and explicit operator approval."
+}

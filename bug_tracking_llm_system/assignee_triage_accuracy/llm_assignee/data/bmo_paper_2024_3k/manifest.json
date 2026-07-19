@@ -1,0 +1,15 @@
+{
+  "dataset": "bmo_paper_2024_3k",
+  "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl",
+  "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_validation_set.jsonl",
+  "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_test_set.jsonl",
+  "roster_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_candidate_roster.json",
+  "output_dir": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/llm_assignee/data/bmo_paper_2024_3k",
+  "train_rows": 1569,
+  "validation_rows": 168,
+  "test_rows": 192,
+  "candidate_roster_size": 60,
+  "include_roster_in_prompt": false,
+  "format": "messages_jsonl",
+  "note": "Gold assignees are present only in train_sft assistant messages and metadata fields, not in inference prompts."
+}

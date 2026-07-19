@@ -1,26 +1,36 @@
 from __future__ import annotations
 
+import json
+import sys
 import tempfile
 import unittest
 import sqlite3
 from pathlib import Path
 
-from utils.fault_localization import build_code_index, localize_ticket
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
 
-import sys
+for path in (str(SRC_ROOT), str(PROJECT_ROOT)):
+    if path not in sys.path:
+        sys.path.insert(0, path)
 
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from utils.fault_localization import (
+    _source_path_hints,
+    build_code_index,
+    format_user_facing_localization_result,
+    format_user_facing_validation_error,
+    localize_ticket,
+    validate_localization_request,
+)
 
 from scripts.evaluate_fault_localization import evaluate_records
 from scripts.analyze_fault_localization_failures import analyze_records
 from scripts.analyze_candidate_pool_recall import analyze_candidate_pool_recall
 from scripts.run_controlled_llm_rerank_subset import build_comparison, select_top5_misses
+from scripts.run_fault_localization_internal_beta import classify_warnings, summarize_result_rows
 from scripts.prepare_fault_localization_gold import prepare_gold_records
 from scripts.prepare_swebench_lite_fault_localization import gold_record, normalize_record, ticket_record
-from scripts.run_swebench_lite_fault_localization import BatchRunConfig, _ticket_id_filter, run_batch
+from scripts.run_swebench_lite_fault_localization import BatchRunConfig, _index_path, _ticket_id_filter, run_batch
 
 
 class FakeRerankClient:
@@ -220,6 +230,83 @@ class FaultLocalizationTests(unittest.TestCase):
         self.assertFalse(result["recommend_patch_generation"])
         self.assertIn("uncertainty_reason", result)
 
+    def test_confidence_gate_requires_manual_review_for_test_like_top_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            test_dir = repo / "testing" / "example_scripts" / "config"
+            test_dir.mkdir(parents=True)
+            (test_dir / "test_foo.py").write_text(
+                "def test_collect_pytest_prefix():\n"
+                "    assert collect_pytest_prefix('foo') == 'foo'\n",
+                encoding="utf-8",
+            )
+            source_dir = repo / "src" / "_pytest"
+            source_dir.mkdir(parents=True)
+            (source_dir / "python.py").write_text(
+                "def collect_pytest_prefix(value):\n"
+                "    return value\n",
+                encoding="utf-8",
+            )
+
+            result = localize_ticket(
+                {
+                    "ticket_id": "PYTEST-TEST-PATH",
+                    "title": "collect pytest prefix fails",
+                    "description": "Failure is reported from testing/example_scripts/config/test_foo.py:1.",
+                    "logs": "testing/example_scripts/config/test_foo.py:1: AssertionError",
+                },
+                repo_path=repo,
+                embedding_backend="tfidf",
+                top_k=3,
+            )
+
+        top_file = result["localized_candidates"][0]["file_path"]
+        self.assertTrue(top_file.startswith("testing/"))
+        self.assertNotEqual(result["confidence_level"], "high")
+        self.assertTrue(result["should_manual_review"])
+        self.assertFalse(result["recommend_patch_generation"])
+        self.assertIn("test/demo path", result["uncertainty_reason"])
+
+    def test_user_facing_formatter_exposes_safe_beta_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = _make_repo(Path(tmp))
+            index = build_code_index(repo)
+            ticket = {
+                "ticket_id": "RAW-USER-FACING",
+                "title": "Login page crashes when token is missing",
+                "description": "Login crashes with TypeError when token is None.",
+                "component": "authentication",
+                "logs": "TypeError: token is None at src/auth/validator.py:2",
+            }
+            result = localize_ticket(ticket, code_index=index, embedding_backend="tfidf", top_k=3)
+            formatted = format_user_facing_localization_result(result, top_k=2)
+
+        self.assertEqual(formatted["ticket_id"], "RAW-USER-FACING")
+        self.assertEqual(formatted["summary"]["confidence_level"], "high")
+        self.assertFalse(formatted["summary"]["should_manual_review"])
+        self.assertTrue(formatted["summary"]["recommend_patch_generation"])
+        self.assertEqual(len(formatted["top_k_suspicious_files"]), 2)
+        self.assertEqual(formatted["top_k_suspicious_files"][0]["file_path"], "src/auth/validator.py")
+        self.assertTrue(formatted["top_k_suspicious_files"][0]["patch_generator_eligible"])
+        self.assertIn("engineering_guidance", formatted)
+        self.assertEqual(formatted["method"]["retrieval_first"], True)
+
+    def test_input_validation_and_user_facing_error_result_are_explainable(self) -> None:
+        validation = validate_localization_request(
+            {"ticket_id": "BAD", "description": "bad"},
+            repo_path="/path/that/does/not/exist",
+            min_ticket_chars=20,
+        )
+        formatted = format_user_facing_validation_error(validation)
+
+        self.assertFalse(validation["is_valid"])
+        self.assertEqual(validation["status"], "error")
+        self.assertTrue(any("too short" in message for message in validation["errors"]))
+        self.assertTrue(any("does not exist" in message for message in validation["errors"]))
+        self.assertEqual(formatted["status"], "invalid_input")
+        self.assertTrue(formatted["summary"]["should_manual_review"])
+        self.assertFalse(formatted["summary"]["recommend_patch_generation"])
+
     def test_localize_ticket_returns_file_aggregated_candidates(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp) / "repo"
@@ -402,6 +489,9 @@ class FaultLocalizationTests(unittest.TestCase):
 
             self.assertEqual(llm_client.calls, 2)
             self.assertIn("Previous LLM output was invalid", llm_client.prompts[1])
+            self.assertIn("Candidate summary:", llm_client.prompts[1])
+            self.assertNotIn("repository_context_hints", llm_client.prompts[1])
+            self.assertLess(len(llm_client.prompts[1]), len(llm_client.prompts[0]))
             self.assertTrue(result["method"]["llm_rerank"])
             self.assertIn("llm_rerank_score", result["localized_candidates"][0]["scoring_signals"])
             cache_rows = (cache_dir / "llm_rerank_cache.jsonl").read_text(encoding="utf-8").splitlines()
@@ -441,6 +531,7 @@ class FaultLocalizationTests(unittest.TestCase):
             repo = _make_repo(tmp_path)
             index = build_code_index(repo)
             llm_client = RankOnlyRerankClient()
+            cache_dir = tmp_path / "llm_cache"
 
             result = localize_ticket(
                 {
@@ -455,12 +546,19 @@ class FaultLocalizationTests(unittest.TestCase):
                 llm_client=llm_client,
                 llm_rerank=True,
                 llm_candidate_k=2,
+                llm_cache_dir=cache_dir,
             )
 
             self.assertEqual(llm_client.calls, 2)
             self.assertFalse(result["method"]["llm_rerank"])
             self.assertIn("valid candidate IDs", result["warnings"][0])
             self.assertNotIn("llm_rerank_score", result["localized_candidates"][0]["scoring_signals"])
+            invalid_log = cache_dir / "llm_rerank_invalid_responses.jsonl"
+            self.assertTrue(invalid_log.exists())
+            invalid_rows = invalid_log.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(invalid_rows), 2)
+            self.assertIn("RAW-LLM-RANK-ONLY", invalid_rows[0])
+            self.assertIn("valid candidate IDs", invalid_rows[-1])
 
     def test_llm_rerank_applies_payload_level_score_to_candidate_rows(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -521,14 +619,35 @@ class FaultLocalizationTests(unittest.TestCase):
                 top_k=3,
             )
 
-        auth_candidate = next(
-            row for row in result["localized_candidates"] if row["file_path"] == "src/auth/validator.py"
-        )
-        context = auth_candidate["repository_context"]
-        related_files = {row["file_path"] for row in context.get("related_files", [])}
-        referenced_files = {row["file_path"] for row in context.get("symbol_references", [])}
-        self.assertIn("src/profile/view.py", related_files | referenced_files)
-        self.assertTrue(context.get("same_file_symbols"))
+            auth_candidate = next(
+                row for row in result["localized_candidates"] if row["file_path"] == "src/auth/validator.py"
+            )
+            context = auth_candidate["repository_context"]
+            related_files = {row["file_path"] for row in context.get("related_files", [])}
+            referenced_files = {row["file_path"] for row in context.get("symbol_references", [])}
+            self.assertIn("src/profile/view.py", related_files | referenced_files)
+            self.assertTrue(context.get("same_file_symbols"))
+            signals = auth_candidate["scoring_signals"]
+            self.assertGreater(signals["repository_proximity_score"], 0.0)
+            self.assertIn("Repository proximity", auth_candidate["reason"])
+            without_proximity = localize_ticket(
+                {
+                    "ticket_id": "RAW-GRAPH",
+                    "title": "Token validator strips missing profile token",
+                    "description": "The profile renderer calls validate_token and crashes when token is None.",
+                    "component": "auth",
+                    "logs": "TypeError at src/auth/validator.py:2",
+                },
+                repo_path=repo,
+                embedding_backend="tfidf",
+                top_k=3,
+                repository_proximity=False,
+            )
+            without_auth_candidate = next(
+                row for row in without_proximity["localized_candidates"] if row["file_path"] == "src/auth/validator.py"
+            )
+            self.assertEqual(without_auth_candidate["scoring_signals"]["repository_proximity_score"], 0.0)
+            self.assertNotIn("repository_proximity_rerank", without_proximity["method"]["stages"])
 
     def test_localize_ticket_uses_path_hint_to_avoid_wrapper_frame_bias(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -675,6 +794,67 @@ class FaultLocalizationTests(unittest.TestCase):
         self.assertEqual(best["file_path"], "sklearn/utils/_pprint.py")
         self.assertGreater(best["scoring_signals"]["candidate_expansion_score"], 0)
 
+    def test_localize_ticket_uses_same_package_near_path_rerank_signal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            core = repo / "pkg" / "core"
+            core.mkdir(parents=True)
+            (core / "request.py").write_text(
+                "def handle_request(option, value):\n"
+                "    return 'generic request handler option value'\n",
+                encoding="utf-8",
+            )
+            (core / "beta.py").write_text(
+                "def resolve_beta(value):\n"
+                "    return value\n",
+                encoding="utf-8",
+            )
+            (repo / "pkg" / "other").mkdir(parents=True)
+            (repo / "pkg" / "other" / "beta.py").write_text(
+                "def unrelated_beta(value):\n"
+                "    return value\n",
+                encoding="utf-8",
+            )
+
+            index = build_code_index(repo)
+            result = localize_ticket(
+                {
+                    "ticket_id": "PKG-NEAR-PATH",
+                    "title": "pkg.core beta resolver drops empty option",
+                    "description": "The beta resolver in pkg.core should preserve an empty value.",
+                    "component": "pkg.core",
+                },
+                code_index=index,
+                embedding_backend="tfidf",
+                top_k=3,
+            )
+
+        best = result["localized_candidates"][0]
+        self.assertEqual(best["file_path"], "pkg/core/beta.py")
+        self.assertGreater(best["scoring_signals"]["package_proximity_score"], 0)
+        self.assertIn("Same-package/near-path rerank signals", best["reason"])
+
+    def test_source_path_hints_generalize_test_to_source_mapping(self) -> None:
+        hints = dict(
+            _source_path_hints(
+                "acme widget fails in tests/test_ext_napoleon_docstring.py when parsing docstrings."
+            )
+        )
+
+        self.assertIn("acme/ext/napoleon/docstring.py", hints)
+        self.assertIn("src/acme/ext/napoleon/docstring.py", hints)
+        self.assertNotIn("sphinx/ext/napoleon/docstring.py", hints)
+
+    def test_source_path_hints_infer_underscored_package_variant(self) -> None:
+        hints = dict(
+            _source_path_hints(
+                "hydra reports a loader regression from tests/test_loader.py in the package internals."
+            )
+        )
+
+        self.assertIn("src/_hydra/loader.py", hints)
+        self.assertNotIn("src/_pytest/pathlib.py", hints)
+
     def test_evaluate_records_reports_top_k_and_mrr(self) -> None:
         gold = [
             {"ticket_id": "A", "fixed_files": ["src/auth/validator.py"], "fixed_symbols": ["validate_token"]},
@@ -799,6 +979,49 @@ class FaultLocalizationTests(unittest.TestCase):
         self.assertEqual({row["ticket_id"] for row in selected}, {"django__django-1", "pytest__pytest-1"})
         self.assertEqual(comparison["tickets_compared"], 2)
         self.assertEqual(comparison["improved"], 1)
+
+    def test_internal_beta_summary_counts_warnings_confidence_and_patch_policy(self) -> None:
+        rows = [
+            {
+                "ticket_id": "A",
+                "confidence_level": "high",
+                "status": "ready_for_engineer_review",
+                "validation_status": "ok",
+                "manual_review": False,
+                "patch_generation": True,
+                "warning_categories": [],
+                "warning_count": 0,
+                "fallback_used": False,
+                "runtime_seconds": 1.0,
+                "hit_rank": 1,
+                "has_gold": True,
+            },
+            {
+                "ticket_id": "B",
+                "confidence_level": "medium",
+                "status": "needs_manual_review",
+                "validation_status": "warning",
+                "manual_review": True,
+                "patch_generation": False,
+                "warning_categories": ["input_validation"],
+                "warning_count": 1,
+                "fallback_used": False,
+                "runtime_seconds": 3.0,
+                "hit_rank": None,
+                "has_gold": True,
+            },
+        ]
+
+        summary = summarize_result_rows(rows)
+        categories = classify_warnings(["Input validation warning: missing stack trace"], "")
+
+        self.assertEqual(summary["cases"], 2)
+        self.assertEqual(summary["hit_at_top_k"], 1)
+        self.assertEqual(summary["manual_review_rate"], 0.5)
+        self.assertEqual(summary["patch_generation_recommended_rate"], 0.5)
+        self.assertEqual(summary["warning_category_counts"], {"input_validation": 1})
+        self.assertEqual(summary["average_runtime_seconds"], 2.0)
+        self.assertEqual(categories, ["input_validation"])
 
     def test_analyze_records_classifies_stack_trace_wrapper_bias(self) -> None:
         report = analyze_records(
@@ -932,6 +1155,58 @@ class FaultLocalizationTests(unittest.TestCase):
             self.assertEqual(resumed["predictions"], 1)
             self.assertEqual(resumed["skipped_existing_predictions"], 1)
             self.assertEqual(resumed["processed_this_run"], 0)
+
+    def test_swebench_lite_runner_skips_checkout_when_cached_index_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            repo = _make_repo(tmp_path)
+            ticket = {
+                "ticket_id": "SWE-CACHED-INDEX",
+                "repo": "local/repo",
+                "local_repo_path": str(repo),
+                "base_commit": "missingdeadbeef1234",
+                "title": "Login crash when token is missing",
+                "description": "TypeError token is None in auth validator.",
+                "component": "authentication",
+                "logs": "TypeError at src/auth/validator.py:2",
+            }
+            index_cache_dir = tmp_path / "indexes"
+            cached_index = build_code_index(repo)
+            index_path = _index_path(ticket, repo, index_cache_dir)
+            index_path.parent.mkdir(parents=True, exist_ok=True)
+            cached_index.save(index_path)
+
+            tickets = tmp_path / "tickets.jsonl"
+            gold = tmp_path / "gold.jsonl"
+            predictions = tmp_path / "predictions.jsonl"
+            metrics = tmp_path / "metrics.json"
+            failures = tmp_path / "failures.jsonl"
+            tickets.write_text(json.dumps(ticket) + "\n", encoding="utf-8")
+            gold.write_text(
+                '{"ticket_id":"SWE-CACHED-INDEX","fixed_files":["src/auth/validator.py"]}\n',
+                encoding="utf-8",
+            )
+
+            summary = run_batch(
+                BatchRunConfig(
+                    tickets_path=tickets,
+                    gold_path=gold,
+                    repo_cache_dir=tmp_path / "repos",
+                    index_cache_dir=index_cache_dir,
+                    predictions_output=predictions,
+                    metrics_output=metrics,
+                    demo_cases_output=None,
+                    failures_output=failures,
+                    checkout=True,
+                    top_k=3,
+                    progress_every=0,
+                )
+            )
+
+        self.assertEqual(summary["predictions"], 1)
+        self.assertEqual(summary["failures"], 0)
+        self.assertEqual(summary["cached_index_checkout_skips"], 1)
+        self.assertEqual(summary["metrics"]["top_1_accuracy"], 1.0)
 
     def test_swebench_lite_runner_reads_ticket_id_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
