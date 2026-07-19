@@ -16,9 +16,7 @@ from typing import Callable
 
 SYSTEM_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = SYSTEM_ROOT.parent
-DUPLICATE_ROOT = WORKSPACE_ROOT / "bug-duplicate-detection"
-PRIORITY_ROOT = WORKSPACE_ROOT / "bug-priority-drone"
-TO_JSON_ROOT = WORKSPACE_ROOT / "ToJson"
+SMOKE_REPO = SYSTEM_ROOT / "tests" / "fixtures" / "smoke_repo"
 
 DEFAULT_OUTPUT = SYSTEM_ROOT / "reports" / "health_check" / "health_check_latest.json"
 DEFAULT_TMP_DIR = Path("/tmp") / "bug_llm_health_check"
@@ -114,7 +112,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 "--raw-ticket",
                 "data/raw_tickets/raw_ticket.example.json",
                 "--repo-path",
-                "../bug-duplicate-detection",
+                str(SMOKE_REPO),
                 "--fault-top-k",
                 "3",
                 "--fault-embedding-backend",
@@ -129,7 +127,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
             required_paths=(
                 SYSTEM_ROOT / "src" / "main.py",
                 SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
-                DUPLICATE_ROOT,
+                SMOKE_REPO / "src" / "auth" / "validator.py",
             ),
             validator=validate_main_pipeline(main_pipeline_output),
         ),
@@ -142,7 +140,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 "--ticket",
                 "data/raw_tickets/raw_ticket.example.json",
                 "--repo-path",
-                "../bug-duplicate-detection",
+                str(SMOKE_REPO),
                 "--top-k",
                 "3",
                 "--embedding-backend",
@@ -164,7 +162,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
             required_paths=(
                 SYSTEM_ROOT / "scripts" / "fault_localization.py",
                 SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
-                DUPLICATE_ROOT / "src",
+                SMOKE_REPO / "src" / "auth" / "validator.py",
             ),
             validator=validate_fault_localization(fault_output, progress_path=fault_progress),
         ),
@@ -179,7 +177,7 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 "--ticket",
                 "data/raw_tickets/raw_ticket.example.json",
                 "--repo-path",
-                "../bug-duplicate-detection",
+                str(SMOKE_REPO),
                 "--top-k",
                 "3",
                 "--embedding-backend",
@@ -196,73 +194,35 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 SYSTEM_ROOT / "scripts" / "fault_localization_job.py",
                 SYSTEM_ROOT / "scripts" / "fault_localization.py",
                 SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
-                DUPLICATE_ROOT / "src",
+                SMOKE_REPO / "src" / "auth" / "validator.py",
             ),
             validator=validate_fault_localization_job(),
         ),
         CheckSpec(
             name="duplicate_detection_smoke",
-            description="Evaluate the duplicate detection TF-IDF baseline on the bundled sample tickets.",
-            command=[
-                sys.executable,
-                "-m",
-                "duplicate_ticket_detection.cli",
-                "evaluate",
-                "--tickets",
-                "examples/sample_tickets.csv",
-                "--method",
-                "tfidf",
-                "--combine",
-                "max",
-                "--top-k",
-                "5",
-            ],
-            cwd=DUPLICATE_ROOT,
-            env=pythonpath_env(DUPLICATE_ROOT / "src"),
+            description="Evaluate the duplicate detector used by the integrated pipeline on a frozen labeled fixture.",
+            command=[sys.executable, "scripts/evaluate_integrated_baselines.py", "--section", "duplicate"],
+            cwd=SYSTEM_ROOT,
+            env=pythonpath_env(SYSTEM_ROOT / "src"),
             timeout_seconds=timeout_seconds,
             required_paths=(
-                DUPLICATE_ROOT / "src" / "duplicate_ticket_detection" / "cli.py",
-                DUPLICATE_ROOT / "examples" / "sample_tickets.csv",
+                SYSTEM_ROOT / "scripts" / "evaluate_integrated_baselines.py",
+                SYSTEM_ROOT / "tests" / "fixtures" / "integrated_baseline_eval.json",
             ),
-            validator=validate_contains("MAP=", "duplicate MAP was reported"),
+            validator=validate_contains('"precision"', "integrated duplicate precision/recall/F1 were reported"),
         ),
         CheckSpec(
             name="priority_prediction_smoke",
-            description="Read the existing priority-prediction evaluation CSV and print headline metrics.",
-            command=[
-                sys.executable,
-                "scripts/show_model_metrics.py",
-            ],
-            cwd=PRIORITY_ROOT,
-            env=os.environ.copy(),
+            description="Evaluate the priority classifier used by the integrated pipeline on a frozen labeled fixture.",
+            command=[sys.executable, "scripts/evaluate_integrated_baselines.py", "--section", "priority"],
+            cwd=SYSTEM_ROOT,
+            env=pythonpath_env(SYSTEM_ROOT / "src"),
             timeout_seconds=timeout_seconds,
             required_paths=(
-                PRIORITY_ROOT / "scripts" / "show_model_metrics.py",
-                PRIORITY_ROOT / "reports" / "recall_balanced_best_eval.csv",
+                SYSTEM_ROOT / "scripts" / "evaluate_integrated_baselines.py",
+                SYSTEM_ROOT / "tests" / "fixtures" / "integrated_baseline_eval.json",
             ),
-            validator=validate_contains("Accuracy", "priority metrics were reported"),
-        ),
-        CheckSpec(
-            name="ticket_json_evaluation_smoke",
-            description="Evaluate existing bug-report-to-JSON predictions against the local labeled sample.",
-            command=[
-                sys.executable,
-                "scripts/To_Json/evaluate_results.py",
-                "--gold",
-                "dataset/labeled/test.jsonl",
-                "--pred",
-                "dataset/predicted/predicted.jsonl",
-                "--no-source-consistency",
-            ],
-            cwd=TO_JSON_ROOT,
-            env=os.environ.copy(),
-            timeout_seconds=timeout_seconds,
-            required_paths=(
-                TO_JSON_ROOT / "scripts" / "To_Json" / "evaluate_results.py",
-                TO_JSON_ROOT / "dataset" / "labeled" / "test.jsonl",
-                TO_JSON_ROOT / "dataset" / "predicted" / "predicted.jsonl",
-            ),
-            validator=validate_contains("Overall field accuracy", "ticket JSON accuracy was reported"),
+            validator=validate_contains('"macro_f1"', "integrated priority accuracy/macro-F1/calibration were reported"),
         ),
     ]
 

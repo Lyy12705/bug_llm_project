@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "description": "Small frozen smoke fixture for the integrated deterministic duplicate and priority baselines.",
+  "historical_tickets": [
+    {
+      "ticket_id": "H-LOGIN",
+      "title": "Login crash when token is missing",
+      "description": "Missing token causes TypeError in authentication validation.",
+      "component": "authentication",
+      "priority": "P2"
+    },
+    {
+      "ticket_id": "H-PAYMENT",
+      "title": "Payment callback times out",
+      "description": "Payment callback times out and retries in production.",
+      "component": "payments",
+      "priority": "P2"
+    },
+    {
+      "ticket_id": "H-DOCS",
+      "title": "Documentation typo in setup guide",
+      "description": "The setup guide contains a minor wording typo.",
+      "component": "docs",
+      "priority": "P4"
+    },
+    {
+      "ticket_id": "H-SECURITY",
+      "title": "Security permission audit follow-up",
+      "description": "Review privilege validation for a production security incident.",
+      "component": "security",
+      "priority": "P1"
+    }
+  ],
+  "queries": [
+    {
+      "ticket": {
+        "ticket_id": "Q-LOGIN",
+        "title": "Login crash when token is missing",
+        "description": "Missing token causes TypeError in authentication validation.",
+        "component": "authentication",
+        "severity": "critical"
+      },
+      "duplicate": true,
+      "priority": "P2"
+    },
+    {
+      "ticket": {
+        "ticket_id": "Q-PAYMENT",
+        "title": "Payment callback times out",
+        "description": "Payment callback times out and retries in production.",
+        "component": "payments",
+        "severity": "major"
+      },
+      "duplicate": true,
+      "priority": "P2"
+    },
+    {
+      "ticket": {
+        "ticket_id": "Q-UI",
+        "title": "Button label has a typo",
+        "description": "A minor cosmetic wording issue appears in the frontend.",
+        "component": "frontend",
+        "severity": "trivial"
+      },
+      "duplicate": false,
+      "priority": "P4"
+    },
+    {
+      "ticket": {
+        "ticket_id": "Q-DATABASE",
+        "title": "Database query timeout after deploy",
+        "description": "A database query timeout causes an incorrect response.",
+        "component": "database",
+        "severity": "major"
+      },
+      "duplicate": false,
+      "priority": "P3"
+    },
+    {
+      "ticket": {
+        "ticket_id": "Q-DOCS-NEW",
+        "title": "API reference wording needs cleanup",
+        "description": "Minor documentation wording and style cleanup.",
+        "component": "docs",
+        "severity": "minor"
+      },
+      "duplicate": false,
+      "priority": "P4"
+    },
+    {
+      "ticket": {
+        "ticket_id": "Q-SECURITY",
+        "title": "Production privilege injection outage",
+        "description": "Security privilege injection causes a production outage.",
+        "component": "security",
+        "severity": "blocker",
+        "recent_similar_count": 10,
+        "reporter_past_bug_count": 20
+      },
+      "duplicate": false,
+      "priority": "P1"
+    }
+  ]
+}
