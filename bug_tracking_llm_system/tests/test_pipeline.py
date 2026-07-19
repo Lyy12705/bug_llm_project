@@ -21,6 +21,7 @@ from modules.assignee_feedback import (
     read_assignee_feedback,
 )
 from modules.assignee_triager import AssigneeTriager
+from modules.duplicate_detector import DuplicateDetector
 from modules.ticket_extractor import TicketExtractor
 from pipeline.orchestrator import build_default_orchestrator
 
@@ -48,6 +49,20 @@ class PipelineIntegrationTests(unittest.TestCase):
         config = PipelineConfig(project_root=PROJECT_ROOT, save_checkpoints=False)
 
         self.assertEqual(config.component_owner_mapping, {})
+
+    def test_checkpoint_ticket_id_is_confined_to_processed_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            processed = root / "processed"
+            config = PipelineConfig(
+                project_root=root,
+                processed_ticket_dir=processed,
+                save_checkpoints=True,
+            )
+            checkpoint = build_default_orchestrator(config)._checkpoint_dir({"ticket_id": "../../escape"})
+
+        self.assertEqual(checkpoint.parent, processed.resolve())
+        self.assertEqual(checkpoint.name, "escape")
 
     def test_default_orchestrator_passes_fault_localization_config(self) -> None:
         config = PipelineConfig(
@@ -114,6 +129,22 @@ class PipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "duplicate")
         self.assertEqual(result["duplicate_of"], "BUG-1")
 
+    def test_duplicate_detector_does_not_penalize_missing_optional_error_text(self) -> None:
+        detector = DuplicateDetector(config=PipelineConfig(project_root=PROJECT_ROOT, save_checkpoints=False))
+        ticket = {
+            "ticket_id": "Q-EXACT",
+            "title": "Login crash when token is missing",
+            "description": "Missing token causes TypeError in authentication validation.",
+            "component": "authentication",
+        }
+        historical = [{**ticket, "ticket_id": "H-EXACT"}]
+
+        result = detector.detect(ticket, historical)
+
+        self.assertTrue(result["is_duplicate"])
+        self.assertEqual(result["duplicate_of"], "H-EXACT")
+        self.assertAlmostEqual(result["similarity_score"], 1.0)
+
     def test_pipeline_returns_manual_patch_when_no_patch(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = _make_repo(Path(tmp))
@@ -127,7 +158,7 @@ class PipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(result["bug_location"]["bug_location"]["file"], "src/auth/validator.py")
         self.assertEqual(result["patch"]["bug_location"]["file"], "src/auth/validator.py")
 
-    def test_pipeline_completes_with_provided_patch(self) -> None:
+    def test_pipeline_marks_structurally_valid_patch_unverified_without_tests(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = _make_repo(Path(tmp))
             raw_ticket = _raw_ticket()
@@ -146,10 +177,122 @@ class PipelineIntegrationTests(unittest.TestCase):
 
             result = orchestrator.run_pipeline(raw_ticket, str(repo))
 
-        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["status"], "patch_applied_unverified")
+        self.assertFalse(result["verification"]["fully_verified"])
         self.assertEqual(result["patch"]["modified_files"], ["src/auth/validator.py"])
         self.assertEqual(result["regression"]["patch_apply"], "passed")
         self.assertTrue(result["commit_message"]["commit_message"].startswith("fix(authentication):"))
+
+    def test_pipeline_requires_duplicate_review_on_detector_exception(self) -> None:
+        config = PipelineConfig(project_root=PROJECT_ROOT, save_checkpoints=False)
+        orchestrator = build_default_orchestrator(config)
+
+        class FailingDuplicateDetector:
+            def detect(self, ticket: dict) -> dict:
+                raise ValueError("broken duplicate index")
+
+        orchestrator.duplicate_detector = FailingDuplicateDetector()
+        result = orchestrator.run_pipeline(_raw_ticket(), str(PROJECT_ROOT))
+
+        self.assertEqual(result["status"], "needs_duplicate_review")
+        self.assertTrue(result["review_required"])
+        self.assertEqual(result["duplicate"]["review_reason"], "duplicate_detector_exception")
+        self.assertNotIn("priority", result)
+
+    def test_pipeline_stops_when_duplicate_score_needs_review(self) -> None:
+        config = PipelineConfig(project_root=PROJECT_ROOT, save_checkpoints=False)
+        orchestrator = build_default_orchestrator(config)
+
+        class ReviewDuplicateDetector:
+            def detect(self, ticket: dict) -> dict:
+                return {"is_duplicate": False, "needs_review": True, "top_k_candidates": []}
+
+        orchestrator.duplicate_detector = ReviewDuplicateDetector()
+        result = orchestrator.run_pipeline(_raw_ticket(), str(PROJECT_ROOT))
+
+        self.assertEqual(result["status"], "needs_duplicate_review")
+        self.assertNotIn("priority", result)
+
+    def test_pipeline_completes_only_after_fib_and_regression_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = _make_repo(Path(tmp))
+            raw_ticket = _raw_ticket()
+            raw_ticket["proposed_patch"] = (
+                "diff --git a/src/auth/validator.py b/src/auth/validator.py\n"
+                "--- a/src/auth/validator.py\n"
+                "+++ b/src/auth/validator.py\n"
+                "@@ -1,2 +1,4 @@\n"
+                " def validate_token(token):\n"
+                "+    if token is None:\n"
+                "+        raise ValueError(\"Token is required\")\n"
+                "     return token.strip()\n"
+            )
+            raw_ticket["tests"] = [
+                {
+                    "test_name": "missing token is rejected",
+                    "command": [
+                        "python3",
+                        "-c",
+                        "from src.auth.validator import validate_token; "
+                        "\ntry: validate_token(None)"
+                        "\nexcept ValueError: raise SystemExit(0)"
+                        "\nraise SystemExit(1)",
+                    ],
+                }
+            ]
+            config = PipelineConfig(
+                project_root=PROJECT_ROOT,
+                save_checkpoints=False,
+                run_regression_tests=True,
+                allow_ticket_test_commands=True,
+                test_command=[
+                    "python3",
+                    "-c",
+                    "from src.auth.validator import validate_token; assert validate_token(' x ') == 'x'",
+                ],
+            )
+            result = build_default_orchestrator(config).run_pipeline(raw_ticket, str(repo))
+
+        self.assertEqual(result["status"], "completed_verified")
+        self.assertEqual(result["regression"]["reproduction_result"], "passed")
+        self.assertEqual(result["regression"]["regression_result"], "passed")
+        self.assertTrue(result["verification"]["fully_verified"])
+
+    def test_pipeline_does_not_execute_ticket_commands_without_explicit_trust(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            repo = _make_repo(tmp_path)
+            marker = tmp_path / "ticket-command-ran"
+            raw_ticket = _raw_ticket()
+            raw_ticket["proposed_patch"] = (
+                "diff --git a/src/auth/validator.py b/src/auth/validator.py\n"
+                "--- a/src/auth/validator.py\n"
+                "+++ b/src/auth/validator.py\n"
+                "@@ -1,2 +1,4 @@\n"
+                " def validate_token(token):\n"
+                "+    if token is None:\n"
+                "+        raise ValueError(\"Token is required\")\n"
+                "     return token.strip()\n"
+            )
+            raw_ticket["tests"] = [
+                {
+                    "test_name": "untrusted side effect",
+                    "command": ["python3", "-c", f"from pathlib import Path; Path({str(marker)!r}).touch()"],
+                }
+            ]
+            config = PipelineConfig(
+                project_root=PROJECT_ROOT,
+                save_checkpoints=False,
+                run_regression_tests=True,
+                test_command=["python3", "-c", "raise SystemExit(0)"],
+            )
+
+            result = build_default_orchestrator(config).run_pipeline(raw_ticket, str(repo))
+
+        self.assertFalse(marker.exists())
+        self.assertEqual(result["status"], "tests_passed")
+        self.assertEqual(result["regression"]["reproduction_result"], "blocked_untrusted_commands")
+        self.assertFalse(result["regression"]["reproduction_execution_allowed"])
 
     def test_pipeline_assigns_owner_after_duplicate_and_priority_steps(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

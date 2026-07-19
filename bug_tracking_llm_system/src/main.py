@@ -5,7 +5,7 @@ import json
 import shlex
 from pathlib import Path
 
-from config import PipelineConfig
+from config import PROJECT_ROOT, PipelineConfig
 from modules.assignee_deployment import load_deployment_bundle
 from pipeline.orchestrator import build_default_orchestrator
 
@@ -41,6 +41,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--duplicate-threshold", type=float, default=0.82)
     parser.add_argument("--run-regression-tests", action="store_true", help="Run tests in the temporary patched copy.")
     parser.add_argument("--test-command", default="python3 -m pytest", help="Command to run when regression tests are enabled.")
+    parser.add_argument("--test-timeout", type=int, default=300, help="Maximum seconds for each test command.")
+    parser.add_argument(
+        "--allow-ticket-test-commands",
+        action="store_true",
+        help="Execute reproduction commands supplied by the ticket; enable only for trusted inputs and repositories.",
+    )
     parser.add_argument("--no-checkpoints", action="store_true", help="Disable step-level JSON checkpoints.")
     parser.add_argument("--fault-code-index", default=None, help="Optional prebuilt code index for fault localization.")
     parser.add_argument("--fault-top-k", type=int, default=5, help="Number of fault-localization candidates.")
@@ -72,7 +78,6 @@ def main() -> None:
     with raw_ticket_path.open("r", encoding="utf-8") as handle:
         raw_ticket = json.load(handle)
 
-    project_root = Path(__file__).resolve().parents[1]
     bundle_config = {}
     if args.assignee_deployment_bundle:
         bundle = load_deployment_bundle(Path(args.assignee_deployment_bundle))
@@ -83,7 +88,7 @@ def main() -> None:
         return Path(value) if value else None
 
     config = PipelineConfig(
-        project_root=project_root,
+        project_root=PROJECT_ROOT,
         historical_tickets_path=Path(args.historical_tickets) if args.historical_tickets else None,
         assignee_dataset_path=assignee_path(args.assignee_dataset, "assignee_dataset_path"),
         assignee_active_roster_path=assignee_path(args.assignee_active_roster, "assignee_active_roster_path"),
@@ -117,6 +122,8 @@ def main() -> None:
         ),
         duplicate_threshold=args.duplicate_threshold,
         run_regression_tests=args.run_regression_tests,
+        allow_ticket_test_commands=args.allow_ticket_test_commands,
+        test_timeout_seconds=args.test_timeout,
         test_command=shlex.split(args.test_command),
         save_checkpoints=not args.no_checkpoints,
         fault_localization_code_index_path=Path(args.fault_code_index) if args.fault_code_index else None,

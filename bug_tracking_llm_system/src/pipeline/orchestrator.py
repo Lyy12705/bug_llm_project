@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -77,10 +78,31 @@ class PipelineOrchestrator:
                 result["duplicate_of"] = duplicate_result.get("duplicate_of")
                 self._write_checkpoint(checkpoint_dir, "final_pipeline_result.json", result)
                 return result
+            if duplicate_result.get("needs_review"):
+                result["status"] = "needs_duplicate_review"
+                result["paused_step"] = "duplicate_detection"
+                result["review_required"] = True
+                result["warnings"].append(
+                    "Duplicate similarity is inside the review margin; confirm the candidate before continuing."
+                )
+                self._write_checkpoint(checkpoint_dir, "final_pipeline_result.json", result)
+                return result
         except Exception as exc:
             result["warnings"].append(f"Duplicate detection failed: {exc}")
-            duplicate_result = {"is_duplicate": False, "top_k_candidates": [], "fallback_used": True}
+            duplicate_result = {
+                "is_duplicate": False,
+                "needs_review": True,
+                "review_reason": "duplicate_detector_exception",
+                "top_k_candidates": [],
+                "fallback_used": True,
+            }
             result["duplicate"] = duplicate_result
+            result["status"] = "needs_duplicate_review"
+            result["paused_step"] = "duplicate_detection"
+            result["review_required"] = True
+            self._write_checkpoint(checkpoint_dir, "duplicate_detection_result.json", duplicate_result)
+            self._write_checkpoint(checkpoint_dir, "final_pipeline_result.json", result)
+            return result
 
         try:
             self.logger.info("Step 3: Predict priority")
@@ -169,7 +191,7 @@ class PipelineOrchestrator:
 
         try:
             self.logger.info("Step 8: Run regression tests")
-            regression_result = self.regression_tester.run(patch, repository_path)
+            regression_result = self.regression_tester.run(patch, repository_path, reproduction_tests)
             result["regression"] = regression_result
             self._write_checkpoint(checkpoint_dir, "regression_test_result.json", regression_result)
             if regression_result.get("regression_result") == "failed":
@@ -180,6 +202,11 @@ class PipelineOrchestrator:
                 return result
             if regression_result.get("regression_result") == "not_run":
                 result["warnings"].append("Regression tests were not run; patch was only checked structurally.")
+            reproduction_result = regression_result.get("reproduction_result")
+            if reproduction_result not in {"passed", "not_run"}:
+                result["warnings"].append(
+                    "Reproduction verification did not demonstrate fail-before/pass-after behavior."
+                )
         except Exception as exc:
             result["status"] = "patch_unverified"
             result["failed_step"] = "regression_testing"
@@ -204,15 +231,27 @@ class PipelineOrchestrator:
                 "fallback_used": True,
             }
 
-        result["status"] = "completed"
+        result["status"] = _verified_pipeline_status(regression_result)
+        result["verification"] = {
+            "patch_apply": regression_result.get("patch_apply"),
+            "reproduction_result": regression_result.get("reproduction_result", "not_run"),
+            "regression_result": regression_result.get("regression_result", "not_run"),
+            "fully_verified": result["status"] == "completed_verified",
+        }
         self._write_checkpoint(checkpoint_dir, "final_pipeline_result.json", result)
         return result
 
     def _checkpoint_dir(self, structured_ticket: dict[str, Any]) -> Path | None:
         if not self.config.save_checkpoints:
             return None
-        ticket_id = str(structured_ticket.get("ticket_id") or "unknown").replace("/", "_")
-        path = self.config.processed_ticket_dir / ticket_id
+        raw_ticket_id = str(structured_ticket.get("ticket_id") or "unknown")
+        ticket_id = re.sub(r"[^A-Za-z0-9_-]+", "_", raw_ticket_id).strip("._")[:64] or "unknown"
+        root = self.config.processed_ticket_dir.resolve()
+        path = (root / ticket_id).resolve()
+        try:
+            path.relative_to(root)
+        except ValueError as exc:
+            raise ValueError("checkpoint path escapes processed ticket directory") from exc
         path.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -225,6 +264,7 @@ class PipelineOrchestrator:
 
 def build_default_orchestrator(config: PipelineConfig | None = None) -> PipelineOrchestrator:
     cfg = config or PipelineConfig()
+    prompt_root = Path(__file__).resolve().parents[1] / "prompts"
     fault_localization_llm = (
         OllamaClient(
             url=cfg.fault_localization_ollama_url,
@@ -235,7 +275,7 @@ def build_default_orchestrator(config: PipelineConfig | None = None) -> Pipeline
         else None
     )
     return PipelineOrchestrator(
-        ticket_extractor=TicketExtractor(prompt_path=cfg.project_root / "src" / "prompts" / "extract_ticket_prompt.txt"),
+        ticket_extractor=TicketExtractor(prompt_path=prompt_root / "extract_ticket_prompt.txt"),
         duplicate_detector=DuplicateDetector(config=cfg),
         priority_classifier=PriorityClassifier(),
         assignee_triager=AssigneeTriager(config=cfg),
@@ -251,10 +291,22 @@ def build_default_orchestrator(config: PipelineConfig | None = None) -> Pipeline
             llm_candidate_k=cfg.fault_localization_llm_candidate_k,
             llm_cache_dir=cfg.fault_localization_llm_cache_dir,
         ),
-        patch_generator=PatchGenerator(prompt_path=cfg.project_root / "src" / "prompts" / "patch_prompt.txt"),
+        patch_generator=PatchGenerator(prompt_path=prompt_root / "patch_prompt.txt"),
         test_generator=TestGenerator(),
         regression_tester=RegressionTester(config=cfg),
         commit_message_generator=CommitMessageGenerator(),
         logger=build_logger(),
         config=cfg,
     )
+
+
+def _verified_pipeline_status(regression_result: dict[str, Any]) -> str:
+    """Return a status that does not overstate structural patch validation."""
+
+    reproduction = str(regression_result.get("reproduction_result") or "not_run")
+    regression = str(regression_result.get("regression_result") or "not_run")
+    if reproduction == "passed" and regression == "passed":
+        return "completed_verified"
+    if reproduction == "passed" or regression == "passed":
+        return "tests_passed"
+    return "patch_applied_unverified"

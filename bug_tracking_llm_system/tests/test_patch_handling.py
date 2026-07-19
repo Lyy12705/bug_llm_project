@@ -13,6 +13,7 @@ for path in (str(SRC_ROOT), str(PROJECT_ROOT)):
         sys.path.insert(0, path)
 
 from modules.patch_generator import PatchGenerator
+from utils.code_retriever import read_context
 from utils.git_utils import extract_modified_files, looks_like_unified_diff, run_patch_in_temp_copy
 
 
@@ -258,6 +259,63 @@ class PatchHandlingTests(unittest.TestCase):
         self.assertEqual(result["patch_apply_check"], "passed")
         self.assertEqual(result["patch_apply"], "passed")
         self.assertEqual(result["regression_result"], "not_run")
+
+    def test_reproduction_command_fails_before_and_passes_after_patch(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = _make_repo(Path(tmp))
+            command = [
+                "python3",
+                "-c",
+                "from src.auth.validator import validate_token; "
+                "\ntry: validate_token(None)"
+                "\nexcept ValueError: raise SystemExit(0)"
+                "\nraise SystemExit(1)",
+            ]
+
+            result = run_patch_in_temp_copy(
+                repo,
+                STANDARD_UNIFIED_DIFF,
+                reproduction_commands=[command],
+                run_tests=False,
+            )
+
+        self.assertEqual(result["reproduction_result"], "passed")
+        self.assertNotEqual(result["reproduction_tests"][0]["before_returncode"], 0)
+        self.assertEqual(result["reproduction_tests"][0]["after_returncode"], 0)
+
+    def test_reproduction_commands_have_a_timeout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = _make_repo(Path(tmp))
+            result = run_patch_in_temp_copy(
+                repo,
+                STANDARD_UNIFIED_DIFF,
+                reproduction_commands=[["python3", "-c", "import time; time.sleep(1)"]],
+                timeout_seconds=0.02,
+            )
+
+        self.assertEqual(result["reproduction_result"], "post_patch_failed")
+        self.assertEqual(result["reproduction_tests"][0]["before_returncode"], 124)
+        self.assertEqual(result["reproduction_tests"][0]["after_returncode"], 124)
+
+    def test_context_reader_rejects_paths_outside_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            repo = root / "repo"
+            repo.mkdir()
+            outside = root / "secret.py"
+            outside.write_text("SECRET = True\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "escapes repository root"):
+                read_context(repo, "../secret.py", 1, 1)
+
+    def test_context_reader_rejects_oversized_direct_reads(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            oversized = repo / "large.py"
+            oversized.write_text("value = 1\n" * 20, encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "byte limit"):
+                read_context(repo, "large.py", 1, 1, max_file_bytes=16)
 
 
 class _FakePatchClient:

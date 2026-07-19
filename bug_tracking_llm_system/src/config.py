@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Any
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SOURCE_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = SOURCE_ROOT.parent if (SOURCE_ROOT.parent / "pyproject.toml").exists() else SOURCE_ROOT
 
 
 DEFAULT_ASSIGNEE_HISTORY_RELATIVE_PATH = (
@@ -45,6 +46,8 @@ class PipelineConfig:
     assignee_open_set_artifact_path: Path | None = None
     test_command: list[str] = field(default_factory=lambda: ["python3", "-m", "pytest"])
     run_regression_tests: bool = False
+    allow_ticket_test_commands: bool = False
+    test_timeout_seconds: int = 300
     save_checkpoints: bool = True
     fault_localization_code_index_path: Path | None = None
     fault_localization_top_k: int = 5
@@ -61,6 +64,7 @@ class PipelineConfig:
 
     def __post_init__(self) -> None:
         self.project_root = Path(self.project_root)
+        self.test_timeout_seconds = max(1, int(self.test_timeout_seconds))
         if self.historical_tickets_path is None:
             self.historical_tickets_path = self.project_root / "data" / "historical_tickets.jsonl"
         else:
