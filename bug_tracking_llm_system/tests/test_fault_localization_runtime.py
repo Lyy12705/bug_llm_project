@@ -7,6 +7,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -17,9 +18,41 @@ for path in (str(SRC_ROOT), str(PROJECT_ROOT)):
         sys.path.insert(0, path)
 
 from scripts.fault_localization import _repo_cache_token
+from modules.bug_localizer import BugLocalizer
+from utils.fault_localization import build_code_index
 
 
 class FaultLocalizationRuntimeTests(unittest.TestCase):
+    def test_pipeline_localizer_reuses_index_until_source_tree_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = _make_repo(Path(tmp))
+            ticket = {
+                "ticket_id": "CACHE-1",
+                "title": "Missing token crashes login validation",
+                "description": "validate_token calls strip when the authentication token is None.",
+                "logs": "TypeError at src/auth/validator.py:2",
+            }
+            localizer = BugLocalizer(top_k=2)
+            with patch("modules.bug_localizer.build_code_index", wraps=build_code_index) as mocked_build:
+                first = localizer.localize(ticket, str(repo))
+                second = localizer.localize(ticket, str(repo))
+                source_file = repo / "src" / "auth" / "validator.py"
+                source_file.write_text(
+                    "def validate_token(token):\n"
+                    "    if token is None:\n"
+                    "        raise ValueError('token is required')\n"
+                    "    return token.strip()\n",
+                    encoding="utf-8",
+                )
+                updated_mtime = source_file.stat().st_mtime + 5
+                os.utime(source_file, (updated_mtime, updated_mtime))
+                third = localizer.localize(ticket, str(repo))
+
+        self.assertEqual(mocked_build.call_count, 2)
+        self.assertEqual(first["localized_candidates"][0]["file_path"], "src/auth/validator.py")
+        self.assertEqual(second["localized_candidates"][0]["file_path"], "src/auth/validator.py")
+        self.assertEqual(third["localized_candidates"][0]["file_path"], "src/auth/validator.py")
+
     def test_git_repo_cache_token_changes_for_uncommitted_source_edits(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = _make_repo(Path(tmp))
@@ -193,6 +226,34 @@ class FaultLocalizationRuntimeTests(unittest.TestCase):
             status = json.loads(completed.stdout)
 
         self.assertEqual(status["status"], "succeeded")
+
+    def test_job_rejects_path_traversal_id(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            repo = _make_repo(tmp_path)
+            ticket = _write_ticket(tmp_path)
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "scripts/fault_localization_job.py",
+                    "start",
+                    "--foreground",
+                    "--ticket",
+                    str(ticket),
+                    "--repo-path",
+                    str(repo),
+                    "--jobs-dir",
+                    str(tmp_path / "jobs"),
+                    "--job-id",
+                    "../escape",
+                ],
+                cwd=PROJECT_ROOT,
+                text=True,
+                capture_output=True,
+            )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("job id must be", completed.stderr)
 
 
 def _run(command: list[str], *, cwd: Path = PROJECT_ROOT) -> subprocess.CompletedProcess[str]:

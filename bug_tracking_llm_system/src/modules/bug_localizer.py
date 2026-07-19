@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from utils.fault_localization import CodeIndex, load_code_index, localize_ticket
+from utils.fault_localization import CODE_SUFFIXES, CodeIndex, build_code_index, load_code_index, localize_ticket
 
 
 class BugLocalizer:
@@ -38,11 +38,24 @@ class BugLocalizer:
         self.llm_rerank = llm_rerank
         self.llm_candidate_k = llm_candidate_k
         self.llm_cache_dir = Path(llm_cache_dir) if llm_cache_dir else None
+        self._cached_index_key: tuple[str, str] | None = None
+        self._cached_index: CodeIndex | None = None
 
     def localize(self, ticket_json: dict[str, Any], repo_path: str) -> dict[str, Any]:
         code_index: CodeIndex | None = None
         if self.code_index_path is not None and self.code_index_path.exists():
-            code_index = load_code_index(self.code_index_path)
+            key = (str(self.code_index_path.resolve()), str(self.code_index_path.stat().st_mtime_ns))
+            if self._cached_index_key != key:
+                self._cached_index = load_code_index(self.code_index_path)
+                self._cached_index_key = key
+            code_index = self._cached_index
+        else:
+            root = Path(repo_path).resolve()
+            key = (str(root), _source_tree_token(root))
+            if self._cached_index_key != key:
+                self._cached_index = build_code_index(root)
+                self._cached_index_key = key
+            code_index = self._cached_index
 
         result = localize_ticket(
             ticket_json,
@@ -63,3 +76,25 @@ class BugLocalizer:
         if not result.get("repository_path"):
             result["repository_path"] = str(Path(repo_path).resolve())
         return result
+
+
+def _source_tree_token(root: Path) -> str:
+    count = 0
+    total_size = 0
+    latest_mtime_ns = 0
+    ignored = {".git", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".venv", "venv"}
+    for path in root.rglob("*"):
+        if any(part in ignored for part in path.parts) or path.is_symlink():
+            continue
+        if not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
+            continue
+        try:
+            resolved = path.resolve()
+            resolved.relative_to(root)
+            stat = resolved.stat()
+        except (OSError, ValueError):
+            continue
+        count += 1
+        total_size += stat.st_size
+        latest_mtime_ns = max(latest_mtime_ns, stat.st_mtime_ns)
+    return f"count={count}:size={total_size}:mtime={latest_mtime_ns}"

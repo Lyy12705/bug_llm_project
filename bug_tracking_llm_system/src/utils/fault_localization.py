@@ -1492,7 +1492,6 @@ def _localization_confidence_gate(
     ]
 
     top_file_is_test_like = _is_test_like_path(top_file)
-    has_direct_evidence = stack_score >= 0.55 or path_score >= 0.65
     has_strong_source_evidence = not top_file_is_test_like and (stack_score >= 0.75 or path_score >= 0.65)
     has_contextual_evidence = (
         direct_signal >= 0.30
@@ -2061,7 +2060,11 @@ def _iter_source_files(root: Path, *, include_tests: bool, max_file_bytes: int) 
             continue
         if not include_tests and any(part.lower() in TEST_DIR_NAMES for part in rel_parts):
             continue
-        if not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
+        if path.is_symlink() or not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
+            continue
+        try:
+            path.resolve().relative_to(root)
+        except ValueError:
             continue
         try:
             if path.stat().st_size > max_file_bytes:

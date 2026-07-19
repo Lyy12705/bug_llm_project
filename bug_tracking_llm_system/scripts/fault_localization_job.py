@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -15,6 +16,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
+JOB_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -62,7 +64,14 @@ def main() -> int:
 def start_job(args: argparse.Namespace) -> int:
     jobs_dir = _resolve(args.jobs_dir)
     job_id = args.job_id or uuid.uuid4().hex[:12]
-    job_dir = jobs_dir / job_id
+    if not JOB_ID_RE.fullmatch(job_id):
+        raise SystemExit("job id must be 1-64 characters using only letters, numbers, '_' or '-'")
+    jobs_dir = jobs_dir.resolve()
+    job_dir = (jobs_dir / job_id).resolve()
+    try:
+        job_dir.relative_to(jobs_dir)
+    except ValueError as exc:  # defensive; regex above already excludes path separators
+        raise SystemExit("job directory escapes jobs root") from exc
     job_dir.mkdir(parents=True, exist_ok=True)
     progress_path = job_dir / "progress.jsonl"
     result_path = job_dir / ("result.jsonl" if args.tickets_jsonl else "result.json")

@@ -1,7 +1,11 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.coverage
+htmlcov/
+build/
 .DS_Store
+.mplconfig/
 final_pipeline_result.json
 data/processed_tickets/*/
 

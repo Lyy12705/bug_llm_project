@@ -39,8 +39,25 @@ def retrieve_code_candidates(ticket: dict, repo_path: str | Path, *, top_k: int 
     return sorted(combined.values(), key=lambda item: item.score, reverse=True)[:top_k]
 
 
-def read_context(repo_path: str | Path, relative_file: str, line_start: int, line_end: int, *, padding: int = 12) -> str:
-    path = Path(repo_path).resolve() / relative_file
+def read_context(
+    repo_path: str | Path,
+    relative_file: str,
+    line_start: int,
+    line_end: int,
+    *,
+    padding: int = 12,
+    max_file_bytes: int = 500_000,
+) -> str:
+    root = Path(repo_path).resolve()
+    path = (root / relative_file).resolve()
+    try:
+        path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError(f"Context path escapes repository root: {relative_file}") from exc
+    if not path.is_file():
+        raise ValueError(f"Context path is not a file: {relative_file}")
+    if path.stat().st_size > max_file_bytes:
+        raise ValueError(f"Context file exceeds {max_file_bytes} byte limit: {relative_file}")
     lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
     start = max(1, line_start - padding)
     end = min(len(lines), line_end + padding)
@@ -51,8 +68,16 @@ def _iter_code_files(root: Path) -> Iterable[Path]:
     for path in root.rglob("*"):
         if any(part in IGNORED_DIRS for part in path.parts):
             continue
-        if path.is_file() and path.suffix.lower() in CODE_SUFFIXES:
-            yield path
+        if not path.is_file() or path.suffix.lower() not in CODE_SUFFIXES:
+            continue
+        resolved = path.resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            continue
+        if path.is_symlink():
+            continue
+        yield path
 
 
 def _stack_trace_candidates(ticket: dict, root: Path) -> list[CodeCandidate]:
@@ -136,7 +161,12 @@ def _resolve_stack_file(root: Path, raw_file: str) -> Path | None:
             return None
     direct = root / raw_file
     if direct.exists():
-        return direct.resolve()
+        resolved = direct.resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            return None
+        return resolved
     name = Path(raw_file).name
     matches = [candidate for candidate in _iter_code_files(root) if candidate.name == name]
     return matches[0].resolve() if matches else None

@@ -16,6 +16,7 @@ PROJECT_ROOT = DEMO_ROOT.parent
 STATIC_ROOT = DEMO_ROOT / "static"
 DATA_PATH = DEMO_ROOT / "data" / "scenarios.json"
 SRC_ROOT = PROJECT_ROOT / "src"
+MAX_REQUEST_BYTES = 1_000_000
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
@@ -214,6 +215,9 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
         try:
             length = int(self.headers.get("Content-Length", "0"))
+            if length < 0 or length > MAX_REQUEST_BYTES:
+                self.send_error(413, f"Request body must be at most {MAX_REQUEST_BYTES} bytes")
+                return
             payload = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
             text = str(payload.get("text") or "")
             if not text.strip():
