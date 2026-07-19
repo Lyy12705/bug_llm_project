@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_ROOT = PROJECT_ROOT / "assignee_triage_accuracy" / "scripts"
@@ -21,22 +22,74 @@ from train_assignee_ltr import (  # noqa: E402
     exclude_cross_split_overlap,
     source_quotas,
 )
-from calibrate_assignee_ltr import route_predictions, routing_metrics, select_threshold  # noqa: E402
+from calibrate_assignee_ltr import (  # noqa: E402
+    route_predictions,
+    routing_metrics,
+    scored_predictions,
+    select_threshold,
+)
 from assignee_open_set_common import (  # noqa: E402
     build_leave_assignee_out_folds,
     build_drift_reference,
     evaluate_score_drift,
+    deployment_gate,
     fit_portable_logistic,
     predict_portable_logistic,
     route_predictions as route_open_set_predictions,
+    routing_metrics as open_set_routing_metrics,
     routing_score_diagnostics,
     select_routing_policy,
     select_multi_window_routing_policy,
+    wilson_interval as open_set_wilson_interval,
 )
 from train_assignee_rolling_open_set import prepare_rolling_windows  # noqa: E402
 
 
 class AssigneeLtrTests(unittest.TestCase):
+    def test_scored_predictions_preserve_product_and_component_for_subgroup_gates(self) -> None:
+        index = CandidateIndex(
+            [
+                {
+                    "ticket_id": "H-1",
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "product": "Core",
+                    "component": "DOM",
+                    "title": "DOM parser failure",
+                    "assignee": "dev-a",
+                }
+            ],
+            half_life_days=30,
+            smoothing_alpha=2,
+            semantic=build_semantic_backend("none", ""),
+        )
+
+        class FakeRanker:
+            feature_names_ = ["base_score"]
+
+            @staticmethod
+            def predict_proba(matrix: np.ndarray) -> np.ndarray:
+                probability = np.full(len(matrix), 0.9)
+                return np.column_stack((1.0 - probability, probability))
+
+        predictions = scored_predictions(
+            [
+                {
+                    "ticket_id": "Q-1",
+                    "created_at": "2024-02-01T00:00:00Z",
+                    "product": "Core",
+                    "component": "DOM",
+                    "title": "DOM parser crashes",
+                    "assignee": "dev-a",
+                }
+            ],
+            index,
+            FakeRanker(),
+            5,
+        )
+
+        self.assertEqual(predictions[0]["product"], "Core")
+        self.assertEqual(predictions[0]["component"], "DOM")
+
     def test_rolling_history_promotes_prior_unseen_owner_without_future_leakage(self) -> None:
         base = [
             {
@@ -236,6 +289,40 @@ class AssigneeLtrTests(unittest.TestCase):
         self.assertGreaterEqual(sum(row["is_top1_correct"] for row in auto) / len(auto), 0.85)
         self.assertFalse(any(not row["known_owner"] for row in auto))
         self.assertTrue(all(row["fallback_reason"] for row in rows))
+
+    def test_deployment_gate_enforces_sample_size_confidence_and_component_floor(self) -> None:
+        rows = []
+        for index in range(100):
+            auto = index < 20
+            rows.append(
+                {
+                    "known_owner": True,
+                    "is_top1_correct": not (auto and index in {18, 19}),
+                    "is_top3_correct": True,
+                    "routing_status": "auto_assign" if auto else "manual_triage_low_confidence",
+                    "fallback_reason": "high_confidence_low_open_set_risk" if auto else "low_ranking_confidence",
+                    "component": "core",
+                }
+            )
+        metrics = open_set_routing_metrics(rows)
+        gate = deployment_gate(
+            metrics,
+            target_auto_accuracy=0.85,
+            minimum_auto_coverage=0.10,
+            maximum_unseen_auto_rate=0.05,
+            minimum_holdout_rows=100,
+            minimum_auto_rows=20,
+            minimum_accuracy_lower_bound=0.80,
+            minimum_component_auto_rows=20,
+            minimum_component_accuracy=0.85,
+            minimum_component_accuracy_lower_bound=0.80,
+        )
+
+        self.assertFalse(gate["passed"])
+        self.assertFalse(gate["checks"]["auto_accuracy_confidence_lower_bound"])
+        self.assertFalse(gate["checks"]["component_accuracy_confidence_floor"])
+        self.assertEqual(metrics["auto_assignment_accuracy"], 0.9)
+        self.assertLess(open_set_wilson_interval(18, 20)["lower"], 0.8)
 
     def test_routing_score_diagnostics_explain_zero_auto_assignment(self) -> None:
         rows = [

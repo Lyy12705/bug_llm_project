@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/assignee/deployment_bundle.schema.json",
+  "title": "Approved assignee deployment bundle",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "deployment_status",
+    "approval_gate_passed",
+    "created_at",
+    "expires_at",
+    "pipeline_config",
+    "artifact_manifest",
+    "approval_gates"
+  ],
+  "properties": {
+    "schema_version": {"const": 2},
+    "artifact_type": {"const": "assignee_deployment_bundle"},
+    "deployment_status": {"enum": ["approved", "research_only"]},
+    "approval_gate_passed": {"type": "boolean"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "pipeline_config": {"type": "object"},
+    "approval_gates": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": "boolean"}
+    },
+    "artifact_manifest": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size_bytes"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"deployment_status": {"const": "approved"}}},
+      "then": {
+        "properties": {"approval_gate_passed": {"const": true}},
+        "required": ["artifact_manifest"]
+      }
+    }
+  ]
+}

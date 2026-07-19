@@ -232,7 +232,14 @@ class AssigneeTriager:
             "needs_manual_triage": needs_manual_triage,
             "fallback_used": fallback_used,
             "fallback_reason": fallback_reason,
+            "decision_reason_code": (
+                fallback_reason
+                or ("auto_assignment_approved" if not needs_manual_triage else "manual_triage_required")
+            ),
             "profile_stats": profile_stats,
+            "top_candidate_source_count": (
+                len(set(candidate_details[0].get("signals", []))) if candidate_details else 0
+            ),
         }
         if routing_policy:
             result["routing_policy"] = routing_policy.get("name", "")
@@ -264,11 +271,11 @@ class AssigneeTriager:
             return "invalid_or_inactive_candidate"
         if candidate.get("score", 0.0) < self.config.assignee_min_score:
             return "weak_candidate_score"
-        policy_reason = self._routing_policy_fallback_reason(confidence)
-        if policy_reason:
-            return policy_reason
         if open_set_risk is not None and open_set_threshold is not None and open_set_risk >= open_set_threshold:
             return "open_set_unknown_risk"
+        policy_reason = self._routing_policy_fallback_reason(confidence, candidate)
+        if policy_reason:
+            return policy_reason
         if confidence < self.config.assignee_confidence_threshold:
             return "low_confidence"
         signals = set(candidate.get("signals", []))
@@ -303,11 +310,16 @@ class AssigneeTriager:
             f"candidate signals: {signals}."
         )
 
-    def _routing_policy_fallback_reason(self, confidence: float) -> str:
+    def _routing_policy_fallback_reason(self, confidence: float, candidate: dict[str, Any]) -> str:
         policy = self._routing_policy()
         if not policy:
             return ""
 
+        if policy.get("require_active_owner") and not self._is_assignable_assignee(candidate.get("assignee")):
+            return "invalid_or_inactive_candidate"
+        minimum_sources = max(0, int(policy.get("minimum_candidate_source_count") or 0))
+        if len(set(candidate.get("signals", []))) < minimum_sources:
+            return "insufficient_candidate_sources"
         high = policy.get("t_high")
         low = policy.get("t_low")
         if high is not None and confidence >= high:
@@ -339,8 +351,12 @@ class AssigneeTriager:
             return _validated_routing_policy({
                 "name": name,
                 "deployment_status": selected.get("deployment_status"),
+                "approval_gate_passed": selected.get("approval_gate_passed"),
+                "expires_at": selected.get("expires_at"),
                 "t_high": _first_float(selected, ("t_high", "high_confidence_threshold", "auto_assign_threshold")),
                 "t_low": _first_float(selected, ("t_low", "low_confidence_threshold", "top_k_threshold")),
+                "require_active_owner": selected.get("require_active_owner"),
+                "minimum_candidate_source_count": selected.get("minimum_candidate_source_count"),
             })
 
         data = _load_structured_file(path)
@@ -350,8 +366,12 @@ class AssigneeTriager:
         return _validated_routing_policy({
             "name": str(selected_policy.get("policy") or selected_policy.get("name") or policy_name or path.stem),
             "deployment_status": selected_policy.get("deployment_status"),
+            "approval_gate_passed": selected_policy.get("approval_gate_passed"),
+            "expires_at": selected_policy.get("expires_at"),
             "t_high": _first_float(selected_policy, ("t_high", "high_confidence_threshold", "auto_assign_threshold")),
             "t_low": _first_float(selected_policy, ("t_low", "low_confidence_threshold", "top_k_threshold")),
+            "require_active_owner": selected_policy.get("require_active_owner"),
+            "minimum_candidate_source_count": selected_policy.get("minimum_candidate_source_count"),
         })
 
     def _calibration_assessment(self, raw_confidence: float, *, applicable: bool) -> dict[str, Any]:
@@ -370,6 +390,10 @@ class AssigneeTriager:
             return {"confidence": raw, "status": "artifact_schema_mismatch", "artifact": ""}
         if artifact.get("deployment_status") != "approved":
             return {"confidence": raw, "status": "artifact_not_approved", "artifact": str(artifact.get("name") or "")}
+        if artifact.get("approval_gate_passed") is not True:
+            return {"confidence": raw, "status": "artifact_gate_not_passed", "artifact": str(artifact.get("name") or "")}
+        if not _artifact_is_current(artifact):
+            return {"confidence": raw, "status": "artifact_expired_or_invalid", "artifact": str(artifact.get("name") or "")}
         if artifact.get("ranker_confidence_version") != RANKER_CONFIDENCE_VERSION:
             return {"confidence": raw, "status": "ranker_confidence_version_mismatch", "artifact": str(artifact.get("name") or "")}
         if artifact.get("name") != "isotonic_regression":
@@ -454,6 +478,10 @@ class AssigneeTriager:
             return "artifact_schema_mismatch"
         if artifact.get("deployment_status") != "approved":
             return "artifact_not_approved"
+        if artifact.get("approval_gate_passed") is not True:
+            return "artifact_gate_not_passed"
+        if not _artifact_is_current(artifact):
+            return "artifact_expired_or_invalid"
         if artifact.get("ranker_confidence_version") != RANKER_CONFIDENCE_VERSION:
             return "ranker_confidence_version_mismatch"
         if artifact.get("name") != "rule_based_novelty":
@@ -1333,7 +1361,11 @@ def _select_policy_object(data: Any, policy_name: str) -> dict[str, Any]:
 
 def _validated_routing_policy(policy: dict[str, Any]) -> dict[str, Any]:
     deployment_status = str(policy.get("deployment_status") or "").strip().lower()
-    if deployment_status and deployment_status != "approved":
+    if deployment_status != "approved":
+        return {}
+    if not _as_bool(policy.get("approval_gate_passed")):
+        return {}
+    if not _artifact_is_current(policy):
         return {}
     low = _safe_float(policy.get("t_low"))
     high = _safe_float(policy.get("t_high"))
@@ -1345,7 +1377,27 @@ def _validated_routing_policy(policy: dict[str, Any]) -> dict[str, Any]:
         return {}
     if low is not None and high is not None and low > high:
         return {}
-    return {"name": str(policy.get("name") or ""), "t_low": low, "t_high": high}
+    minimum_sources = _safe_float(policy.get("minimum_candidate_source_count"))
+    if minimum_sources is not None and (minimum_sources < 0 or not float(minimum_sources).is_integer()):
+        return {}
+    return {
+        "name": str(policy.get("name") or ""),
+        "t_low": low,
+        "t_high": high,
+        "require_active_owner": _as_bool(policy.get("require_active_owner")),
+        "minimum_candidate_source_count": int(minimum_sources or 0),
+    }
+
+
+def _artifact_is_current(artifact: dict[str, Any]) -> bool:
+    expires_at = _parse_timestamp(artifact.get("expires_at"))
+    return bool(expires_at and expires_at > datetime.now(timezone.utc))
+
+
+def _as_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value or "").strip().lower() in {"1", "true", "yes"}
 
 
 def _path_signature(paths: tuple[Path | None, ...]) -> tuple[tuple[str, float | None], ...]:

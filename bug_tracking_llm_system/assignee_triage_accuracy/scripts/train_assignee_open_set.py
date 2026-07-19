@@ -86,7 +86,7 @@ def main() -> None:
     parser.add_argument("--hidden-query-fraction", type=float, default=0.15)
     parser.add_argument("--minimum-owner-history", type=int, default=3)
     parser.add_argument("--target-auto-accuracy", type=float, default=0.85)
-    parser.add_argument("--target-review-accuracy", type=float, default=0.70)
+    parser.add_argument("--target-review-accuracy", type=float, default=0.90)
     parser.add_argument("--minimum-auto-coverage", type=float, default=0.10)
     parser.add_argument("--maximum-unseen-auto-rate", type=float, default=0.05)
     parser.add_argument("--sbert-model", default="sentence-transformers/all-MiniLM-L6-v2")

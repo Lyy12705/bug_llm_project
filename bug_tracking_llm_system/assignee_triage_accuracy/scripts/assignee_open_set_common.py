@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
@@ -271,6 +271,8 @@ def select_routing_policy(
     minimum_auto_coverage: float,
     maximum_unseen_auto_rate: float,
     target_review_accuracy: float,
+    minimum_auto_rows: int = 1,
+    minimum_accuracy_lower_bound: float = 0.0,
 ) -> dict[str, Any]:
     if not rows:
         raise ValueError("routing policy selection requires predictions")
@@ -288,10 +290,15 @@ def select_routing_policy(
             coverage = len(accepted) / len(rows)
             unseen_auto = sum(not row["known_owner"] for row in accepted)
             unseen_rate = unseen_auto / unknown_total if unknown_total else 0.0
+            accuracy_interval = wilson_interval(
+                sum(bool(row["is_top1_correct"]) for row in accepted), len(accepted)
+            )
             if (
                 accuracy >= target_auto_accuracy
                 and coverage >= minimum_auto_coverage
-                and unseen_rate <= maximum_unseen_auto_rate
+                and unseen_rate < maximum_unseen_auto_rate
+                and len(accepted) >= minimum_auto_rows
+                and accuracy_interval["lower"] >= minimum_accuracy_lower_bound
             ):
                 candidate = {
                     "found": True,
@@ -299,8 +306,11 @@ def select_routing_policy(
                     "t_high": round(high_threshold, 8),
                     "auto_assignment_rows": len(accepted),
                     "auto_assignment_accuracy": round(accuracy, 6),
+                    "auto_assignment_accuracy_ci95": accuracy_interval,
                     "auto_assignment_coverage": round(coverage, 6),
                     "unseen_auto_assignment_rate": round(unseen_rate, 6),
+                    "minimum_auto_rows": minimum_auto_rows,
+                    "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
                 }
                 if best is None or (
                     candidate["auto_assignment_coverage"],
@@ -358,6 +368,8 @@ def select_multi_window_routing_policy(
     target_review_accuracy: float,
     minimum_high_confidence: float = 0.50,
     minimum_review_confidence: float = 0.20,
+    minimum_auto_rows_per_window: int = 1,
+    minimum_accuracy_lower_bound: float = 0.0,
 ) -> dict[str, Any]:
     if len(windows) < 2 or any(not rows for rows in windows.values()):
         raise ValueError("multi-window policy selection requires at least two non-empty windows")
@@ -379,7 +391,10 @@ def select_multi_window_routing_policy(
             if not all(
                 row["auto_assignment_accuracy"] >= target_auto_accuracy
                 and row["auto_assignment_coverage"] >= minimum_auto_coverage
-                and row["unseen_auto_assignment_rate"] <= maximum_unseen_auto_rate
+                and row["unseen_auto_assignment_rate"] < maximum_unseen_auto_rate
+                and row["auto_assignment_rows"] >= minimum_auto_rows_per_window
+                and row["auto_assignment_accuracy_ci95"]["lower"]
+                >= minimum_accuracy_lower_bound
                 for row in metrics.values()
             ):
                 continue
@@ -391,6 +406,8 @@ def select_multi_window_routing_policy(
                 "open_set_threshold": round(float(risk_threshold), 8),
                 "t_high": round(float(high_threshold), 8),
                 "minimum_high_confidence": minimum_high_confidence,
+                "minimum_auto_rows_per_window": minimum_auto_rows_per_window,
+                "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
                 "selection_window_metrics": metrics,
                 "minimum_window_coverage": round(min(coverages), 6),
                 "mean_window_coverage": round(float(np.mean(coverages)), 6),
@@ -479,12 +496,21 @@ def route_predictions(rows: list[dict[str, Any]], policy: dict[str, Any]) -> Non
         confidence = row["calibrated_probability"]
         auto_risk_threshold = policy["open_set_threshold"]
         review_risk_threshold = policy.get("open_set_review_threshold", auto_risk_threshold)
-        if risk < auto_risk_threshold and confidence >= policy["t_high"]:
+        require_active = bool(policy.get("require_active_owner", False))
+        minimum_sources = max(0, int(policy.get("minimum_candidate_source_count", 0)))
+        source_count = int(safe_float(row.get("candidate_source_count")))
+        if require_active and row.get("predicted_owner_active") is not True:
+            status = "manual_triage_invalid_owner"
+            reason = "predicted_owner_not_confirmed_active"
+        elif source_count < minimum_sources:
+            status = "manual_triage_insufficient_evidence"
+            reason = "insufficient_candidate_sources"
+        elif risk < auto_risk_threshold and confidence >= policy["t_high"]:
             status = "auto_assign"
-            reason = "high_calibrated_confidence"
+            reason = "high_confidence_low_open_set_risk"
         elif risk < review_risk_threshold and confidence >= policy["t_low"]:
             status = "top3_confirmation"
-            reason = "medium_calibrated_confidence"
+            reason = "top3_confirmation_required"
         elif risk >= review_risk_threshold:
             status = "manual_triage_open_set"
             reason = "unseen_owner_risk"
@@ -500,16 +526,20 @@ def routing_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
     review = [row for row in rows if row["routing_status"] == "top3_confirmation"]
     unknown = [row for row in rows if not row["known_owner"]]
     unknown_auto = [row for row in unknown if row["routing_status"] == "auto_assign"]
+    correct_auto = sum(bool(row["is_top1_correct"]) for row in auto)
     breakdown = Counter(row["routing_status"] for row in rows)
     return {
         "rows": len(rows),
         "known_rows": len(rows) - len(unknown),
         "unseen_rows": len(unknown),
         "auto_assignment_rows": len(auto),
+        "auto_assignment_correct_rows": correct_auto,
         "auto_assignment_coverage": rounded_ratio(len(auto), len(rows)),
-        "auto_assignment_accuracy": rounded_ratio(sum(row["is_top1_correct"] for row in auto), len(auto)),
+        "auto_assignment_accuracy": rounded_ratio(correct_auto, len(auto)),
+        "auto_assignment_accuracy_ci95": wilson_interval(correct_auto, len(auto)),
         "unseen_auto_assignment_rows": len(unknown_auto),
         "unseen_auto_assignment_rate": rounded_ratio(len(unknown_auto), len(unknown)),
+        "unseen_auto_assignment_rate_ci95": wilson_interval(len(unknown_auto), len(unknown)),
         "top3_confirmation_rows": len(review),
         "top3_confirmation_rate": rounded_ratio(len(review), len(rows)),
         "top3_confirmation_accuracy": rounded_ratio(
@@ -521,6 +551,7 @@ def routing_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         ),
         "routing_status_breakdown": dict(sorted(breakdown.items())),
         "fallback_reason_breakdown": dict(sorted(Counter(row["fallback_reason"] for row in rows).items())),
+        "component_metrics": component_routing_metrics(rows),
     }
 
 
@@ -530,22 +561,81 @@ def deployment_gate(
     target_auto_accuracy: float,
     minimum_auto_coverage: float,
     maximum_unseen_auto_rate: float,
+    minimum_holdout_rows: int = 0,
+    minimum_auto_rows: int = 0,
+    minimum_accuracy_lower_bound: float = 0.0,
+    minimum_component_auto_rows: int = 30,
+    minimum_component_accuracy: float = 0.0,
+    minimum_component_accuracy_lower_bound: float = 0.0,
 ) -> dict[str, Any]:
+    component_failures = {
+        name: values
+        for name, values in metrics.get("component_metrics", {}).items()
+        if values.get("auto_assignment_rows", 0) >= minimum_component_auto_rows
+        and values.get("auto_assignment_accuracy", 0.0) < minimum_component_accuracy
+    }
+    component_confidence_failures = {
+        name: values
+        for name, values in metrics.get("component_metrics", {}).items()
+        if values.get("auto_assignment_rows", 0) >= minimum_component_auto_rows
+        and values.get("auto_assignment_accuracy_ci95", {"lower": 0.0})["lower"]
+        < minimum_component_accuracy_lower_bound
+    }
     checks = {
         "auto_assignment_accuracy": metrics["auto_assignment_accuracy"] >= target_auto_accuracy,
         "auto_assignment_coverage": metrics["auto_assignment_coverage"] >= minimum_auto_coverage,
-        "unseen_auto_assignment_rate": metrics["unseen_auto_assignment_rate"] <= maximum_unseen_auto_rate,
+        "unseen_auto_assignment_rate": metrics["unseen_auto_assignment_rate"] < maximum_unseen_auto_rate,
+        "minimum_holdout_rows": metrics.get("rows", 0) >= minimum_holdout_rows,
+        "minimum_auto_rows": metrics.get("auto_assignment_rows", 0) >= minimum_auto_rows,
+        "auto_accuracy_confidence_lower_bound": metrics.get(
+            "auto_assignment_accuracy_ci95", {"lower": 0.0}
+        )["lower"]
+        >= minimum_accuracy_lower_bound,
+        "component_accuracy_floor": not component_failures,
+        "component_accuracy_confidence_floor": not component_confidence_failures,
     }
+    failed_checks = [name for name, passed in checks.items() if not passed]
     return {
         "passed": all(checks.values()),
         "checks": checks,
+        "failed_checks": failed_checks,
+        "component_failures": component_failures,
+        "component_confidence_failures": component_confidence_failures,
         "targets": {
             "target_auto_accuracy": target_auto_accuracy,
             "minimum_auto_coverage": minimum_auto_coverage,
             "maximum_unseen_auto_rate": maximum_unseen_auto_rate,
+            "minimum_holdout_rows": minimum_holdout_rows,
+            "minimum_auto_rows": minimum_auto_rows,
+            "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
+            "minimum_component_auto_rows": minimum_component_auto_rows,
+            "minimum_component_accuracy": minimum_component_accuracy,
+            "minimum_component_accuracy_lower_bound": minimum_component_accuracy_lower_bound,
         },
-        "blocker": "explicit_operator_and_roster_approval_required" if all(checks.values()) else "routing_safety_gate_failed",
+        "blocker": (
+            "explicit_operator_and_roster_approval_required"
+            if all(checks.values())
+            else "routing_safety_gate_failed:" + ",".join(failed_checks)
+        ),
     }
+
+
+def component_routing_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    groups: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in rows:
+        groups[str(row.get("component") or "unknown")].append(row)
+    result: dict[str, Any] = {}
+    for component, members in sorted(groups.items()):
+        auto = [row for row in members if row.get("routing_status") == "auto_assign"]
+        correct = sum(bool(row.get("is_top1_correct")) for row in auto)
+        result[component] = {
+            "rows": len(members),
+            "auto_assignment_rows": len(auto),
+            "auto_assignment_coverage": rounded_ratio(len(auto), len(members)),
+            "auto_assignment_accuracy": rounded_ratio(correct, len(auto)),
+            "auto_assignment_accuracy_ci95": wilson_interval(correct, len(auto)),
+        }
+    return result
 
 
 def routing_score_diagnostics(rows: list[dict[str, Any]], policy: dict[str, Any]) -> dict[str, Any]:
@@ -724,6 +814,27 @@ def rounded_ratio(numerator: Any, denominator: Any) -> float:
     return round(ratio_int(numerator, denominator), 6)
 
 
+def wilson_interval(
+    successes: int, total: int, *, z: float = 1.959963984540054
+) -> dict[str, float]:
+    if total < 0 or successes < 0 or successes > total:
+        raise ValueError("Wilson interval requires 0 <= successes <= total")
+    if total == 0:
+        return {"lower": 0.0, "upper": 1.0}
+    probability = successes / total
+    denominator = 1.0 + z * z / total
+    center = (probability + z * z / (2.0 * total)) / denominator
+    margin = (
+        z
+        * math.sqrt(probability * (1.0 - probability) / total + z * z / (4.0 * total * total))
+        / denominator
+    )
+    return {
+        "lower": round(max(0.0, center - margin), 6),
+        "upper": round(min(1.0, center + margin), 6),
+    }
+
+
 def metric_or_none(metric: Any, labels: np.ndarray, scores: np.ndarray) -> float | None:
     if len(set(int(value) for value in labels)) < 2:
         return None
@@ -743,10 +854,13 @@ def _routing_arrays(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
 def _auto_metrics(values: dict[str, np.ndarray], risk_threshold: float, high_threshold: float) -> dict[str, Any]:
     accepted = (values["risk"] < risk_threshold) & (values["confidence"] >= high_threshold)
     accepted_rows = int(np.sum(accepted))
+    correct_rows = int(np.sum(values["correct"] & accepted))
     unknown_rows = int(np.sum(values["unknown"]))
     return {
         "auto_assignment_rows": accepted_rows,
-        "auto_assignment_accuracy": ratio_int(np.sum(values["correct"] & accepted), accepted_rows),
+        "auto_assignment_correct_rows": correct_rows,
+        "auto_assignment_accuracy": ratio_int(correct_rows, accepted_rows),
+        "auto_assignment_accuracy_ci95": wilson_interval(correct_rows, accepted_rows),
         "auto_assignment_coverage": ratio_int(accepted_rows, len(values["risk"])),
         "unseen_auto_assignment_rate": ratio_int(
             np.sum(values["unknown"] & accepted), unknown_rows

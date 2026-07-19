@@ -246,6 +246,8 @@ def scored_predictions(
         top_features = top_candidate.features
         prediction = {
             "ticket_id": row.get("ticket_id"),
+            "product": row.get("product") or "unknown",
+            "component": row.get("component") or "unknown",
             "expected_assignee": expected,
             "predicted_assignee": top_candidate.assignee,
             "known_owner": expected in index.global_counts,

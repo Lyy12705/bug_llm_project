@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/assignee/assignee_roster.schema.json",
+  "title": "Versioned assignee roster",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "source", "review_confirmed", "assignees", "candidates", "inactive"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "source": {"type": "string", "minLength": 1},
+    "review_confirmed": {"type": "boolean"},
+    "assignees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["assignee", "active", "status", "history_count"],
+        "properties": {
+          "assignee": {"type": "string", "minLength": 1},
+          "active": {"type": "boolean"},
+          "status": {"type": "string", "minLength": 1},
+          "history_count": {"type": "integer", "minimum": 0},
+          "components": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "candidates": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "inactive": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  }
+}

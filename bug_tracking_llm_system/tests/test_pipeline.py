@@ -740,7 +740,11 @@ class PipelineIntegrationTests(unittest.TestCase):
                 encoding="utf-8",
             )
             policy = tmp_path / "routing_policy.csv"
-            policy.write_text("policy,t_low,t_high\nautomation_first,0,0.96\n", encoding="utf-8")
+            policy.write_text(
+                "policy,deployment_status,approval_gate_passed,expires_at,t_low,t_high\n"
+                "automation_first,approved,true,2099-01-01T00:00:00Z,0,0.96\n",
+                encoding="utf-8",
+            )
             config = PipelineConfig(
                 project_root=PROJECT_ROOT,
                 assignee_dataset_path=history,
@@ -765,6 +769,7 @@ class PipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(result["assignee"], "manual_triage")
         self.assertEqual(result["suggested_assignee"], "payments-owner@example.com")
         self.assertEqual(result["fallback_reason"], "top_k_confirmation_required")
+        self.assertEqual(result["decision_reason_code"], "top_k_confirmation_required")
         self.assertEqual(result["routing_policy"], "automation_first")
 
     def test_assignee_triager_ignores_invalid_routing_threshold_order(self) -> None:
@@ -839,6 +844,47 @@ class PipelineIntegrationTests(unittest.TestCase):
         self.assertEqual(result["fallback_reason"], "open_set_unknown_risk")
         self.assertGreaterEqual(result["open_set_risk"], 0.5)
 
+    def test_open_set_risk_takes_precedence_over_top3_confirmation_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            history = root / "history.jsonl"
+            history.write_text(
+                '{"ticket_id":"H-1","title":"Checkout button overlaps total",'
+                '"description":"Mobile layout covers the checkout total.",'
+                '"component":"frontend","assignee":"frontend@example.com"}\n',
+                encoding="utf-8",
+            )
+            policy = root / "policy.json"
+            policy.write_text(
+                '{"schema_version":1,"name":"safe","deployment_status":"approved",'
+                '"approval_gate_passed":true,"expires_at":"2099-01-01T00:00:00Z",'
+                '"t_low":0.0,"t_high":0.99}',
+                encoding="utf-8",
+            )
+            result = AssigneeTriager(
+                config=PipelineConfig(
+                    project_root=root,
+                    assignee_dataset_path=history,
+                    assignee_routing_policy_path=policy,
+                    assignee_open_set_enabled=True,
+                    assignee_open_set_risk_threshold=0.5,
+                    assignee_allow_text_only_assignment=True,
+                    component_owner_mapping={},
+                    save_checkpoints=False,
+                )
+            ).assign(
+                {
+                    "ticket_id": "Q-1",
+                    "title": "Mobile keyboard covers checkout button",
+                    "description": "The keyboard covers the checkout total on a phone.",
+                    "component": "mobile",
+                },
+                {"predicted_priority": "P3"},
+            )
+
+        self.assertEqual(result["fallback_reason"], "open_set_unknown_risk")
+        self.assertNotEqual(result["fallback_reason"], "top_k_confirmation_required")
+
     def test_assignee_triager_applies_only_approved_isotonic_calibration_artifact(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -853,6 +899,7 @@ class PipelineIntegrationTests(unittest.TestCase):
             artifact.write_text(
                 '{"schema_version":1,"artifact_type":"assignee_confidence_calibrator",'
                 '"name":"isotonic_regression","deployment_status":"approved",'
+                '"approval_gate_passed":true,"expires_at":"2099-01-01T00:00:00Z",'
                 '"ranker_confidence_version":"hybrid_ranker_v1",'
                 '"mapping":{"x_thresholds":[0.0,0.95],"y_thresholds":[0.0,0.4]}}',
                 encoding="utf-8",
@@ -937,6 +984,7 @@ class PipelineIntegrationTests(unittest.TestCase):
             artifact.write_text(
                 '{"schema_version":1,"artifact_type":"assignee_open_set_detector",'
                 '"name":"rule_based_novelty","deployment_status":"approved",'
+                '"approval_gate_passed":true,"expires_at":"2099-01-01T00:00:00Z",'
                 '"ranker_confidence_version":"hybrid_ranker_v1","threshold":0.5,'
                 '"parameters":{"weights":{"unseen_component":0.25,'
                 '"unseen_product_component_pair":0.25,"rare_component":0.15,'
@@ -994,6 +1042,8 @@ class PipelineIntegrationTests(unittest.TestCase):
                 final_assignee="mobile-owner@example.com",
                 reviewer="triager@example.com",
                 created_at="2026-07-10T10:00:00+00:00",
+                known_owner=True,
+                owner_status="known_active",
             )
 
             append_assignee_feedback(feedback_path, record)
@@ -1002,6 +1052,8 @@ class PipelineIntegrationTests(unittest.TestCase):
 
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["final_assignee"], "mobile-owner@example.com")
+        self.assertTrue(rows[0]["known_owner"])
+        self.assertEqual(rows[0]["owner_status"], "known_active")
         self.assertEqual(history_rows[0]["assignee"], "mobile-owner@example.com")
         self.assertEqual(history_rows[0]["component"], "mobile")
 

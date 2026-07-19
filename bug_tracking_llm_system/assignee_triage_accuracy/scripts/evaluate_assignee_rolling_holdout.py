@@ -76,6 +76,13 @@ def main() -> None:
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--confirm-untouched-holdout", action="store_true")
+    parser.add_argument("--minimum-holdout-rows", type=int, default=2500)
+    parser.add_argument("--minimum-auto-rows", type=int, default=250)
+    parser.add_argument("--minimum-auto-accuracy-lower-bound", type=float, default=0.80)
+    parser.add_argument("--minimum-component-auto-rows", type=int, default=30)
+    parser.add_argument("--minimum-component-auto-accuracy", type=float, default=0.75)
+    parser.add_argument("--minimum-component-auto-accuracy-lower-bound", type=float, default=0.60)
+    parser.add_argument("--target-top3-confirmation-accuracy", type=float, default=0.90)
     args = parser.parse_args()
 
     if not args.confirm_untouched_holdout:
@@ -162,7 +169,20 @@ def main() -> None:
         target_auto_accuracy=float(targets["target_auto_accuracy"]),
         minimum_auto_coverage=float(targets["minimum_auto_coverage"]),
         maximum_unseen_auto_rate=float(targets["maximum_unseen_auto_rate"]),
+        minimum_holdout_rows=max(0, args.minimum_holdout_rows),
+        minimum_auto_rows=max(0, args.minimum_auto_rows),
+        minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
+        minimum_component_auto_rows=max(1, args.minimum_component_auto_rows),
+        minimum_component_accuracy=args.minimum_component_auto_accuracy,
+        minimum_component_accuracy_lower_bound=args.minimum_component_auto_accuracy_lower_bound,
     )
+    gate["advisory_checks"] = {
+        "top3_confirmation_accuracy": routing["top3_confirmation_accuracy"]
+        >= args.target_top3_confirmation_accuracy,
+    }
+    gate["advisory_targets"] = {
+        "target_top3_confirmation_accuracy": args.target_top3_confirmation_accuracy,
+    }
     gate["score_drift_check"] = not drift["severe_drift"]
     gate["passed"] = bool(gate["passed"] and not drift["severe_drift"])
     gate["production_integration_allowed"] = False

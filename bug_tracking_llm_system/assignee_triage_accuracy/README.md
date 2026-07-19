@@ -338,16 +338,20 @@ refuses deployment approval when the input prerequisite is violated.
 ```bash
 python3 assignee_triage_accuracy/scripts/prepare_assignee_deployment.py \
   --history data/project_issue_history.jsonl \
+  --active-assignees data/active_assignees.reviewed.json \
   --inactive-assignees data/inactive_assignees.json \
+  --assignee-alias-map data/assignee_aliases.reviewed.json \
   --output-dir models/assignee_deployment \
   --minimum-assignee-history 5
 ```
 
-The first run is intentionally `research_only`. Review
-`active_assignees.json`, the leakage audit, frozen test metrics, and the two
-`*.candidate.json` ownership files. A candidate ownership map is not loaded as
-authoritative production ownership until a maintainer reviews it and adds its
-path to `deployment_bundle.json`.
+The first run is intentionally `research_only`. It writes separate
+`calibration_fit_set.jsonl`, `policy_selection_set.jsonl`, and `test_set.jsonl`
+partitions plus `temporal_protocol_manifest.json`. Review `active_assignees.json`,
+the leakage audit, frozen test metrics, and the two `*.candidate.json` ownership
+files. Research-only bundles are not accepted by the runtime loader. A candidate
+ownership map is not loaded as authoritative production ownership until a
+maintainer reviews it and adds its path to the bundle configuration.
 
 After roster review, request approval. Approval still fails closed unless the
 calibration sample, target auto-assignment accuracy/coverage, chronological
@@ -356,15 +360,28 @@ split, and leakage gates all pass.
 ```bash
 python3 assignee_triage_accuracy/scripts/prepare_assignee_deployment.py \
   --history data/project_issue_history.jsonl \
+  --active-assignees data/active_assignees.reviewed.json \
   --inactive-assignees data/inactive_assignees.json \
+  --assignee-alias-map data/assignee_aliases.reviewed.json \
   --output-dir models/assignee_deployment \
   --minimum-assignee-history 5 \
-  --target-auto-accuracy 0.80 \
+  --target-auto-accuracy 0.85 \
   --minimum-auto-coverage 0.10 \
+  --maximum-unseen-auto-rate 0.05 \
+  --minimum-test-rows 2500 \
+  --minimum-auto-rows 250 \
+  --minimum-auto-accuracy-lower-bound 0.80 \
   --confirm-upstream-duplicate-filtered \
   --confirm-roster-reviewed \
   --approve
 ```
+
+Calibration fitting, routing-threshold selection, and frozen-test approval use
+different chronological rows. An approved schema-v2 bundle also contains an
+expiry time and SHA-256 manifest. Missing, expired, out-of-directory, or modified
+artifacts cause loading to fail closed. The generated open-set detector file
+remains research-only until it is evaluated with the same score definition used
+at runtime; approved bundles currently pin `fallback_rule_based_v1`.
 
 Run assignee recommendation by itself:
 
@@ -394,7 +411,36 @@ python3 assignee_triage_accuracy/scripts/record_assignee_feedback.py \
   --ticket data/new_ticket.json \
   --prediction reports/assignee_recommendation.json \
   --final-assignee developer@example.com \
+  --active-roster models/assignee_deployment/active_assignees.json \
   --feedback models/assignee_deployment/assignee_feedback.jsonl
+```
+
+Evaluate shadow operation without changing real assignments. The gate requires
+at least 500 reviewed tickets or 28 observation days, complete known/unseen
+labels, 85% auto accuracy, 10% auto coverage, unseen-owner auto rate below 5%,
+and an 80% Wilson lower confidence bound. Repeated feedback for one ticket uses
+the latest reviewed event.
+
+Run the frozen rolling LTR/open-set policy for one new ticket in shadow mode.
+Repeat `--history` in chronological source order for every frozen and completed
+rolling window. The command recovers label-availability timestamps, removes
+cross-window overlap, filters future labels, checks the active roster, and never
+changes the real assignment.
+
+```bash
+python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling_shadow.py \
+  --history assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_history_train.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_validation_set.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl \
+  --active-roster data/active_assignees.reviewed.json \
+  --ticket data/raw_tickets/assignee_shadow_ticket.example.json \
+  --output reports/assignee_shadow_prediction.json
+```
+
+```bash
+python3 assignee_triage_accuracy/scripts/evaluate_assignee_shadow.py \
+  --feedback models/assignee_deployment/assignee_feedback.jsonl \
+  --output reports/assignee_shadow_report.json
 ```
 
 ## Build And Run Eclipse Sample Evaluation

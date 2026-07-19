@@ -1,0 +1,10 @@
+{
+  "ticket_id": "SHADOW-EXAMPLE-001",
+  "created_at": "2022-01-05T12:00:00Z",
+  "product": "Core",
+  "component": "DOM: Core & HTML",
+  "priority": "P2",
+  "severity": "S3",
+  "title": "DOM parser crashes while replacing a custom element",
+  "description": "Replacing a custom element during parser insertion causes a crash in the DOM tree update path."
+}

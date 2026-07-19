@@ -6,6 +6,7 @@ from pathlib import Path
 
 from assignee_open_set_common import (
     build_drift_reference,
+    deployment_gate,
     open_set_metrics,
     route_predictions,
     routing_metrics,
@@ -24,12 +25,14 @@ def main() -> None:
     )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--target-auto-accuracy", type=float, default=0.85)
-    parser.add_argument("--target-review-accuracy", type=float, default=0.70)
+    parser.add_argument("--target-review-accuracy", type=float, default=0.90)
     parser.add_argument("--minimum-auto-coverage", type=float, default=0.10)
     parser.add_argument("--maximum-unseen-auto-rate", type=float, default=0.05)
     parser.add_argument("--minimum-high-confidence", type=float, default=0.50)
     parser.add_argument("--minimum-review-confidence", type=float, default=0.20)
     parser.add_argument("--maximum-drift-psi", type=float, default=0.25)
+    parser.add_argument("--minimum-auto-rows-per-window", type=int, default=30)
+    parser.add_argument("--minimum-auto-accuracy-lower-bound", type=float, default=0.75)
     args = parser.parse_args()
 
     report_path = args.output_dir / "rolling_open_set_report.json"
@@ -51,6 +54,8 @@ def main() -> None:
         target_review_accuracy=args.target_review_accuracy,
         minimum_high_confidence=args.minimum_high_confidence,
         minimum_review_confidence=args.minimum_review_confidence,
+        minimum_auto_rows_per_window=max(1, args.minimum_auto_rows_per_window),
+        minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
     )
     for rows in windows.values():
         route_predictions(rows, policy)
@@ -61,15 +66,18 @@ def main() -> None:
         maximum_psi=args.maximum_drift_psi,
     )
     routing = {name: routing_metrics(rows) for name, rows in windows.items()}
-    passed = bool(
-        policy.get("found")
-        and all(
-            metrics["auto_assignment_accuracy"] >= args.target_auto_accuracy
-            and metrics["auto_assignment_coverage"] >= args.minimum_auto_coverage
-            and metrics["unseen_auto_assignment_rate"] <= args.maximum_unseen_auto_rate
-            for metrics in routing.values()
+    window_gates = {
+        name: deployment_gate(
+            metrics,
+            target_auto_accuracy=args.target_auto_accuracy,
+            minimum_auto_coverage=args.minimum_auto_coverage,
+            maximum_unseen_auto_rate=args.maximum_unseen_auto_rate,
+            minimum_auto_rows=max(1, args.minimum_auto_rows_per_window),
+            minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
         )
-    )
+        for name, metrics in routing.items()
+    }
+    passed = bool(policy.get("found") and all(gate["passed"] for gate in window_gates.values()))
     report.update(
         {
             "routing_policy": policy,
@@ -84,6 +92,7 @@ def main() -> None:
             "development_gate": {
                 "passed": passed,
                 "requires_every_selection_window": True,
+                "window_gates": window_gates,
                 "blocker": (
                     "new_untouched_holdout_required" if passed
                     else "multi_window_routing_safety_gate_failed"
@@ -94,6 +103,8 @@ def main() -> None:
                 "selection_windows": list(windows),
                 "minimum_high_confidence": args.minimum_high_confidence,
                 "minimum_review_confidence": args.minimum_review_confidence,
+                "minimum_auto_rows_per_window": args.minimum_auto_rows_per_window,
+                "minimum_auto_accuracy_lower_bound": args.minimum_auto_accuracy_lower_bound,
             },
         }
     )

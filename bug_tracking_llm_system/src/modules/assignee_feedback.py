@@ -19,6 +19,8 @@ def build_assignee_feedback_record(
     source: str = "manual_triage",
     notes: str = "",
     created_at: str | None = None,
+    known_owner: bool | None = None,
+    owner_status: str = "",
 ) -> dict[str, Any]:
     final_owner = _normalize_assignee(final_assignee)
     predicted_owner = _normalize_assignee(prediction.get("assignee"))
@@ -40,6 +42,21 @@ def build_assignee_feedback_record(
         "confidence": prediction.get("confidence"),
         "routing_status": str(prediction.get("routing_status") or ""),
         "fallback_reason": str(prediction.get("fallback_reason") or ""),
+        "decision_reason_code": str(
+            prediction.get("decision_reason_code") or prediction.get("fallback_reason") or ""
+        ),
+        "known_owner": (
+            known_owner
+            if isinstance(known_owner, bool)
+            else prediction.get("known_owner")
+            if isinstance(prediction.get("known_owner"), bool)
+            else None
+        ),
+        "owner_status": str(owner_status or prediction.get("owner_status") or ""),
+        "model_version": str(prediction.get("model_version") or ""),
+        "policy_version": str(
+            prediction.get("policy_version") or prediction.get("routing_policy") or ""
+        ),
         "final_assignee": final_owner,
         "accepted_auto_assignment": bool(final_owner and final_owner == predicted_owner and final_owner != MANUAL_TRIAGE),
         "reviewer": reviewer,
