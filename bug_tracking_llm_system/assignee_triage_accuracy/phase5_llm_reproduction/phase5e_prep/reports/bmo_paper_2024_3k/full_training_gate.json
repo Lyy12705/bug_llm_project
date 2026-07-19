@@ -1,0 +1,33 @@
+{
+  "checks": {
+    "adapter_reload_ok": false,
+    "checkpoint_reload_ok": false,
+    "environment_ok": false,
+    "inference_smoke_ok": false,
+    "label_leakage_ok": true,
+    "lora_attach_ok": false,
+    "nf4_load_ok": false,
+    "prompt_integrity_ok": true,
+    "smoke_loss_finite": false,
+    "tokenization_ok": false
+  },
+  "failed_checks": [
+    "environment_ok",
+    "nf4_load_ok",
+    "lora_attach_ok",
+    "tokenization_ok",
+    "smoke_loss_finite",
+    "checkpoint_reload_ok",
+    "adapter_reload_ok",
+    "inference_smoke_ok"
+  ],
+  "generated_at_utc": "2026-07-09T11:44:27.272179+00:00",
+  "passed": false,
+  "policy": "Full training is forbidden until every gate check passes on remote CUDA.",
+  "warnings": [
+    "peft not installed",
+    "trl not installed",
+    "bitsandbytes not installed",
+    "runtime import failed: No module named 'peft'"
+  ]
+}

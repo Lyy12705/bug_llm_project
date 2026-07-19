@@ -1,0 +1,28 @@
+{
+  "assistant_only_loss_mask_ok": false,
+  "candidate_scoring_completed": false,
+  "exact_reproduction_completed": false,
+  "full_training_gate_passed": false,
+  "gate_checks": {
+    "adapter_reload_ok": false,
+    "checkpoint_reload_ok": false,
+    "environment_ok": false,
+    "inference_smoke_ok": false,
+    "label_leakage_ok": true,
+    "lora_attach_ok": false,
+    "nf4_load_ok": false,
+    "prompt_integrity_ok": true,
+    "smoke_loss_finite": false,
+    "tokenization_ok": false
+  },
+  "generated_at_utc": "2026-07-09T11:44:27.272343+00:00",
+  "lora_attached": false,
+  "metadata_enriched_adapted_variant": "sanitized_title_plus_description_plus_metadata",
+  "nf4_effective": false,
+  "phase": "phase5e_remote_smoke_execution_gate",
+  "primary_input_variant": "sanitized_title_plus_description",
+  "recommended_candidate_scoring": "mean_token_logprob",
+  "reproduction_role": "literature_aligned_primary_reproduction",
+  "safe_to_start_full_training": false,
+  "smoke_loss_finite": false
+}

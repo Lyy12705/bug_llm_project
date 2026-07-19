@@ -1,0 +1,193 @@
+{
+  "confidence_source": {
+    "fallback_confidences": {
+      "manual_triage_no_signal": 0.25,
+      "mapped_owner_without_ranked_candidates": 0.65
+    },
+    "formula": "min(0.95, max(0.35, 0.55 + 0.30 * top1_top2_margin + signal_bonus))",
+    "signal_bonus": "min(0.20, 0.05 * number_of_top_candidate_signals)",
+    "source": "AssigneeTriager._confidence",
+    "temperature_scaling_note": "Temperature scaling is not appropriate here because the deterministic ranker does not expose calibrated logits.",
+    "top1_top2_margin": "(best_score - second_score) / best_score"
+  },
+  "ranking_check": {
+    "deltas": {
+      "hit_at_10": -0.090116,
+      "hit_at_3": -0.19178,
+      "hit_at_5": -0.136466,
+      "mrr": -0.201504,
+      "top1_accuracy": -0.238493
+    },
+    "expected": {
+      "hit_at_10": 0.958333,
+      "hit_at_3": 0.90625,
+      "hit_at_5": 0.9375,
+      "mrr": 0.838777,
+      "top1_accuracy": 0.765625
+    },
+    "observed": {
+      "hit_at_10": 0.868217,
+      "hit_at_3": 0.71447,
+      "hit_at_5": 0.801034,
+      "mrr": 0.637273,
+      "top1_accuracy": 0.527132
+    },
+    "ranking_metrics_unchanged": false
+  },
+  "test": {
+    "histogram": {
+      "[0.0,0.1)": 0,
+      "[0.1,0.2)": 0,
+      "[0.2,0.3)": 0,
+      "[0.3,0.4)": 0,
+      "[0.4,0.5)": 0,
+      "[0.5,0.6)": 0,
+      "[0.6,0.7)": 24,
+      "[0.7,0.8)": 118,
+      "[0.8,0.9)": 218,
+      "[0.9,1.0]": 414
+    },
+    "invalid_high_count": 0,
+    "invalid_low_count": 0,
+    "max": 0.95,
+    "mean": 0.880092,
+    "median": 0.909,
+    "min": 0.605,
+    "most_common_values": [
+      {
+        "confidence": 0.95,
+        "count": 273
+      },
+      {
+        "confidence": 0.82,
+        "count": 8
+      },
+      {
+        "confidence": 0.814,
+        "count": 7
+      },
+      {
+        "confidence": 0.925,
+        "count": 6
+      },
+      {
+        "confidence": 0.755,
+        "count": 6
+      },
+      {
+        "confidence": 0.942,
+        "count": 6
+      },
+      {
+        "confidence": 0.855,
+        "count": 6
+      },
+      {
+        "confidence": 0.901,
+        "count": 6
+      },
+      {
+        "confidence": 0.866,
+        "count": 6
+      },
+      {
+        "confidence": 0.756,
+        "count": 5
+      }
+    ],
+    "quantiles": {
+      "0.01": 0.65973,
+      "0.05": 0.7496,
+      "0.1": 0.765,
+      "0.25": 0.82,
+      "0.5": 0.909,
+      "0.75": 0.95,
+      "0.9": 0.95,
+      "0.95": 0.95,
+      "0.99": 0.95
+    },
+    "rows": 774,
+    "saturation_0_95_or_above_count": 273,
+    "saturation_0_95_or_above_ratio": 0.352713,
+    "std": 0.078048,
+    "unique_value_count": 211
+  },
+  "validation": {
+    "histogram": {
+      "[0.0,0.1)": 0,
+      "[0.1,0.2)": 0,
+      "[0.2,0.3)": 0,
+      "[0.3,0.4)": 0,
+      "[0.4,0.5)": 0,
+      "[0.5,0.6)": 0,
+      "[0.6,0.7)": 14,
+      "[0.7,0.8)": 116,
+      "[0.8,0.9)": 199,
+      "[0.9,1.0]": 459
+    },
+    "invalid_high_count": 0,
+    "invalid_low_count": 0,
+    "max": 0.95,
+    "mean": 0.888223,
+    "median": 0.926,
+    "min": 0.639,
+    "most_common_values": [
+      {
+        "confidence": 0.95,
+        "count": 323
+      },
+      {
+        "confidence": 0.948,
+        "count": 7
+      },
+      {
+        "confidence": 0.936,
+        "count": 7
+      },
+      {
+        "confidence": 0.813,
+        "count": 7
+      },
+      {
+        "confidence": 0.945,
+        "count": 6
+      },
+      {
+        "confidence": 0.878,
+        "count": 6
+      },
+      {
+        "confidence": 0.925,
+        "count": 5
+      },
+      {
+        "confidence": 0.805,
+        "count": 5
+      },
+      {
+        "confidence": 0.943,
+        "count": 5
+      },
+      {
+        "confidence": 0.886,
+        "count": 5
+      }
+    ],
+    "quantiles": {
+      "0.01": 0.67287,
+      "0.05": 0.75335,
+      "0.1": 0.771,
+      "0.25": 0.8305,
+      "0.5": 0.926,
+      "0.75": 0.95,
+      "0.9": 0.95,
+      "0.95": 0.95,
+      "0.99": 0.95
+    },
+    "rows": 788,
+    "saturation_0_95_or_above_count": 323,
+    "saturation_0_95_or_above_ratio": 0.409898,
+    "std": 0.0749,
+    "unique_value_count": 203
+  }
+}

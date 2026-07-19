@@ -101,6 +101,11 @@ def main() -> None:
     parser.add_argument("--top-n", type=int, default=8, help="Number of top components/products/keywords to keep.")
     parser.add_argument("--examples-per-profile", type=int, default=5)
     parser.add_argument("--include-manual-triage", action="store_true")
+    parser.add_argument(
+        "--write-human-exports",
+        action="store_true",
+        help="Also write redundant CSV and Markdown views; JSON remains the canonical output.",
+    )
     args = parser.parse_args()
 
     history_path = args.history or args.data_dir / f"{args.dataset}_history_train.jsonl"
@@ -132,8 +137,11 @@ def main() -> None:
     md_path = args.output_dir / f"{args.dataset}_assignee_profiles.md"
 
     write_json(json_path, payload)
-    write_csv(csv_path, profiles)
-    write_markdown(md_path, payload)
+    outputs = {"json": str(json_path)}
+    if args.write_human_exports:
+        write_csv(csv_path, profiles)
+        write_markdown(md_path, payload)
+        outputs.update({"csv": str(csv_path), "markdown": str(md_path)})
 
     print(
         json.dumps(
@@ -141,9 +149,7 @@ def main() -> None:
                 "dataset": args.dataset,
                 "history_path": str(history_path),
                 "profiles": len(profiles),
-                "json": str(json_path),
-                "csv": str(csv_path),
-                "markdown": str(md_path),
+                "outputs": outputs,
             },
             ensure_ascii=False,
             indent=2,

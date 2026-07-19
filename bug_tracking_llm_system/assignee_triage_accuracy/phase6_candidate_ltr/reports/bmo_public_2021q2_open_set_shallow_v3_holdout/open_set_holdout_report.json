@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "method": "frozen_open_set_routing_holdout_evaluation_v1",
+  "evaluated_at": "2026-07-13T14:34:05.823031+00:00",
+  "deployment_status": "research_only",
+  "protocol": {
+    "holdout": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q2_raw.jsonl",
+    "holdout_rows": 2672,
+    "cross_split_overlap_rows_excluded": 11,
+    "holdout_used_for_fitting": false,
+    "holdout_used_for_threshold_selection": false,
+    "ranker_selection": "fixed_before_holdout",
+    "routing_policy_selection": "fixed_before_holdout"
+  },
+  "recommendation_metrics": {
+    "rows": 2672,
+    "top1_accuracy": 0.342814,
+    "top3_accuracy": 0.489521,
+    "top5_accuracy": 0.568114,
+    "top10_accuracy": 0.650449,
+    "candidate_pool_recall": 0.726422,
+    "mrr": 0.435547,
+    "macro_f1": 0.084206
+  },
+  "recommendation_metrics_known_owner": {
+    "rows": 2088,
+    "top1_accuracy": 0.438697,
+    "top3_accuracy": 0.626437,
+    "top5_accuracy": 0.727011,
+    "top10_accuracy": 0.832375,
+    "candidate_pool_recall": 0.929598,
+    "mrr": 0.557367,
+    "macro_f1": 0.213223
+  },
+  "open_set_metrics": {
+    "rows": 2672,
+    "known_rows": 2088,
+    "unknown_rows": 584,
+    "auroc": 0.666143,
+    "auprc": 0.313796,
+    "unknown_recall_at_5pct_known_fpr": 0.09417808219178082,
+    "threshold_at_5pct_known_fpr": 0.95817116,
+    "threshold": 0.50651379,
+    "unknown_recall": 0.8236301369863014,
+    "known_false_positive_rate": 0.5933908045977011
+  },
+  "routing_metrics": {
+    "rows": 2672,
+    "known_rows": 2088,
+    "unseen_rows": 584,
+    "auto_assignment_rows": 0,
+    "auto_assignment_coverage": 0.0,
+    "auto_assignment_accuracy": 0.0,
+    "unseen_auto_assignment_rows": 0,
+    "unseen_auto_assignment_rate": 0.0,
+    "top3_confirmation_rows": 514,
+    "top3_confirmation_rate": 0.192365,
+    "top3_confirmation_accuracy": 0.94358,
+    "manual_triage_rate": 0.807635,
+    "routing_status_breakdown": {
+      "manual_triage_low_confidence": 438,
+      "manual_triage_open_set": 1720,
+      "top3_confirmation": 514
+    },
+    "fallback_reason_breakdown": {
+      "low_ranking_confidence": 438,
+      "medium_calibrated_confidence": 514,
+      "unseen_owner_risk": 1720
+    }
+  },
+  "deployment_gate": {
+    "passed": false,
+    "checks": {
+      "auto_assignment_accuracy": false,
+      "auto_assignment_coverage": false,
+      "unseen_auto_assignment_rate": true
+    },
+    "targets": {
+      "target_auto_accuracy": 0.85,
+      "minimum_auto_coverage": 0.1,
+      "maximum_unseen_auto_rate": 0.05
+    },
+    "blocker": "routing_safety_gate_failed",
+    "ranker_validation_candidate": true,
+    "production_integration_allowed": false,
+    "production_blocker": "untouched_holdout_safety_gate_failed"
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "bootstrap_samples": 500,
+  "dataset": "bmo_paper_2024_3k",
+  "experiment_name": "prefilter_open_world_eval",
+  "frequency_bucket_metrics_before_abstention": {
+    "freq_1": {
+      "hit_at_10": 0.625,
+      "hit_at_3": 0.5,
+      "hit_at_5": 0.625,
+      "mrr": 0.358333,
+      "rows": 8,
+      "top1_accuracy": 0.25,
+      "top1_bootstrap_95ci": {
+        "high": 0.625,
+        "low": 0.0
+      }
+    },
+    "freq_10_19": {
+      "hit_at_10": 0.877193,
+      "hit_at_3": 0.77193,
+      "hit_at_5": 0.824561,
+      "mrr": 0.603404,
+      "rows": 57,
+      "top1_accuracy": 0.438596,
+      "top1_bootstrap_95ci": {
+        "high": 0.561404,
+        "low": 0.298246
+      }
+    },
+    "freq_20_plus": {
+      "hit_at_10": 0.977778,
+      "hit_at_3": 0.918519,
+      "hit_at_5": 0.933333,
+      "mrr": 0.846387,
+      "rows": 135,
+      "top1_accuracy": 0.77037,
+      "top1_bootstrap_95ci": {
+        "high": 0.837037,
+        "low": 0.696296
+      }
+    },
+    "freq_2_4": {
+      "hit_at_10": 0.692308,
+      "hit_at_3": 0.307692,
+      "hit_at_5": 0.5,
+      "mrr": 0.333806,
+      "rows": 26,
+      "top1_accuracy": 0.230769,
+      "top1_bootstrap_95ci": {
+        "high": 0.423077,
+        "low": 0.076923
+      }
+    },
+    "freq_5_9": {
+      "hit_at_10": 0.722222,
+      "hit_at_3": 0.527778,
+      "hit_at_5": 0.694444,
+      "mrr": 0.403968,
+      "rows": 36,
+      "top1_accuracy": 0.222222,
+      "top1_bootstrap_95ci": {
+        "high": 0.361111,
+        "low": 0.083333
+      }
+    },
+    "unseen": {
+      "hit_at_10": 0.0,
+      "hit_at_3": 0.0,
+      "hit_at_5": 0.0,
+      "mrr": 0.0,
+      "rows": 18,
+      "top1_accuracy": 0.0,
+      "top1_bootstrap_95ci": {
+        "high": 0.0,
+        "low": 0.0
+      }
+    }
+  },
+  "frequent_assignee_threshold": 10,
+  "group_metrics_before_abstention": {
+    "frequent_seen": {
+      "hit_at_10": 0.947917,
+      "hit_at_3": 0.875,
+      "hit_at_5": 0.901042,
+      "mrr": 0.774252,
+      "rows": 192,
+      "top1_accuracy": 0.671875,
+      "top1_bootstrap_95ci": {
+        "high": 0.739583,
+        "low": 0.604167
+      }
+    },
+    "low_frequency_seen": {
+      "hit_at_10": 0.7,
+      "hit_at_3": 0.442857,
+      "hit_at_5": 0.614286,
+      "mrr": 0.372693,
+      "rows": 70,
+      "top1_accuracy": 0.228571,
+      "top1_bootstrap_95ci": {
+        "high": 0.328571,
+        "low": 0.142857
+      }
+    },
+    "unseen_assignee": {
+      "hit_at_10": 0.0,
+      "hit_at_3": 0.0,
+      "hit_at_5": 0.0,
+      "mrr": 0.0,
+      "rows": 18,
+      "top1_accuracy": 0.0,
+      "top1_bootstrap_95ci": {
+        "high": 0.0,
+        "low": 0.0
+      }
+    }
+  },
+  "notes": [
+    "Threshold is selected on validation only and is evaluation-only; production current_assignee_triager is unchanged.",
+    "Unseen assignees are evaluated via manual_triage/abstention metrics, not as ordinary closed-set classes."
+  ],
+  "open_set_abstention_metrics": {
+    "auto_assigned_seen_rows": 111,
+    "coverage": 0.407143,
+    "false_auto_assign_rate_unseen": 0.166667,
+    "false_manual_triage_rate_seen": 0.576336,
+    "manual_triage_rate": 0.592857,
+    "manual_triage_recall_unseen": 0.833333,
+    "open_set_recall": 0.833333,
+    "rows": 280,
+    "seen_rows": 262,
+    "selective_accuracy_seen": 0.837838,
+    "selective_risk_seen": 0.162162,
+    "unseen_rows": 18
+  },
+  "raw_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_paper_2024_3k_raw.jsonl",
+  "seed": 3407,
+  "selected_abstention_policy": {
+    "auto_assigned_seen_rows": 78,
+    "coverage": 0.289286,
+    "false_auto_assign_rate_unseen": 0.136364,
+    "false_manual_triage_rate_seen": 0.697674,
+    "manual_triage_rate": 0.710714,
+    "manual_triage_recall_unseen": 0.863636,
+    "open_set_recall": 0.863636,
+    "policy": "manual_triage_if_confidence_below_threshold",
+    "policy_scope": "evaluation_only_validation_selected",
+    "rows": 280,
+    "seen_rows": 258,
+    "selected_threshold": 0.95,
+    "selection_objective": 1.620107,
+    "selective_accuracy_seen": 0.820513,
+    "selective_risk_seen": 0.179487,
+    "unseen_rows": 22,
+    "validation_unseen_count": 22
+  },
+  "task_setting": "pre-filter open-world view with evaluation-only manual_triage threshold",
+  "test_count": 280,
+  "test_metrics_before_abstention": {
+    "hit_at_10": 0.825,
+    "hit_at_3": 0.710714,
+    "hit_at_5": 0.771429,
+    "mrr": 0.624089,
+    "rows": 280,
+    "top1_accuracy": 0.517857,
+    "top1_bootstrap_95ci": {
+      "high": 0.575,
+      "low": 0.460714
+    }
+  },
+  "top_k": 10,
+  "train_assignee_count": 276,
+  "train_count": 2240,
+  "validation_abstention_metrics": {
+    "auto_assigned_seen_rows": 78,
+    "coverage": 0.289286,
+    "false_auto_assign_rate_unseen": 0.136364,
+    "false_manual_triage_rate_seen": 0.697674,
+    "manual_triage_rate": 0.710714,
+    "manual_triage_recall_unseen": 0.863636,
+    "open_set_recall": 0.863636,
+    "rows": 280,
+    "seen_rows": 258,
+    "selective_accuracy_seen": 0.820513,
+    "selective_risk_seen": 0.179487,
+    "unseen_rows": 22
+  },
+  "validation_count": 280,
+  "validation_metrics_before_abstention": {
+    "hit_at_10": 0.803571,
+    "hit_at_3": 0.685714,
+    "hit_at_5": 0.757143,
+    "mrr": 0.62535,
+    "rows": 280,
+    "top1_accuracy": 0.535714,
+    "top1_bootstrap_95ci": {
+      "high": 0.592857,
+      "low": 0.475
+    }
+  }
+}

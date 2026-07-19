@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_ltr_calibrator",
+  "name": "multi_feature_logistic",
+  "deployment_status": "research_only",
+  "ranker": "candidate_hist_gradient_boosting_shallow_ltr_v1",
+  "routing_policy": {
+    "t_high": {
+      "found": true,
+      "threshold": 0.751775,
+      "accepted_rows": 128,
+      "coverage": 0.405063,
+      "accuracy": 0.851562
+    },
+    "t_low": {
+      "found": true,
+      "threshold": 0.394592,
+      "accepted_rows": 227,
+      "coverage": 0.718354,
+      "accuracy": 0.700441
+    },
+    "open_set_risk_threshold": 0.75
+  },
+  "holdout_routing": {
+    "rows": 2705,
+    "known_rows": 2342,
+    "unseen_rows": 363,
+    "auto_assignment_rows": 657,
+    "auto_assignment_coverage": 0.242884,
+    "auto_assignment_accuracy": 0.869102,
+    "unseen_auto_assignment_rows": 26,
+    "unseen_auto_assignment_rate": 0.071625,
+    "top3_confirmation_rate": 0.23549,
+    "manual_triage_rate": 0.521627,
+    "routing_status_breakdown": {
+      "auto_assign": 657,
+      "manual_triage_low_confidence": 1370,
+      "manual_triage_open_set": 41,
+      "top3_confirmation": 637
+    }
+  },
+  "approval_note": "Runtime integration requires an approved ranker and explicit operator approval.",
+  "feature_names": [
+    "top_probability",
+    "probability_margin",
+    "one_minus_entropy",
+    "component_support_log",
+    "product_component_support_log",
+    "owner_recency"
+  ],
+  "coefficients": [
+    1.7106330559994103,
+    2.0216699577834474,
+    1.2589321263348086,
+    0.12923457374930472,
+    0.030177354118904643,
+    0.40239718956242093
+  ],
+  "intercept": -2.6590245441245504
+}

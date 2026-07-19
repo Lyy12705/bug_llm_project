@@ -42,6 +42,7 @@ def main() -> None:
     records = [record for record in (normalize_record(row) for row in read_jsonl(args.raw)) if record]
     if not args.keep_generic_assignees:
         records = [row for row in records if not GENERIC_ASSIGNEE_RE.search(row["assignee"])]
+    records, duplicate_audit = collapse_duplicate_clusters(records)
     if len(records) < 3:
         raise SystemExit(f"Not enough usable records after filtering: {len(records)}")
 
@@ -81,6 +82,7 @@ def main() -> None:
         roster=roster,
         min_train_assignee_count=args.min_train_assignee_count,
         anonymized=not args.keep_assignee_identifiers,
+        duplicate_audit=duplicate_audit,
     )
     write_json(args.output_dir / f"{args.dataset}_dataset_summary.json", summary)
     if args.write_label_map:
@@ -127,6 +129,7 @@ def normalize_record(row: dict[str, Any]) -> dict[str, Any] | None:
         "resolution": clean(row.get("resolution")),
         "assignee": assignee,
         "created_at": created_at,
+        "duplicate_of": f"bmo_{clean(row.get('dupe_of'))}" if clean(row.get("dupe_of")) else "",
         "source": "bugzilla_mozilla",
     }
 
@@ -137,6 +140,57 @@ def temporal_split(
     train_end = max(1, min(len(records) - 2, int(len(records) * train_ratio)))
     validation_end = max(train_end + 1, min(len(records) - 1, train_end + int(len(records) * validation_ratio)))
     return records[:train_end], records[train_end:validation_end], records[validation_end:]
+
+
+def collapse_duplicate_clusters(records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    by_id = {str(row["ticket_id"]): row for row in records}
+    parent = {ticket_id: ticket_id for ticket_id in by_id}
+
+    def find(ticket_id: str) -> str:
+        while parent[ticket_id] != ticket_id:
+            parent[ticket_id] = parent[parent[ticket_id]]
+            ticket_id = parent[ticket_id]
+        return ticket_id
+
+    def union(left: str, right: str) -> None:
+        left_root = find(left)
+        right_root = find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
+    explicit_links = 0
+    content_first: dict[str, str] = {}
+    for ticket_id, row in by_id.items():
+        duplicate_of = str(row.get("duplicate_of") or "")
+        if duplicate_of and duplicate_of in by_id:
+            union(ticket_id, duplicate_of)
+            explicit_links += 1
+        content_key = normalized_content_key(row)
+        previous = content_first.get(content_key)
+        if previous:
+            union(ticket_id, previous)
+        else:
+            content_first[content_key] = ticket_id
+
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for ticket_id, row in by_id.items():
+        groups.setdefault(find(ticket_id), []).append(row)
+    representatives = [
+        min(group, key=lambda row: (row["created_at"], row["ticket_id"])) for group in groups.values()
+    ]
+    representatives.sort(key=lambda row: (row["created_at"], row["ticket_id"]))
+    return representatives, {
+        "input_rows": len(records),
+        "independent_clusters": len(representatives),
+        "rows_removed": len(records) - len(representatives),
+        "multi_row_clusters": sum(1 for group in groups.values() if len(group) > 1),
+        "explicit_duplicate_links": explicit_links,
+    }
+
+
+def normalized_content_key(row: dict[str, Any]) -> str:
+    text = f"{row.get('title', '')} {row.get('description', '')}".lower()
+    return " ".join(re.findall(r"[a-z0-9_]+", text))
 
 
 def anonymize_assignees(rows: list[dict[str, Any]], label_map: dict[str, str]) -> list[dict[str, Any]]:
@@ -159,6 +213,7 @@ def build_summary(
     roster: list[str],
     min_train_assignee_count: int,
     anonymized: bool,
+    duplicate_audit: dict[str, int],
 ) -> dict[str, Any]:
     return {
         "dataset": dataset,
@@ -170,6 +225,7 @@ def build_summary(
         "candidate_roster_size": len(roster),
         "min_train_assignee_count": min_train_assignee_count,
         "assignees_anonymized": anonymized,
+        "duplicate_audit": duplicate_audit,
         "created_at_min": min((row["created_at"] for row in all_records), default=None),
         "created_at_max": max((row["created_at"] for row in all_records), default=None),
         "train_component_distribution": Counter(row["component"] for row in train_rows).most_common(20),
@@ -203,4 +259,3 @@ def write_json(path: Path, payload: Any) -> None:
 
 if __name__ == "__main__":
     main()
-

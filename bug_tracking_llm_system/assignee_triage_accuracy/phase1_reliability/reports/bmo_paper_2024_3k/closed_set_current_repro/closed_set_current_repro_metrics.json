@@ -1,0 +1,44 @@
+{
+  "bootstrap_samples": 500,
+  "config_snapshot": {
+    "assignee_dataset_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl",
+    "candidate_roster_source": "post-filter train labels with minimum train frequency threshold",
+    "evaluation_roster_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_candidate_roster.json",
+    "model": "current_assignee_triager",
+    "ranking_logic": "production AssigneeTriager unchanged"
+  },
+  "dataset": "bmo_paper_2024_3k",
+  "dataset_hash": "b4875ab1a1c0e479672e6a79351a221b5f734902175f8ca387f40956e5bbd5df",
+  "experiment_name": "closed_set_current_repro",
+  "file_hashes": {
+    "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_candidate_roster.json": "ffd80999d2d2330a2eeb17a2fc9d2140230bec7e0be2d4ec899dd9e339c2aa88",
+    "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl": "ad339f616e40271365f2c933bcc88cff8b36ef812b537d6ba7a6aeddbf79ff2c",
+    "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_test_set.jsonl": "05776a80ebd84c1aed01eb15c027add86bf7d45783127e31d31dbd823c0db558",
+    "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_validation_set.jsonl": "4e66eaecd5568af46911d267aa33a7cb13f8da9ff9e1782938057a2100af963d"
+  },
+  "metrics": {
+    "hit_at_10": 0.958333,
+    "hit_at_3": 0.90625,
+    "hit_at_5": 0.9375,
+    "mrr": 0.838777,
+    "rows": 192,
+    "top1_accuracy": 0.765625,
+    "top1_bootstrap_95ci": {
+      "high": 0.828125,
+      "low": 0.703125
+    }
+  },
+  "raw_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_paper_2024_3k_raw.jsonl",
+  "roster_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_candidate_roster.json",
+  "roster_size": 60,
+  "seed": 3407,
+  "split_manifest_hash": "b517707763b254ee628988b30b5468c35ebffecc3ecb70d935437e1887743594",
+  "task_setting": "closed_set_frequent_assignee",
+  "test_count": 192,
+  "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_test_set.jsonl",
+  "top_k": 10,
+  "train_count": 1569,
+  "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl",
+  "validation_count": 168,
+  "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_validation_set.jsonl"
+}

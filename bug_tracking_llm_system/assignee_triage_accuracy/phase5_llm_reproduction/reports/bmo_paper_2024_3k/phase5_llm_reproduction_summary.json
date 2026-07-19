@@ -1,0 +1,39 @@
+{
+  "blocking_reasons": [
+    "CUDA GPU not available to Python torch runtime.",
+    "peft is not installed.",
+    "trl is not installed.",
+    "bitsandbytes is not installed."
+  ],
+  "candidate_roster_size": 60,
+  "dataset": "bmo_paper_2024_3k",
+  "dataset_hash": "86e476bbbab8a23b8a99593752a333e5e133ed3c3a14e6c4e65692844529ba28",
+  "deferred_artifacts_until_training_and_inference": [
+    "training_metrics.csv",
+    "llm_predictions.csv",
+    "llm_closed_set_metrics.json",
+    "llm_long_tail_metrics.csv",
+    "llm_multi_window_summary.csv",
+    "llm_open_world_metrics.json",
+    "llm_vs_baselines.csv",
+    "statistical_comparison.csv"
+  ],
+  "exact_8b_qlora_feasible_locally": false,
+  "gap_status_counts": {
+    "adapted reproduction": 3,
+    "cannot reproduce": 5,
+    "exact reproduction": 2
+  },
+  "leakage_guard_errors": [],
+  "next_gate": "Use remote CUDA GPU for exact reproduction, or run a clearly labeled resource-constrained adaptation.",
+  "phase": "phase5_llm_reproduction",
+  "primary_training_variant": "sanitized_title_plus_description_plus_metadata",
+  "recommended_mode": "resource_constrained_pretraining_only_until_remote_gpu",
+  "split_counts": {
+    "note": "test rows are referenced for fairness/leakage checks only; no test JSONL is exported for SFT.",
+    "test": 192,
+    "train": 1569,
+    "validation": 168
+  },
+  "status": "phase5a_to_5d_complete_no_training_run"
+}

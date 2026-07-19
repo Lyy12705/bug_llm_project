@@ -15,6 +15,7 @@ from modules.priority_classifier import PriorityClassifier
 from modules.regression_tester import RegressionTester
 from modules.test_generator import TestGenerator
 from modules.ticket_extractor import TicketExtractor
+from utils.fault_localization import format_user_facing_localization_result
 from utils.llm_client import OllamaClient
 from utils.logger import build_logger
 
@@ -98,14 +99,34 @@ class PipelineOrchestrator:
             self._write_checkpoint(checkpoint_dir, "assignee_prediction_result.json", assignee_result)
         except Exception as exc:
             result["warnings"].append(f"Assignee triage failed: {exc}")
-            assignee_result = {"assignee": "manual_triage", "reason": "Assignee model failed.", "fallback_used": True}
+            assignee_result = {
+                "assignee": "manual_triage",
+                "confidence": 0.0,
+                "raw_confidence": 0.0,
+                "calibration_status": "not_run_due_to_assignee_exception",
+                "calibration_artifact": "",
+                "reason": "Assignee model failed; manual triage is required.",
+                "ranked_candidates": ["manual_triage"],
+                "candidate_scores": {},
+                "candidate_details": [],
+                "suggested_assignee": "",
+                "routing_status": "needs_manual_triage",
+                "needs_manual_triage": True,
+                "fallback_used": True,
+                "fallback_reason": "assignee_model_exception",
+                "profile_stats": {},
+                "open_set_status": "not_run_due_to_assignee_exception",
+                "open_set_detector": "",
+            }
             result["assignee"] = assignee_result
 
         try:
             self.logger.info("Step 5: Localize bug")
             bug_location = self.bug_localizer.localize(structured_ticket, repository_path)
             result["bug_location"] = bug_location
+            result["bug_location_user_facing"] = format_user_facing_localization_result(bug_location)
             self._write_checkpoint(checkpoint_dir, "bug_location_result.json", bug_location)
+            self._write_checkpoint(checkpoint_dir, "bug_location_user_facing_result.json", result["bug_location_user_facing"])
         except Exception as exc:
             result["status"] = "needs_manual_review"
             result["failed_step"] = "bug_localization"

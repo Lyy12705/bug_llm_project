@@ -1,0 +1,326 @@
+{
+  "analysis": {
+    "closed_set_multi_window": {
+      "bm25_text_knn": {
+        "max": 0.837209,
+        "mean": 0.737227,
+        "min": 0.614525,
+        "std": 0.063789,
+        "worst_window": "expanding_w3",
+        "worst_window_top1": 0.614525
+      },
+      "current_assignee_triager": {
+        "max": 0.837209,
+        "mean": 0.750778,
+        "min": 0.631285,
+        "std": 0.059323,
+        "worst_window": "expanding_w3",
+        "worst_window_top1": 0.631285
+      },
+      "current_vs_bm25_gap_by_window": {
+        "expanding_w1": 0.009709,
+        "expanding_w2": 0.0,
+        "expanding_w3": 0.01676,
+        "expanding_w4": 0.048649,
+        "sliding_w1": 0.021978,
+        "sliding_w2": -0.049295,
+        "sliding_w3": 0.060606,
+        "sliding_w4": 0.0
+      },
+      "current_vs_bm25_gap_mean": 0.013551,
+      "head_tail_gap_current_mean": 0.162714
+    },
+    "compatibility": {
+      "closed_set_benchmark_overwritten": false,
+      "new_dataset_version": "bmo_paper_2024_3k_description_enriched",
+      "phase1_artifacts_overwritten": false,
+      "phase2_outputs_root": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description",
+      "production_triager_modified": false
+    },
+    "description_ablation": {
+      "bm25_full": {
+        "baseline": "bm25_text_knn",
+        "dataset": "bmo_paper_2024_3k_description_enriched",
+        "delta_mrr_vs_title_plus_metadata": "-0.050827",
+        "delta_top1_vs_title_plus_metadata": "-0.041667",
+        "feature_config": "title_plus_description_plus_metadata",
+        "hit_at_10": "0.932292",
+        "hit_at_3": "0.791667",
+        "hit_at_5": "0.848958",
+        "macro_assignee_top1": "0.465103",
+        "macro_component_top1": "0.621949",
+        "mrr": "0.751066",
+        "rows": "192",
+        "top1_accuracy": "0.671875",
+        "top1_ci_high": "0.744792",
+        "top1_ci_low": "0.604167"
+      },
+      "bm25_title_plus_metadata": {
+        "baseline": "bm25_text_knn",
+        "dataset": "bmo_paper_2024_3k_description_enriched",
+        "delta_mrr_vs_title_plus_metadata": "0.0",
+        "delta_top1_vs_title_plus_metadata": "0.0",
+        "feature_config": "title_plus_metadata",
+        "hit_at_10": "0.963542",
+        "hit_at_3": "0.869792",
+        "hit_at_5": "0.932292",
+        "macro_assignee_top1": "0.507286",
+        "macro_component_top1": "0.651414",
+        "mrr": "0.801893",
+        "rows": "192",
+        "top1_accuracy": "0.713542",
+        "top1_ci_high": "0.776042",
+        "top1_ci_low": "0.645833"
+      },
+      "current_full": {
+        "baseline": "current_assignee_triager",
+        "dataset": "bmo_paper_2024_3k_description_enriched",
+        "delta_mrr_vs_title_plus_metadata": "-0.026091",
+        "delta_top1_vs_title_plus_metadata": "-0.020833",
+        "feature_config": "title_plus_description_plus_metadata",
+        "hit_at_10": "0.942708",
+        "hit_at_3": "0.854167",
+        "hit_at_5": "0.916667",
+        "macro_assignee_top1": "0.564467",
+        "macro_component_top1": "0.68497",
+        "mrr": "0.812686",
+        "rows": "192",
+        "top1_accuracy": "0.744792",
+        "top1_ci_high": "0.802083",
+        "top1_ci_low": "0.677083"
+      },
+      "current_title_plus_metadata": {
+        "baseline": "current_assignee_triager",
+        "dataset": "bmo_paper_2024_3k_description_enriched",
+        "delta_mrr_vs_title_plus_metadata": "0.0",
+        "delta_top1_vs_title_plus_metadata": "0.0",
+        "feature_config": "title_plus_metadata",
+        "hit_at_10": "0.958333",
+        "hit_at_3": "0.90625",
+        "hit_at_5": "0.9375",
+        "macro_assignee_top1": "0.615539",
+        "macro_component_top1": "0.704167",
+        "mrr": "0.838777",
+        "rows": "192",
+        "top1_accuracy": "0.765625",
+        "top1_ci_high": "0.828125",
+        "top1_ci_low": "0.703125"
+      },
+      "effects": {
+        "bm25_text_knn": {
+          "all_minus_title_plus_metadata_mrr": -0.050827,
+          "all_minus_title_plus_metadata_top1": -0.041667,
+          "description_only_minus_title_only_top1": -0.005209,
+          "title_plus_description_minus_title_only_top1": 0.057291
+        },
+        "current_assignee_triager": {
+          "all_minus_title_plus_metadata_mrr": -0.026091,
+          "all_minus_title_plus_metadata_top1": -0.020833,
+          "description_only_minus_title_only_top1": -0.015625,
+          "title_plus_description_minus_title_only_top1": 0.052084
+        }
+      }
+    },
+    "description_audit": {
+      "code_or_log_presence_ratio": 0.308333,
+      "fetch_error_count": 0,
+      "html_content_ratio": 0.297667,
+      "mean_length": 1596.947,
+      "mean_token_length": 219.778,
+      "median_length": 554.0,
+      "median_token_length": 81.0,
+      "missing_ratio": 0.109,
+      "nonempty_ratio": 0.891,
+      "total_rows": 3000
+    },
+    "final_judgment": {
+      "A_current_assignee_triager_temporal_stability": {
+        "current_closed_set_mean_top1": 0.750778,
+        "judgment": "moderately_stable_closed_set_but_not_uniformly_best",
+        "lost_windows": [
+          "sliding_w2"
+        ],
+        "max": 0.837209,
+        "min": 0.631285,
+        "range": 0.205924,
+        "std": 0.059323,
+        "strict_best_windows": [
+          "expanding_w1",
+          "expanding_w3",
+          "expanding_w4",
+          "sliding_w1",
+          "sliding_w3"
+        ],
+        "tied_best_windows": [
+          "expanding_w2",
+          "sliding_w4"
+        ]
+      },
+      "B_most_credible_deterministic_top1": {
+        "closed_set_temporal_mean": 0.750778,
+        "open_world_temporal_mean": 0.479062,
+        "recommended_statement": "Report the multi-window closed-set mean and the more realistic open-world multi-window mean."
+      },
+      "C_is_0_765625_optimistic": {
+        "delta_vs_closed_multi_window_mean": 0.014847,
+        "delta_vs_open_world_multi_window_mean": 0.286563,
+        "judgment": "yes_mildly_for_closed_set_strongly_for_open_world"
+      },
+      "D_open_world_0_517857_cross_window_stability": {
+        "delta_single_split_minus_multi_mean": 0.038795,
+        "judgment": "single_split_is_slightly_optimistic_relative_to_phase2_windows",
+        "multi_window_max": 0.514286,
+        "multi_window_mean": 0.479062,
+        "multi_window_min": 0.454545,
+        "multi_window_std": 0.016444,
+        "phase1_single_split_top1": 0.517857
+      },
+      "E_description_effect_on_bm25": {
+        "full_minus_title_plus_metadata_top1": -0.041667,
+        "full_top1": 0.671875,
+        "interpretation": "Raw first-comment descriptions hurt BM25 when metadata is present, although title+description improves over title-only in no-metadata stress tests.",
+        "title_plus_metadata_top1": 0.713542
+      },
+      "F_description_effect_on_current_hybrid": {
+        "full_minus_title_plus_metadata_top1": -0.020833,
+        "full_top1": 0.744792,
+        "interpretation": "Description enrichment does not improve current hybrid as-is; metadata remains the dominant signal.",
+        "title_plus_metadata_top1": 0.765625
+      },
+      "G_long_tail": {
+        "bm25_full_minus_title_plus_metadata_tail_top1": -0.122807,
+        "bm25_full_tail_top1": 0.385965,
+        "bm25_title_plus_metadata_tail_top1": 0.508772,
+        "closed_set_tail_bucket": "freq_10_19",
+        "current_full_minus_title_plus_metadata_tail_top1": -0.122807,
+        "current_full_tail_top1": 0.526316,
+        "current_title_plus_metadata_tail_top1": 0.649123,
+        "judgment": "not_fixed",
+        "reason": "Description-enriched full input reduces tail Top-1 for both current hybrid and BM25 in the closed-set tail bucket; Phase 1 open-world low-frequency seen Top-1 remained 0.228571."
+      },
+      "H_best_input_for_llm": {
+        "reason": "Deterministic methods peak at title+metadata, while LLM methods need richer text to test the research question; raw descriptions should be cleaned/truncated because they add noise for BM25/current hybrid.",
+        "recommendation": "Use title + product/component/severity/priority + sanitized/truncated first-comment description as the LLM primary input, but keep title+metadata as a mandatory ablation/control."
+      },
+      "I_ready_for_literature_llm_comparison": {
+        "judgment": "ready_for_controlled_same_dataset_comparison_not_direct_literature_claim",
+        "reason": "The benchmark now has versioned descriptions, temporal windows, rosters, predictions, and open-world diagnostics. It still lacks strict assignment-history semantics and is not directly comparable to literature datasets unless splits/candidates/input fields are matched."
+      },
+      "J_next_step": {
+        "reason": "Open-world performance is the deployment bottleneck; validation-selected abstention thresholds produce low coverage and need calibration before trusting auto-assignment or LLM reranking. Literature LLM reproduction should follow on the frozen Phase 2 benchmark.",
+        "recommendation": "confidence_calibration_first"
+      }
+    },
+    "open_world_multi_window": {
+      "coverage_after_validation_threshold": {
+        "max": 0.4,
+        "mean": 0.330852,
+        "min": 0.248447,
+        "std": 0.052545
+      },
+      "manual_triage_recall_unseen_after_validation_threshold": {
+        "max": 0.931818,
+        "mean": 0.79484,
+        "min": 0.666667,
+        "std": 0.077496
+      },
+      "top1_before_abstention": {
+        "max": 0.514286,
+        "mean": 0.479062,
+        "min": 0.454545,
+        "std": 0.016444,
+        "worst_window": "sliding_w2",
+        "worst_window_top1": 0.454545
+      }
+    },
+    "primary_artifacts": {
+      "closed_multi_window": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/multi_window_temporal/multi_window_metrics.json",
+      "description_ablation": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/description_ablation_metrics.csv",
+      "description_audit": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_enrichment_audit.json",
+      "open_multi_window": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/open_world_multi_window/open_world_multi_window_metrics.json"
+    }
+  },
+  "artifact_paths": {
+    "ablation_buckets": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/description_ablation_frequency_buckets.csv",
+    "ablation_metrics": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/description_ablation_metrics.csv",
+    "ablation_predictions": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/description_ablation_predictions.csv",
+    "ablation_summary": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/description_ablation_summary.json",
+    "closed_multi": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/multi_window_temporal/multi_window_metrics.json",
+    "closed_multi_summary_csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/multi_window_temporal/multi_window_summary.csv",
+    "description_audit": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_enrichment_audit.json",
+    "description_root_cause": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_missing_root_cause.md",
+    "open_multi": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/open_world_multi_window/open_world_multi_window_metrics.json",
+    "open_multi_summary_csv": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/open_world_multi_window/open_world_multi_window_summary.csv",
+    "phase1_summary": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k/phase1_reliability_summary.json"
+  },
+  "dataset": "bmo_paper_2024_3k",
+  "description_enriched_dataset": "bmo_paper_2024_3k_description_enriched",
+  "experiment_name": "assignee_triage_phase2_temporal_description_summary",
+  "future_llm_fair_benchmark": {
+    "artifact_requirements": {
+      "description_ablation_predictions": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/description_ablation_predictions.csv",
+      "multi_window_metrics": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/multi_window_temporal/multi_window_metrics.json",
+      "open_world_multi_window_metrics": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k/open_world_multi_window/open_world_multi_window_metrics.json"
+    },
+    "candidate_roster": {
+      "closed_set": "Assignees with at least 10 train tickets in the same window.",
+      "open_set": "All train assignees; low-frequency and unseen test labels remain visible for abstention/manual_triage analysis.",
+      "rule": "No candidate may be introduced from validation/test labels."
+    },
+    "closed_set_policy": "Primary accuracy leaderboard uses train-frequency roster only, with excluded low-frequency/unseen tickets reported separately.",
+    "confidence_abstention_policy": "Thresholds must be selected on validation only and then frozen for test.",
+    "dataset_role": "Primary controlled dataset for future instruction-tuned LLM comparison; keep original BMO 3k as no-description baseline.",
+    "dataset_version": "bmo_paper_2024_3k_description_enriched",
+    "description_source": "first public Bugzilla comment, stored as description with description_source=first_comment, fetch timestamp, missing flag, and audit metrics.",
+    "input_precondition": "Tickets must already have passed the upstream duplicate-detection feature. Assignee triage does not classify duplicates; dataset preparation only checks exact cross-split overlap as a leakage guard.",
+    "llm_input_controls": [
+      "title_plus_metadata",
+      "title_plus_description_plus_metadata_sanitized_truncated"
+    ],
+    "low_frequency_policy": "Report freq_1, freq_2_4, freq_5_9, freq_10_19, and freq_20_plus buckets where applicable.",
+    "metadata_fields": [
+      "product",
+      "component",
+      "severity",
+      "priority",
+      "status"
+    ],
+    "metrics": [
+      "Top-1 Accuracy",
+      "Hit@3",
+      "Hit@5",
+      "Hit@10",
+      "MRR",
+      "macro assignee Top-1",
+      "bootstrap 95% CI",
+      "coverage/selective accuracy/manual-triage recall for open-set",
+      "confidence calibration metrics such as ECE/Brier when confidence is produced"
+    ],
+    "models_to_compare": [
+      "component_majority",
+      "bm25_text_knn",
+      "current_assignee_triager",
+      "instruction_tuned_llm",
+      "hybrid_current_topk_plus_llm_reranker"
+    ],
+    "open_set_policy": "Evaluate all test tickets. Unseen assignees are not valid generated labels; success requires abstention/manual_triage under a validation-selected threshold.",
+    "per_ticket_prediction_format": [
+      "ticket_id",
+      "window_name",
+      "model_name",
+      "feature_config",
+      "candidate_roster_version",
+      "expected_assignee",
+      "ranked_candidates",
+      "candidate_scores_or_logprobs",
+      "predicted_assignee",
+      "rank",
+      "confidence",
+      "abstained/manual_triage",
+      "reason"
+    ],
+    "statistical_testing": "Use paired bootstrap over test tickets and window-level aggregate comparisons; apply correction when many model pairs are tested.",
+    "temporal_windows": "Use the 8 Phase 2 windows for stability, plus the original frozen split only for backward comparability.",
+    "train_validation_test": "Temporal only. Train history and roster are rebuilt inside each window. Validation is for thresholds, calibration, prompts, and checkpoint selection. Test is frozen."
+  }
+}

@@ -8,21 +8,6 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-DEFAULT_COMPONENT_OWNERS = {
-    "authentication": "auth-team@example.com",
-    "auth": "auth-team@example.com",
-    "build": "build-team@example.com",
-    "compiler": "build-team@example.com",
-    "database": "data-team@example.com",
-    "db": "data-team@example.com",
-    "frontend": "frontend-team@example.com",
-    "ui": "frontend-team@example.com",
-    "api": "backend-team@example.com",
-    "backend": "backend-team@example.com",
-    "security": "security-team@example.com",
-    "unknown": "manual_triage",
-}
-
 DEFAULT_ASSIGNEE_HISTORY_RELATIVE_PATH = (
     Path("assignee_triage_accuracy")
     / "paper_grade"
@@ -41,7 +26,23 @@ class PipelineConfig:
     duplicate_threshold: float = 0.82
     duplicate_review_margin: float = 0.05
     duplicate_top_k: int = 5
-    component_owner_mapping: dict[str, str] = field(default_factory=lambda: dict(DEFAULT_COMPONENT_OWNERS))
+    component_owner_mapping: dict[str, str] = field(default_factory=dict)
+    assignee_top_k: int = 5
+    assignee_confidence_threshold: float = 0.55
+    assignee_min_score: float = 1.0
+    assignee_allow_text_only_assignment: bool = False
+    assignee_allow_uncalibrated_auto_assignment: bool = False
+    assignee_active_roster_path: Path | None = None
+    assignee_inactive_path: Path | None = None
+    assignee_component_ownership_path: Path | None = None
+    assignee_file_ownership_path: Path | None = None
+    assignee_feedback_path: Path | None = None
+    assignee_routing_policy_path: Path | None = None
+    assignee_routing_policy_name: str = ""
+    assignee_calibration_artifact_path: Path | None = None
+    assignee_open_set_enabled: bool = False
+    assignee_open_set_risk_threshold: float = 0.75
+    assignee_open_set_artifact_path: Path | None = None
     test_command: list[str] = field(default_factory=lambda: ["python3", "-m", "pytest"])
     run_regression_tests: bool = False
     save_checkpoints: bool = True
@@ -75,6 +76,20 @@ class PipelineConfig:
         else:
             self.processed_ticket_dir = Path(self.processed_ticket_dir)
 
+        for key in (
+            "assignee_active_roster_path",
+            "assignee_inactive_path",
+            "assignee_component_ownership_path",
+            "assignee_file_ownership_path",
+            "assignee_feedback_path",
+            "assignee_routing_policy_path",
+            "assignee_calibration_artifact_path",
+            "assignee_open_set_artifact_path",
+        ):
+            value = getattr(self, key)
+            if value is not None:
+                setattr(self, key, Path(value))
+
         if self.fault_localization_code_index_path is not None:
             self.fault_localization_code_index_path = Path(self.fault_localization_code_index_path)
         if self.fault_localization_sbert_cache_dir is not None:
@@ -90,6 +105,14 @@ def config_from_dict(values: dict[str, Any]) -> PipelineConfig:
         "historical_tickets_path",
         "assignee_dataset_path",
         "processed_ticket_dir",
+        "assignee_active_roster_path",
+        "assignee_inactive_path",
+        "assignee_component_ownership_path",
+        "assignee_file_ownership_path",
+        "assignee_feedback_path",
+        "assignee_routing_policy_path",
+        "assignee_calibration_artifact_path",
+        "assignee_open_set_artifact_path",
         "fault_localization_code_index_path",
         "fault_localization_sbert_cache_dir",
         "fault_localization_llm_cache_dir",

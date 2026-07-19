@@ -1,0 +1,26 @@
+{
+  "source": "https://bugzilla.mozilla.org/rest",
+  "products": [
+    "Core",
+    "Firefox"
+  ],
+  "statuses": [
+    "RESOLVED",
+    "VERIFIED",
+    "CLOSED"
+  ],
+  "resolutions": [
+    "FIXED"
+  ],
+  "start_date": "2020-07-01",
+  "end_date": "2020-09-30",
+  "limit": 1000,
+  "max_bugs": 3000,
+  "include_comments": false,
+  "output": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl",
+  "bugs_written": 3000,
+  "last_offset": 2000,
+  "complete": false,
+  "started_at": "2026-07-13T09:44:28.240156+00:00",
+  "finished_at": "2026-07-13T09:44:39.990854+00:00"
+}

@@ -1,0 +1,716 @@
+{
+  "schema_version": 1,
+  "method": "rolling_history_multi_window_open_set_v1",
+  "deployment_status": "research_only",
+  "ranker": "candidate_hist_gradient_boosting_shallow_ltr_v1",
+  "protocol": {
+    "fit_windows": [
+      "validation",
+      "2020_q3",
+      "2020_q4"
+    ],
+    "policy_selection_windows": [
+      "2021_q1",
+      "2021_q2",
+      "2021_q3"
+    ],
+    "window_audits": [
+      {
+        "window": "validation",
+        "source": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_validation_set.jsonl",
+        "prior_snapshot_rows": 6507,
+        "history_rows": 4706,
+        "history_rows_withheld_future_last_change": 1801,
+        "history_rows_withheld_missing_last_change": 0,
+        "query_rows_loaded": 788,
+        "query_rows": 785,
+        "overlap_rows_excluded": 3,
+        "history_end": "2020-05-25T11:28:56Z",
+        "label_availability_cutoff": "2020-05-25T23:25:38Z",
+        "query_start": "2020-05-25T23:25:38Z",
+        "query_end": "2020-06-10T21:52:12Z",
+        "known_owner_rows": 785,
+        "unseen_owner_rows": 0,
+        "unseen_owner_rate": 0.0,
+        "temporal_order_valid": true
+      },
+      {
+        "window": "2020_q3",
+        "source": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl",
+        "prior_snapshot_rows": 7292,
+        "history_rows": 5830,
+        "history_rows_withheld_future_last_change": 1462,
+        "history_rows_withheld_missing_last_change": 0,
+        "query_rows_loaded": 2756,
+        "query_rows": 2740,
+        "overlap_rows_excluded": 16,
+        "history_end": "2020-06-10T21:52:12Z",
+        "label_availability_cutoff": "2020-07-01T01:06:57Z",
+        "query_start": "2020-07-01T01:06:57Z",
+        "query_end": "2020-09-01T04:16:44Z",
+        "known_owner_rows": 2313,
+        "unseen_owner_rows": 427,
+        "unseen_owner_rate": 0.155839,
+        "temporal_order_valid": true
+      },
+      {
+        "window": "2020_q4",
+        "source": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl",
+        "prior_snapshot_rows": 10032,
+        "history_rows": 8218,
+        "history_rows_withheld_future_last_change": 1814,
+        "history_rows_withheld_missing_last_change": 0,
+        "query_rows_loaded": 2713,
+        "query_rows": 2702,
+        "overlap_rows_excluded": 11,
+        "history_end": "2020-09-01T03:22:50Z",
+        "label_availability_cutoff": "2020-10-01T00:04:08Z",
+        "query_start": "2020-10-01T00:04:08Z",
+        "query_end": "2020-12-08T20:27:45Z",
+        "known_owner_rows": 2528,
+        "unseen_owner_rows": 174,
+        "unseen_owner_rate": 0.064397,
+        "temporal_order_valid": true
+      },
+      {
+        "window": "2021_q1",
+        "source": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q1_raw.jsonl",
+        "prior_snapshot_rows": 12734,
+        "history_rows": 10479,
+        "history_rows_withheld_future_last_change": 2255,
+        "history_rows_withheld_missing_last_change": 0,
+        "query_rows_loaded": 2692,
+        "query_rows": 2671,
+        "overlap_rows_excluded": 21,
+        "history_end": "2020-12-08T20:27:45Z",
+        "label_availability_cutoff": "2021-01-01T07:03:52Z",
+        "query_start": "2021-01-01T07:03:52Z",
+        "query_end": "2021-03-04T19:42:56Z",
+        "known_owner_rows": 2505,
+        "unseen_owner_rows": 166,
+        "unseen_owner_rate": 0.062149,
+        "temporal_order_valid": true
+      },
+      {
+        "window": "2021_q2",
+        "source": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q2_raw.jsonl",
+        "prior_snapshot_rows": 15405,
+        "history_rows": 12773,
+        "history_rows_withheld_future_last_change": 2632,
+        "history_rows_withheld_missing_last_change": 0,
+        "query_rows_loaded": 2683,
+        "query_rows": 2664,
+        "overlap_rows_excluded": 19,
+        "history_end": "2021-03-04T19:14:04Z",
+        "label_availability_cutoff": "2021-04-01T00:11:32Z",
+        "query_start": "2021-04-01T00:11:32Z",
+        "query_end": "2021-06-03T10:01:55Z",
+        "known_owner_rows": 2423,
+        "unseen_owner_rows": 241,
+        "unseen_owner_rate": 0.090465,
+        "temporal_order_valid": true
+      },
+      {
+        "window": "2021_q3",
+        "source": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q3_raw.jsonl",
+        "prior_snapshot_rows": 18069,
+        "history_rows": 15171,
+        "history_rows_withheld_future_last_change": 2898,
+        "history_rows_withheld_missing_last_change": 0,
+        "query_rows_loaded": 2709,
+        "query_rows": 2696,
+        "overlap_rows_excluded": 13,
+        "history_end": "2021-06-03T10:01:55Z",
+        "label_availability_cutoff": "2021-07-01T01:56:21Z",
+        "query_start": "2021-07-01T01:56:21Z",
+        "query_end": "2021-09-23T13:05:07Z",
+        "known_owner_rows": 2534,
+        "unseen_owner_rows": 162,
+        "unseen_owner_rate": 0.060089,
+        "temporal_order_valid": true
+      }
+    ],
+    "label_availability_policy": "last_change_time_at_or_before_query_start",
+    "assignment_time_history_available": false,
+    "leave_assignee_out_audits": [
+      {
+        "window": "validation",
+        "fold": 1,
+        "history_rows_before_hiding": 4706,
+        "history_rows_after_hiding": 4343,
+        "hidden_history_rows_removed": 363,
+        "query_rows": 785,
+        "hidden_assignees": [
+          "dev_0002",
+          "dev_0005",
+          "dev_0008",
+          "dev_0015",
+          "dev_0016",
+          "dev_0017",
+          "dev_0020",
+          "dev_0021",
+          "dev_0024",
+          "dev_0027",
+          "dev_0032",
+          "dev_0035",
+          "dev_0043",
+          "dev_0045",
+          "dev_0051",
+          "dev_0052",
+          "dev_0055",
+          "dev_0058",
+          "dev_0068",
+          "dev_0069",
+          "dev_0075",
+          "dev_0077",
+          "dev_0079",
+          "dev_0081",
+          "dev_0087",
+          "dev_0090",
+          "dev_0092",
+          "dev_0093",
+          "dev_0094",
+          "dev_0107",
+          "dev_0115",
+          "dev_0118",
+          "dev_0121",
+          "dev_0122",
+          "dev_0123",
+          "dev_0126",
+          "dev_0128",
+          "dev_0132",
+          "dev_0133",
+          "dev_0137",
+          "dev_0146",
+          "dev_0149",
+          "dev_0150",
+          "dev_0153"
+        ],
+        "hidden_assignee_count": 44,
+        "natural_unknown_query_rows": 0,
+        "synthetic_unknown_target_rows": 118,
+        "synthetic_unknown_query_rows": 120,
+        "unknown_query_rows": 120,
+        "unknown_query_rate": 0.152866,
+        "hidden_owner_history_leak_rows": 0,
+        "history_end": "2020-05-25T11:28:56Z",
+        "query_start": "2020-05-25T23:25:38Z",
+        "query_end": "2020-06-10T21:52:12Z",
+        "leakage_free": true
+      },
+      {
+        "window": "2020_q3",
+        "fold": 1,
+        "history_rows_before_hiding": 5830,
+        "history_rows_after_hiding": 5608,
+        "hidden_history_rows_removed": 222,
+        "query_rows": 2740,
+        "hidden_assignees": [
+          "dev_0008",
+          "dev_0020",
+          "dev_0021",
+          "dev_0024",
+          "dev_0031",
+          "dev_0032",
+          "dev_0048",
+          "dev_0058",
+          "dev_0067",
+          "dev_0068",
+          "dev_0069",
+          "dev_0074",
+          "dev_0076",
+          "dev_0080",
+          "dev_0090",
+          "dev_0093",
+          "dev_0094",
+          "dev_0107",
+          "dev_0108",
+          "dev_0115",
+          "dev_0121",
+          "dev_0126",
+          "dev_0132",
+          "dev_0135",
+          "dev_0147",
+          "dev_0149",
+          "dev_0150"
+        ],
+        "hidden_assignee_count": 27,
+        "natural_unknown_query_rows": 427,
+        "synthetic_unknown_target_rows": 137,
+        "synthetic_unknown_query_rows": 137,
+        "unknown_query_rows": 564,
+        "unknown_query_rate": 0.205839,
+        "hidden_owner_history_leak_rows": 0,
+        "history_end": "2020-06-10T21:52:12Z",
+        "query_start": "2020-07-01T01:06:57Z",
+        "query_end": "2020-09-01T04:16:44Z",
+        "leakage_free": true
+      },
+      {
+        "window": "2020_q4",
+        "fold": 1,
+        "history_rows_before_hiding": 8218,
+        "history_rows_after_hiding": 7820,
+        "hidden_history_rows_removed": 398,
+        "query_rows": 2702,
+        "hidden_assignees": [
+          "annygakhokidze@gmail.com",
+          "apehrson@mozilla.com",
+          "chris@cfallin.org",
+          "cmartin@mozilla.com",
+          "dev_0005",
+          "dev_0007",
+          "dev_0016",
+          "dev_0018",
+          "dev_0032",
+          "dev_0052",
+          "dev_0058",
+          "dev_0067",
+          "dev_0069",
+          "dev_0074",
+          "dev_0080",
+          "dev_0081",
+          "dev_0090",
+          "dev_0094",
+          "dev_0098",
+          "dev_0101",
+          "dev_0104",
+          "dev_0108",
+          "dev_0121",
+          "dev_0126",
+          "dev_0128",
+          "dev_0132",
+          "dev_0135",
+          "dev_0150",
+          "dmosedale@mozilla.com",
+          "dpalmeiro@mozilla.com",
+          "fbraun@mozilla.com",
+          "git@juliana.me",
+          "gsvelto@mozilla.com",
+          "jimb@mozilla.com",
+          "jseward@acm.org",
+          "longsonr@gmail.com",
+          "markh@mozilla.com",
+          "mh+mozilla@glandium.org",
+          "ngrunbaum@me.com",
+          "peterv@propagandism.org",
+          "robert.mader@posteo.de",
+          "soniasingla.1812@gmail.com"
+        ],
+        "hidden_assignee_count": 42,
+        "natural_unknown_query_rows": 174,
+        "synthetic_unknown_target_rows": 232,
+        "synthetic_unknown_query_rows": 232,
+        "unknown_query_rows": 406,
+        "unknown_query_rate": 0.150259,
+        "hidden_owner_history_leak_rows": 0,
+        "history_end": "2020-09-01T03:22:50Z",
+        "query_start": "2020-10-01T00:04:08Z",
+        "query_end": "2020-12-08T20:27:45Z",
+        "leakage_free": true
+      }
+    ],
+    "all_temporal_checks_passed": true,
+    "all_leave_owner_checks_passed": true
+  },
+  "training_rows": {
+    "calibration": 6227,
+    "open_set_detector": 6227,
+    "open_set_unknown": 1090
+  },
+  "calibration_features": [
+    "top_probability",
+    "probability_margin",
+    "one_minus_entropy",
+    "component_owner_share",
+    "product_component_owner_share",
+    "owner_recency",
+    "strong_source_agreement"
+  ],
+  "open_set_features": [
+    "calibrated_probability",
+    "probability_margin",
+    "one_minus_entropy",
+    "component_support_log",
+    "product_component_support_log",
+    "predicted_owner_global_log_count",
+    "predicted_owner_component_log_count",
+    "predicted_owner_pair_log_count",
+    "component_owner_share",
+    "product_component_owner_share",
+    "recent_component_owner_share",
+    "owner_recency",
+    "bm25_owner_score",
+    "bm25_best_issue_score",
+    "sbert_owner_score",
+    "candidate_source_count",
+    "strong_source_agreement",
+    "component_recency_drift",
+    "candidate_count"
+  ],
+  "calibration_by_fit_window": {
+    "validation": {
+      "rows": 785,
+      "positive_rate": 0.573248,
+      "mean_probability": 0.546959,
+      "brier": 0.166241,
+      "ece": 0.039676
+    },
+    "2020_q3": {
+      "rows": 2740,
+      "positive_rate": 0.420438,
+      "mean_probability": 0.437808,
+      "brier": 0.16799,
+      "ece": 0.03751
+    },
+    "2020_q4": {
+      "rows": 2702,
+      "positive_rate": 0.435973,
+      "mean_probability": 0.426025,
+      "brier": 0.167568,
+      "ece": 0.045267
+    }
+  },
+  "calibration_by_selection_window": {
+    "2021_q1": {
+      "rows": 2671,
+      "positive_rate": 0.435043,
+      "mean_probability": 0.42478,
+      "brier": 0.155316,
+      "ece": 0.056444
+    },
+    "2021_q2": {
+      "rows": 2664,
+      "positive_rate": 0.396021,
+      "mean_probability": 0.400357,
+      "brier": 0.144013,
+      "ece": 0.046094
+    },
+    "2021_q3": {
+      "rows": 2696,
+      "positive_rate": 0.425816,
+      "mean_probability": 0.382108,
+      "brier": 0.136847,
+      "ece": 0.058573
+    }
+  },
+  "open_set_detector_fit": {
+    "rows": 6227,
+    "known_rows": 5137,
+    "unknown_rows": 1090,
+    "auroc": 0.700337,
+    "auprc": 0.313711,
+    "unknown_recall_at_5pct_known_fpr": 0.15321100917431194,
+    "threshold_at_5pct_known_fpr": 0.71206909
+  },
+  "open_set_by_selection_window": {
+    "2021_q1": {
+      "rows": 2671,
+      "known_rows": 2505,
+      "unknown_rows": 166,
+      "auroc": 0.60513,
+      "auprc": 0.081158,
+      "unknown_recall_at_5pct_known_fpr": 0.06626506024096386,
+      "threshold_at_5pct_known_fpr": 0.71644002,
+      "threshold": 0.16378581,
+      "unknown_recall": 0.9819277108433735,
+      "known_false_positive_rate": 0.8263473053892215
+    },
+    "2021_q2": {
+      "rows": 2664,
+      "known_rows": 2423,
+      "unknown_rows": 241,
+      "auroc": 0.738995,
+      "auprc": 0.211152,
+      "unknown_recall_at_5pct_known_fpr": 0.21161825726141079,
+      "threshold_at_5pct_known_fpr": 0.70349389,
+      "threshold": 0.16378581,
+      "unknown_recall": 1.0,
+      "known_false_positive_rate": 0.8208832026413537
+    },
+    "2021_q3": {
+      "rows": 2696,
+      "known_rows": 2534,
+      "unknown_rows": 162,
+      "auroc": 0.67101,
+      "auprc": 0.100207,
+      "unknown_recall_at_5pct_known_fpr": 0.08024691358024691,
+      "threshold_at_5pct_known_fpr": 0.7015482,
+      "threshold": 0.16378581,
+      "unknown_recall": 1.0,
+      "known_false_positive_rate": 0.8050513022888713
+    }
+  },
+  "recommendation_by_selection_window": {
+    "2021_q1": {
+      "rows": 2671,
+      "top1_accuracy": 0.435043,
+      "top3_accuracy": 0.61213,
+      "top5_accuracy": 0.685511,
+      "top10_accuracy": 0.758143,
+      "candidate_pool_recall": 0.847623,
+      "mrr": 0.539469,
+      "macro_f1": 0.1217
+    },
+    "2021_q2": {
+      "rows": 2664,
+      "top1_accuracy": 0.396021,
+      "top3_accuracy": 0.553679,
+      "top5_accuracy": 0.622748,
+      "top10_accuracy": 0.720721,
+      "candidate_pool_recall": 0.8247,
+      "mrr": 0.494356,
+      "macro_f1": 0.103225
+    },
+    "2021_q3": {
+      "rows": 2696,
+      "top1_accuracy": 0.425816,
+      "top3_accuracy": 0.600519,
+      "top5_accuracy": 0.6773,
+      "top10_accuracy": 0.770401,
+      "candidate_pool_recall": 0.849777,
+      "mrr": 0.530297,
+      "macro_f1": 0.105203
+    }
+  },
+  "recommendation_known_owner_by_selection_window": {
+    "2021_q1": {
+      "rows": 2505,
+      "top1_accuracy": 0.463872,
+      "top3_accuracy": 0.652695,
+      "top5_accuracy": 0.730938,
+      "top10_accuracy": 0.808383,
+      "candidate_pool_recall": 0.903792,
+      "mrr": 0.575218,
+      "macro_f1": 0.174227
+    },
+    "2021_q2": {
+      "rows": 2423,
+      "top1_accuracy": 0.435411,
+      "top3_accuracy": 0.608749,
+      "top5_accuracy": 0.684688,
+      "top10_accuracy": 0.792406,
+      "candidate_pool_recall": 0.906727,
+      "mrr": 0.543526,
+      "macro_f1": 0.156798
+    },
+    "2021_q3": {
+      "rows": 2534,
+      "top1_accuracy": 0.453039,
+      "top3_accuracy": 0.638911,
+      "top5_accuracy": 0.7206,
+      "top10_accuracy": 0.819653,
+      "candidate_pool_recall": 0.904104,
+      "mrr": 0.564199,
+      "macro_f1": 0.142646
+    }
+  },
+  "routing_policy": {
+    "found": true,
+    "open_set_threshold": 0.16378581,
+    "t_high": 0.5157215,
+    "minimum_high_confidence": 0.5,
+    "selection_window_metrics": {
+      "2021_q1": {
+        "auto_assignment_rows": 438,
+        "auto_assignment_accuracy": 0.9863013698630136,
+        "auto_assignment_coverage": 0.16398352676900038,
+        "unseen_auto_assignment_rate": 0.018072289156626505
+      },
+      "2021_q2": {
+        "auto_assignment_rows": 433,
+        "auto_assignment_accuracy": 0.9953810623556582,
+        "auto_assignment_coverage": 0.16253753753753752,
+        "unseen_auto_assignment_rate": 0.0
+      },
+      "2021_q3": {
+        "auto_assignment_rows": 491,
+        "auto_assignment_accuracy": 0.9857433808553971,
+        "auto_assignment_coverage": 0.18212166172106825,
+        "unseen_auto_assignment_rate": 0.0
+      }
+    },
+    "minimum_window_coverage": 0.162538,
+    "mean_window_coverage": 0.169548,
+    "mean_window_accuracy": 0.989142,
+    "maximum_window_unseen_auto_rate": 0.018072,
+    "open_set_review_threshold": 0.50673969,
+    "t_low": 0.39912685,
+    "minimum_review_confidence": 0.2,
+    "review_window_metrics": {
+      "2021_q1": {
+        "top3_confirmation_rows": 645,
+        "top3_confirmation_accuracy": 0.7596899224806202,
+        "top3_confirmation_rate": 0.2414825907899663
+      },
+      "2021_q2": {
+        "top3_confirmation_rows": 524,
+        "top3_confirmation_accuracy": 0.700381679389313,
+        "top3_confirmation_rate": 0.1966966966966967
+      },
+      "2021_q3": {
+        "top3_confirmation_rows": 512,
+        "top3_confirmation_accuracy": 0.78125,
+        "top3_confirmation_rate": 0.18991097922848665
+      }
+    },
+    "minimum_window_review_rate": 0.189911,
+    "mean_window_review_rate": 0.209363
+  },
+  "routing_by_selection_window": {
+    "2021_q1": {
+      "rows": 2671,
+      "known_rows": 2505,
+      "unseen_rows": 166,
+      "auto_assignment_rows": 438,
+      "auto_assignment_coverage": 0.163984,
+      "auto_assignment_accuracy": 0.986301,
+      "unseen_auto_assignment_rows": 3,
+      "unseen_auto_assignment_rate": 0.018072,
+      "top3_confirmation_rows": 645,
+      "top3_confirmation_rate": 0.241483,
+      "top3_confirmation_accuracy": 0.75969,
+      "manual_triage_rate": 0.594534,
+      "routing_status_breakdown": {
+        "auto_assign": 438,
+        "manual_triage_low_confidence": 424,
+        "manual_triage_open_set": 1164,
+        "top3_confirmation": 645
+      },
+      "fallback_reason_breakdown": {
+        "high_calibrated_confidence": 438,
+        "low_ranking_confidence": 424,
+        "medium_calibrated_confidence": 645,
+        "unseen_owner_risk": 1164
+      }
+    },
+    "2021_q2": {
+      "rows": 2664,
+      "known_rows": 2423,
+      "unseen_rows": 241,
+      "auto_assignment_rows": 433,
+      "auto_assignment_coverage": 0.162538,
+      "auto_assignment_accuracy": 0.995381,
+      "unseen_auto_assignment_rows": 0,
+      "unseen_auto_assignment_rate": 0.0,
+      "top3_confirmation_rows": 524,
+      "top3_confirmation_rate": 0.196697,
+      "top3_confirmation_accuracy": 0.700382,
+      "manual_triage_rate": 0.640766,
+      "routing_status_breakdown": {
+        "auto_assign": 433,
+        "manual_triage_low_confidence": 517,
+        "manual_triage_open_set": 1190,
+        "top3_confirmation": 524
+      },
+      "fallback_reason_breakdown": {
+        "high_calibrated_confidence": 433,
+        "low_ranking_confidence": 517,
+        "medium_calibrated_confidence": 524,
+        "unseen_owner_risk": 1190
+      }
+    },
+    "2021_q3": {
+      "rows": 2696,
+      "known_rows": 2534,
+      "unseen_rows": 162,
+      "auto_assignment_rows": 491,
+      "auto_assignment_coverage": 0.182122,
+      "auto_assignment_accuracy": 0.985743,
+      "unseen_auto_assignment_rows": 0,
+      "unseen_auto_assignment_rate": 0.0,
+      "top3_confirmation_rows": 512,
+      "top3_confirmation_rate": 0.189911,
+      "top3_confirmation_accuracy": 0.78125,
+      "manual_triage_rate": 0.627967,
+      "routing_status_breakdown": {
+        "auto_assign": 491,
+        "manual_triage_low_confidence": 513,
+        "manual_triage_open_set": 1180,
+        "top3_confirmation": 512
+      },
+      "fallback_reason_breakdown": {
+        "high_calibrated_confidence": 491,
+        "low_ranking_confidence": 513,
+        "medium_calibrated_confidence": 512,
+        "unseen_owner_risk": 1180
+      }
+    }
+  },
+  "routing_diagnostics_by_selection_window": {
+    "2021_q1": {
+      "rows": 2671,
+      "calibrated_probability": {
+        "minimum": 0.03165853,
+        "p25": 0.16389423,
+        "median": 0.3174105,
+        "p75": 0.72493976,
+        "maximum": 0.95031492
+      },
+      "open_set_probability": {
+        "minimum": 0.03033615,
+        "p25": 0.28503172,
+        "median": 0.46521214,
+        "p75": 0.6124043,
+        "maximum": 0.81615431
+      },
+      "frozen_t_high": 0.5157215,
+      "frozen_open_set_threshold": 0.16378581,
+      "rows_above_high_confidence": 974,
+      "rows_below_open_set_gate": 438,
+      "rows_passing_both_auto_assignment_gates": 438,
+      "maximum_calibrated_probability_below_open_set_gate": 0.95013216
+    },
+    "2021_q2": {
+      "rows": 2664,
+      "calibrated_probability": {
+        "minimum": 0.03202416,
+        "p25": 0.17038254,
+        "median": 0.28053966,
+        "p75": 0.64530898,
+        "maximum": 0.94628158
+      },
+      "open_set_probability": {
+        "minimum": 0.02864035,
+        "p25": 0.30678756,
+        "median": 0.47594184,
+        "p75": 0.62235399,
+        "maximum": 0.79431198
+      },
+      "frozen_t_high": 0.5157215,
+      "frozen_open_set_threshold": 0.16378581,
+      "rows_above_high_confidence": 832,
+      "rows_below_open_set_gate": 434,
+      "rows_passing_both_auto_assignment_gates": 433,
+      "maximum_calibrated_probability_below_open_set_gate": 0.94628158
+    },
+    "2021_q3": {
+      "rows": 2696,
+      "calibrated_probability": {
+        "minimum": 0.02726245,
+        "p25": 0.13271426,
+        "median": 0.25646327,
+        "p75": 0.65509769,
+        "maximum": 0.94808652
+      },
+      "open_set_probability": {
+        "minimum": 0.02510327,
+        "p25": 0.25777514,
+        "median": 0.47113762,
+        "p75": 0.59863674,
+        "maximum": 0.80908292
+      },
+      "frozen_t_high": 0.5157215,
+      "frozen_open_set_threshold": 0.16378581,
+      "rows_above_high_confidence": 844,
+      "rows_below_open_set_gate": 494,
+      "rows_passing_both_auto_assignment_gates": 491,
+      "maximum_calibrated_probability_below_open_set_gate": 0.94808652
+    }
+  },
+  "development_gate": {
+    "passed": true,
+    "requires_every_selection_window": true,
+    "blocker": "new_untouched_holdout_required"
+  }
+}

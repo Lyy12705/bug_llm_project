@@ -1,0 +1,819 @@
+{
+  "artifacts": {
+    "assignee_confidence_calibrator.json": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/assignee_confidence_calibrator.json",
+    "calibrated_predictions.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/calibrated_predictions.csv",
+    "calibration_drift_report.md": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/calibration_drift_report.md",
+    "calibration_method_comparison.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/calibration_method_comparison.csv",
+    "confidence_distribution.json": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/confidence_distribution.json",
+    "coverage_accuracy_curve.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/coverage_accuracy_curve.csv",
+    "coverage_risk_curve.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/coverage_risk_curve.csv",
+    "coverage_risk_curve.png": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/coverage_risk_curve.png",
+    "multi_window_calibration_summary.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/multi_window_calibration_summary.csv",
+    "open_world_calibration_metrics.json": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/open_world_calibration_metrics.json",
+    "open_world_group_calibration.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/open_world_group_calibration.csv",
+    "phase3_calibration_summary.json": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/phase3_calibration_summary.json",
+    "phase3_calibration_summary.md": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/phase3_calibration_summary.md",
+    "raw_confidence_audit.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/raw_confidence_audit.csv",
+    "raw_reliability_diagram.png": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/raw_reliability_diagram.png",
+    "reliability_diagram_calibrated.png": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/reliability_diagram_calibrated.png",
+    "reliability_diagram_raw.png": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/reliability_diagram_raw.png",
+    "routing_policy_comparison.csv": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/routing_policy_comparison.csv",
+    "selective_prediction_metrics.json": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc/selective_prediction_metrics.json"
+  },
+  "calibration_metrics": {
+    "test": {
+      "isotonic_regression": {
+        "actual_accuracy": 0.522465,
+        "brier_score": 0.162693,
+        "calibration_intercept": -0.11475,
+        "calibration_slope": 0.928427,
+        "ece": 0.030846,
+        "log_loss": 0.508288,
+        "mce": 0.130556,
+        "mean_probability": 0.542395,
+        "pr_auc": 0.824042,
+        "roc_auc": 0.828102,
+        "rows": 779
+      },
+      "margin_logistic": {
+        "actual_accuracy": 0.522465,
+        "brier_score": 0.176405,
+        "calibration_intercept": -0.150188,
+        "calibration_slope": 0.986982,
+        "ece": 0.092727,
+        "log_loss": 0.525487,
+        "mce": 0.195294,
+        "mean_probability": 0.548798,
+        "pr_auc": 0.86419,
+        "roc_auc": 0.81548,
+        "rows": 779
+      },
+      "multi_feature_logistic": {
+        "actual_accuracy": 0.522465,
+        "brier_score": 0.146352,
+        "calibration_intercept": -0.026331,
+        "calibration_slope": 1.074908,
+        "ece": 0.046217,
+        "log_loss": 0.444448,
+        "mce": 0.092419,
+        "mean_probability": 0.528583,
+        "pr_auc": 0.891087,
+        "roc_auc": 0.875618,
+        "rows": 779
+      },
+      "platt_logistic": {
+        "actual_accuracy": 0.522465,
+        "brier_score": 0.174443,
+        "calibration_intercept": -0.163783,
+        "calibration_slope": 1.025809,
+        "ece": 0.091328,
+        "log_loss": 0.525216,
+        "mce": 0.252917,
+        "mean_probability": 0.549485,
+        "pr_auc": 0.837272,
+        "roc_auc": 0.831487,
+        "rows": 779
+      },
+      "raw_confidence": {
+        "actual_accuracy": 0.522465,
+        "brier_score": 0.326291,
+        "calibration_intercept": -3.607183,
+        "calibration_slope": 1.793017,
+        "ece": 0.342131,
+        "log_loss": 0.913934,
+        "mce": 0.640972,
+        "mean_probability": 0.864596,
+        "pr_auc": 0.837272,
+        "roc_auc": 0.831487,
+        "rows": 779
+      }
+    },
+    "validation": {
+      "isotonic_regression": {
+        "actual_accuracy": 0.574307,
+        "brier_score": 0.156051,
+        "calibration_intercept": 0.000771,
+        "calibration_slope": 0.995025,
+        "ece": 0.0,
+        "log_loss": 0.478062,
+        "mce": 0.0,
+        "mean_probability": 0.574307,
+        "pr_auc": 0.841828,
+        "roc_auc": 0.834939,
+        "rows": 794
+      },
+      "margin_logistic": {
+        "actual_accuracy": 0.574307,
+        "brier_score": 0.167805,
+        "calibration_intercept": -0.001019,
+        "calibration_slope": 1.005353,
+        "ece": 0.079633,
+        "log_loss": 0.503124,
+        "mce": 0.18279,
+        "mean_probability": 0.574303,
+        "pr_auc": 0.891365,
+        "roc_auc": 0.830693,
+        "rows": 794
+      },
+      "multi_feature_logistic": {
+        "actual_accuracy": 0.574307,
+        "brier_score": 0.144738,
+        "calibration_intercept": 0.001135,
+        "calibration_slope": 1.016159,
+        "ece": 0.045679,
+        "log_loss": 0.43864,
+        "mce": 0.112034,
+        "mean_probability": 0.57429,
+        "pr_auc": 0.911724,
+        "roc_auc": 0.875415,
+        "rows": 794
+      },
+      "platt_logistic": {
+        "actual_accuracy": 0.574307,
+        "brier_score": 0.169551,
+        "calibration_intercept": -0.001534,
+        "calibration_slope": 1.004606,
+        "ece": 0.080463,
+        "log_loss": 0.516063,
+        "mce": 0.173073,
+        "mean_probability": 0.574287,
+        "pr_auc": 0.848534,
+        "roc_auc": 0.827971,
+        "rows": 794
+      },
+      "raw_confidence": {
+        "actual_accuracy": 0.574307,
+        "brier_score": 0.293481,
+        "calibration_intercept": -3.364461,
+        "calibration_slope": 1.742435,
+        "ece": 0.298055,
+        "log_loss": 0.834134,
+        "mce": 0.621,
+        "mean_probability": 0.872363,
+        "pr_auc": 0.848534,
+        "roc_auc": 0.827971,
+        "rows": 794
+      }
+    }
+  },
+  "calibration_selection": {
+    "best_method": "isotonic_regression",
+    "selection_rule": "lowest validation ECE, tie-broken by validation Brier score and log loss",
+    "temperature_scaling_not_used": "Temperature scaling is not appropriate here because the deterministic ranker does not expose calibrated logits."
+  },
+  "command": "assignee_triage_accuracy/scripts/evaluate_assignee_calibration.py --dataset bmo_public_10k_desc --data-dir assignee_triage_accuracy/paper_grade/data/processed --output-dir assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc --top-k 10 --bootstrap-samples 300 --seed 3407",
+  "confidence_distribution": {
+    "confidence_source": {
+      "fallback_confidences": {
+        "manual_triage_no_signal": 0.25,
+        "mapped_owner_without_ranked_candidates": 0.65
+      },
+      "formula": "min(0.95, max(0.35, 0.55 + 0.30 * top1_top2_margin + signal_bonus))",
+      "signal_bonus": "min(0.20, 0.05 * number_of_top_candidate_signals)",
+      "source": "AssigneeTriager._confidence",
+      "temperature_scaling_note": "Temperature scaling is not appropriate here because the deterministic ranker does not expose calibrated logits.",
+      "top1_top2_margin": "(best_score - second_score) / best_score"
+    },
+    "ranking_check": {
+      "deltas": {
+        "hit_at_10": -0.086703,
+        "hit_at_3": -0.18738,
+        "hit_at_5": -0.13904,
+        "mrr": -0.199908,
+        "top1_accuracy": -0.24316
+      },
+      "expected": {
+        "hit_at_10": 0.958333,
+        "hit_at_3": 0.90625,
+        "hit_at_5": 0.9375,
+        "mrr": 0.838777,
+        "top1_accuracy": 0.765625
+      },
+      "observed": {
+        "hit_at_10": 0.87163,
+        "hit_at_3": 0.71887,
+        "hit_at_5": 0.79846,
+        "mrr": 0.638869,
+        "top1_accuracy": 0.522465
+      },
+      "ranking_metrics_unchanged": false
+    },
+    "test": {
+      "histogram": {
+        "[0.0,0.1)": 0,
+        "[0.1,0.2)": 0,
+        "[0.2,0.3)": 0,
+        "[0.3,0.4)": 0,
+        "[0.4,0.5)": 0,
+        "[0.5,0.6)": 0,
+        "[0.6,0.7)": 36,
+        "[0.7,0.8)": 167,
+        "[0.8,0.9)": 208,
+        "[0.9,1.0]": 368
+      },
+      "invalid_high_count": 0,
+      "invalid_low_count": 0,
+      "max": 0.95,
+      "mean": 0.864596,
+      "median": 0.89,
+      "min": 0.6,
+      "most_common_values": [
+        {
+          "confidence": 0.95,
+          "count": 259
+        },
+        {
+          "confidence": 0.8,
+          "count": 8
+        },
+        {
+          "confidence": 0.792,
+          "count": 8
+        },
+        {
+          "confidence": 0.774,
+          "count": 7
+        },
+        {
+          "confidence": 0.898,
+          "count": 6
+        },
+        {
+          "confidence": 0.819,
+          "count": 6
+        },
+        {
+          "confidence": 0.949,
+          "count": 6
+        },
+        {
+          "confidence": 0.936,
+          "count": 6
+        },
+        {
+          "confidence": 0.82,
+          "count": 5
+        },
+        {
+          "confidence": 0.767,
+          "count": 5
+        }
+      ],
+      "quantiles": {
+        "0.01": 0.656,
+        "0.05": 0.7,
+        "0.1": 0.7388,
+        "0.25": 0.7955,
+        "0.5": 0.89,
+        "0.75": 0.95,
+        "0.9": 0.95,
+        "0.95": 0.95,
+        "0.99": 0.95
+      },
+      "rows": 779,
+      "saturation_0_95_or_above_count": 259,
+      "saturation_0_95_or_above_ratio": 0.332478,
+      "std": 0.087616,
+      "unique_value_count": 228
+    },
+    "validation": {
+      "histogram": {
+        "[0.0,0.1)": 0,
+        "[0.1,0.2)": 0,
+        "[0.2,0.3)": 0,
+        "[0.3,0.4)": 0,
+        "[0.4,0.5)": 0,
+        "[0.5,0.6)": 0,
+        "[0.6,0.7)": 39,
+        "[0.7,0.8)": 150,
+        "[0.8,0.9)": 187,
+        "[0.9,1.0]": 418
+      },
+      "invalid_high_count": 0,
+      "invalid_low_count": 0,
+      "max": 0.95,
+      "mean": 0.872363,
+      "median": 0.909,
+      "min": 0.61,
+      "most_common_values": [
+        {
+          "confidence": 0.95,
+          "count": 314
+        },
+        {
+          "confidence": 0.761,
+          "count": 6
+        },
+        {
+          "confidence": 0.834,
+          "count": 6
+        },
+        {
+          "confidence": 0.847,
+          "count": 5
+        },
+        {
+          "confidence": 0.905,
+          "count": 5
+        },
+        {
+          "confidence": 0.82,
+          "count": 5
+        },
+        {
+          "confidence": 0.831,
+          "count": 5
+        },
+        {
+          "confidence": 0.762,
+          "count": 5
+        },
+        {
+          "confidence": 0.823,
+          "count": 5
+        },
+        {
+          "confidence": 0.821,
+          "count": 5
+        }
+      ],
+      "quantiles": {
+        "0.01": 0.65886,
+        "0.05": 0.7,
+        "0.1": 0.75,
+        "0.25": 0.80325,
+        "0.5": 0.909,
+        "0.75": 0.95,
+        "0.9": 0.95,
+        "0.95": 0.95,
+        "0.99": 0.95
+      },
+      "rows": 794,
+      "saturation_0_95_or_above_count": 314,
+      "saturation_0_95_or_above_ratio": 0.395466,
+      "std": 0.087148,
+      "unique_value_count": 228
+    }
+  },
+  "config_snapshot": {
+    "bootstrap_samples": 300,
+    "data_dir": "assignee_triage_accuracy/paper_grade/data/processed",
+    "output_dir": "assignee_triage_accuracy/phase3_confidence_calibration/reports/bmo_public_10k_desc",
+    "seed": 3407,
+    "top_k": 10
+  },
+  "dataset": "bmo_public_10k_desc",
+  "experiment_name": "phase3_confidence_calibration_selective_prediction",
+  "final_recommendation": {
+    "A_best_calibration_method": "isotonic_regression",
+    "B_raw_confidence_directly_usable": "no",
+    "C_ece_reduction": {
+      "test_best_ece": 0.030846,
+      "test_raw_ece": 0.342131,
+      "test_reduction": 0.311285,
+      "validation_best_ece": 0.0,
+      "validation_raw_ece": 0.298055,
+      "validation_reduction": 0.298055
+    },
+    "D_accuracy_thresholds_found": {
+      "0.8": true,
+      "0.85": true,
+      "0.9": false,
+      "0.95": false
+    },
+    "E_accuracy_threshold_coverages": {
+      "0.8": {
+        "test_coverage": 0.418485,
+        "test_selective_accuracy": 0.849693,
+        "threshold": 0.492754
+      },
+      "0.85": {
+        "test_coverage": 0.418485,
+        "test_selective_accuracy": 0.849693,
+        "threshold": 0.673469
+      },
+      "0.9": {
+        "test_coverage": 0.0,
+        "test_selective_accuracy": 0.0,
+        "threshold": 1.000001
+      },
+      "0.95": {
+        "test_coverage": 0.0,
+        "test_selective_accuracy": 0.0,
+        "threshold": 1.000001
+      }
+    },
+    "F_best_demo_policy": "automation_first",
+    "G_best_deployment_policy": "safety_first",
+    "H_unseen_false_auto_assign_rate_acceptable": "not_without_extra_open_set_control",
+    "I_confidence_sufficient_as_open_set_detector": "no",
+    "J_next_step": "open_set_detector"
+  },
+  "input_paths": {
+    "roster": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_candidate_roster.json",
+    "test": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_test_set.jsonl",
+    "train": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_history_train.jsonl",
+    "validation": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_validation_set.jsonl"
+  },
+  "multi_window_calibration": {
+    "coverage": {
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "std": 0.0
+    },
+    "global_calibrated_ece": {
+      "max": 0.258029,
+      "mean": 0.124891,
+      "min": 0.036617,
+      "std": 0.061524
+    },
+    "per_window_calibrated_ece": {
+      "max": 0.253724,
+      "mean": 0.107131,
+      "min": 0.031212,
+      "std": 0.068651
+    },
+    "raw_ece": {
+      "max": 0.631527,
+      "mean": 0.530563,
+      "min": 0.444682,
+      "std": 0.060082
+    },
+    "selective_accuracy": {
+      "max": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "std": 0.0
+    }
+  },
+  "open_world": {
+    "best_method": "isotonic_regression",
+    "calibrated_threshold_for_0_85_validation_accuracy": 1.000001,
+    "calibrated_unseen_detection_auc_using_negative_probability": 0.643236,
+    "confidence_alone_open_set_detector_judgment": "insufficient_if_unseen_false_auto_assign_or_auc_is_poor",
+    "raw_threshold_for_0_85_validation_accuracy": 1.000001,
+    "raw_unseen_detection_auc_using_negative_confidence": 0.653732
+  },
+  "open_world_group_rows": [
+    {
+      "calibrated_abstention_rate_at_0_85_policy": 1.0,
+      "calibrated_false_auto_assign_rate": 0.0,
+      "calibrated_manual_triage_recall": 0.0,
+      "mean_calibrated_probability": 0.591795,
+      "mean_raw_confidence": 0.898589,
+      "median_raw_confidence": 0.95,
+      "open_set_group": "frequent_seen",
+      "raw_abstention_rate_at_0_85_policy": 1.0,
+      "raw_false_auto_assign_rate": 0.0,
+      "rows": 192
+    },
+    {
+      "calibrated_abstention_rate_at_0_85_policy": 1.0,
+      "calibrated_false_auto_assign_rate": 0.0,
+      "calibrated_manual_triage_recall": 0.0,
+      "mean_calibrated_probability": 0.474827,
+      "mean_raw_confidence": 0.864029,
+      "median_raw_confidence": 0.876,
+      "open_set_group": "low_frequency_seen",
+      "raw_abstention_rate_at_0_85_policy": 1.0,
+      "raw_false_auto_assign_rate": 0.0,
+      "rows": 70
+    },
+    {
+      "calibrated_abstention_rate_at_0_85_policy": 1.0,
+      "calibrated_false_auto_assign_rate": 0.0,
+      "calibrated_manual_triage_recall": 1.0,
+      "mean_calibrated_probability": 0.431625,
+      "mean_raw_confidence": 0.853833,
+      "median_raw_confidence": 0.8335,
+      "open_set_group": "unseen_assignee",
+      "raw_abstention_rate_at_0_85_policy": 1.0,
+      "raw_false_auto_assign_rate": 0.0,
+      "rows": 18
+    }
+  ],
+  "ranking_check": {
+    "deltas": {
+      "hit_at_10": -0.086703,
+      "hit_at_3": -0.18738,
+      "hit_at_5": -0.13904,
+      "mrr": -0.199908,
+      "top1_accuracy": -0.24316
+    },
+    "expected": {
+      "hit_at_10": 0.958333,
+      "hit_at_3": 0.90625,
+      "hit_at_5": 0.9375,
+      "mrr": 0.838777,
+      "top1_accuracy": 0.765625
+    },
+    "observed": {
+      "hit_at_10": 0.87163,
+      "hit_at_3": 0.71887,
+      "hit_at_5": 0.79846,
+      "mrr": 0.638869,
+      "top1_accuracy": 0.522465
+    },
+    "ranking_metrics_unchanged": false
+  },
+  "routing_policies": [
+    {
+      "policy": "safety_first",
+      "t_high": 1.000001,
+      "t_low": 0.253247,
+      "test_auto_assign_accuracy": 0.0,
+      "test_auto_assign_count": 0,
+      "test_auto_assign_coverage": 0.0,
+      "test_manual_triage_count": 222,
+      "test_manual_triage_rate": 0.284981,
+      "test_top3_count": 557,
+      "test_top3_coverage": 0.715019,
+      "test_top3_hit_at_3": 0.798923,
+      "test_wrong_auto_assign_count": 0,
+      "test_wrong_auto_assign_rate": 0.0,
+      "validation_auto_assign_accuracy": 0.0,
+      "validation_auto_assign_count": 0,
+      "validation_auto_assign_coverage": 0.0,
+      "validation_manual_triage_count": 204,
+      "validation_manual_triage_rate": 0.256927,
+      "validation_objective": 0.26898855,
+      "validation_top3_count": 590,
+      "validation_top3_coverage": 0.743073,
+      "validation_top3_hit_at_3": 0.832203,
+      "validation_wrong_auto_assign_count": 0,
+      "validation_wrong_auto_assign_rate": 0.0
+    },
+    {
+      "policy": "balanced",
+      "t_high": 1.000001,
+      "t_low": 0.253247,
+      "test_auto_assign_accuracy": 0.0,
+      "test_auto_assign_count": 0,
+      "test_auto_assign_coverage": 0.0,
+      "test_manual_triage_count": 222,
+      "test_manual_triage_rate": 0.284981,
+      "test_top3_count": 557,
+      "test_top3_coverage": 0.715019,
+      "test_top3_hit_at_3": 0.798923,
+      "test_wrong_auto_assign_count": 0,
+      "test_wrong_auto_assign_rate": 0.0,
+      "validation_auto_assign_accuracy": 0.0,
+      "validation_auto_assign_count": 0,
+      "validation_auto_assign_coverage": 0.0,
+      "validation_manual_triage_count": 204,
+      "validation_manual_triage_rate": 0.256927,
+      "validation_objective": 0.592694879819,
+      "validation_top3_count": 590,
+      "validation_top3_coverage": 0.743073,
+      "validation_top3_hit_at_3": 0.832203,
+      "validation_wrong_auto_assign_count": 0,
+      "validation_wrong_auto_assign_rate": 0.0
+    },
+    {
+      "policy": "automation_first",
+      "t_high": 1.000001,
+      "t_low": 0.0,
+      "test_auto_assign_accuracy": 0.0,
+      "test_auto_assign_count": 0,
+      "test_auto_assign_coverage": 0.0,
+      "test_manual_triage_count": 0,
+      "test_manual_triage_rate": 0.0,
+      "test_top3_count": 779,
+      "test_top3_coverage": 1.0,
+      "test_top3_hit_at_3": 0.71887,
+      "test_wrong_auto_assign_count": 0,
+      "test_wrong_auto_assign_rate": 0.0,
+      "validation_auto_assign_accuracy": 0.0,
+      "validation_auto_assign_count": 0,
+      "validation_auto_assign_coverage": 0.0,
+      "validation_manual_triage_count": 0,
+      "validation_manual_triage_rate": 0.0,
+      "validation_objective": 0.2,
+      "validation_top3_count": 794,
+      "validation_top3_coverage": 1.0,
+      "validation_top3_hit_at_3": 0.763224,
+      "validation_wrong_auto_assign_count": 0,
+      "validation_wrong_auto_assign_rate": 0.0
+    }
+  ],
+  "selective_prediction": {
+    "best_calibrator": "isotonic_regression",
+    "coverage_grid": [
+      {
+        "accepted_ticket_count": 259,
+        "rejected_ticket_count": 520,
+        "target_validation_coverage": 0.1,
+        "test_accuracy": 0.907336,
+        "test_coverage": 0.332478,
+        "test_error_count": 24,
+        "test_risk": 0.092664,
+        "threshold": 0.898089
+      },
+      {
+        "accepted_ticket_count": 259,
+        "rejected_ticket_count": 520,
+        "target_validation_coverage": 0.2,
+        "test_accuracy": 0.907336,
+        "test_coverage": 0.332478,
+        "test_error_count": 24,
+        "test_risk": 0.092664,
+        "threshold": 0.898089
+      },
+      {
+        "accepted_ticket_count": 259,
+        "rejected_ticket_count": 520,
+        "target_validation_coverage": 0.3,
+        "test_accuracy": 0.907336,
+        "test_coverage": 0.332478,
+        "test_error_count": 24,
+        "test_risk": 0.092664,
+        "threshold": 0.898089
+      },
+      {
+        "accepted_ticket_count": 277,
+        "rejected_ticket_count": 502,
+        "target_validation_coverage": 0.4,
+        "test_accuracy": 0.902527,
+        "test_coverage": 0.355584,
+        "test_error_count": 27,
+        "test_risk": 0.097473,
+        "threshold": 0.875
+      },
+      {
+        "accepted_ticket_count": 326,
+        "rejected_ticket_count": 453,
+        "target_validation_coverage": 0.5,
+        "test_accuracy": 0.849693,
+        "test_coverage": 0.418485,
+        "test_error_count": 49,
+        "test_risk": 0.150307,
+        "threshold": 0.492754
+      },
+      {
+        "accepted_ticket_count": 398,
+        "rejected_ticket_count": 381,
+        "target_validation_coverage": 0.6,
+        "test_accuracy": 0.773869,
+        "test_coverage": 0.510911,
+        "test_error_count": 90,
+        "test_risk": 0.226131,
+        "threshold": 0.455556
+      },
+      {
+        "accepted_ticket_count": 557,
+        "rejected_ticket_count": 222,
+        "target_validation_coverage": 0.7,
+        "test_accuracy": 0.64991,
+        "test_coverage": 0.715019,
+        "test_error_count": 195,
+        "test_risk": 0.35009,
+        "threshold": 0.283333
+      },
+      {
+        "accepted_ticket_count": 557,
+        "rejected_ticket_count": 222,
+        "target_validation_coverage": 0.8,
+        "test_accuracy": 0.64991,
+        "test_coverage": 0.715019,
+        "test_error_count": 195,
+        "test_risk": 0.35009,
+        "threshold": 0.253247
+      },
+      {
+        "accepted_ticket_count": 557,
+        "rejected_ticket_count": 222,
+        "target_validation_coverage": 0.9,
+        "test_accuracy": 0.64991,
+        "test_coverage": 0.715019,
+        "test_error_count": 195,
+        "test_risk": 0.35009,
+        "threshold": 0.253247
+      },
+      {
+        "accepted_ticket_count": 779,
+        "rejected_ticket_count": 0,
+        "target_validation_coverage": 1.0,
+        "test_accuracy": 0.522465,
+        "test_coverage": 1.0,
+        "test_error_count": 372,
+        "test_risk": 0.477535,
+        "threshold": 1e-06
+      }
+    ],
+    "targets": {
+      "0.8": {
+        "target_accuracy": 0.8,
+        "test_abstention_rate": 0.581515,
+        "test_accepted_count": 326,
+        "test_coverage": 0.418485,
+        "test_error_count": 49,
+        "test_error_rate": 0.150307,
+        "test_rejected_count": 453,
+        "test_risk": 0.150307,
+        "test_selective_accuracy": 0.849693,
+        "test_threshold": 0.492754,
+        "threshold": 0.492754,
+        "threshold_found": true,
+        "validation_accepted_count": 440,
+        "validation_accuracy": 0.809091,
+        "validation_coverage": 0.554156,
+        "validation_error_rate": 0.190909,
+        "validation_rejected_count": 354
+      },
+      "0.85": {
+        "target_accuracy": 0.85,
+        "test_abstention_rate": 0.581515,
+        "test_accepted_count": 326,
+        "test_coverage": 0.418485,
+        "test_error_count": 49,
+        "test_error_rate": 0.150307,
+        "test_rejected_count": 453,
+        "test_risk": 0.150307,
+        "test_selective_accuracy": 0.849693,
+        "test_threshold": 0.673469,
+        "threshold": 0.673469,
+        "threshold_found": true,
+        "validation_accepted_count": 371,
+        "validation_accuracy": 0.867925,
+        "validation_coverage": 0.467254,
+        "validation_error_rate": 0.132075,
+        "validation_rejected_count": 423
+      },
+      "0.9": {
+        "target_accuracy": 0.9,
+        "test_abstention_rate": 1.0,
+        "test_accepted_count": 0,
+        "test_coverage": 0.0,
+        "test_error_count": 0,
+        "test_error_rate": 0.0,
+        "test_rejected_count": 779,
+        "test_risk": 0.0,
+        "test_selective_accuracy": 0.0,
+        "test_threshold": 1.000001,
+        "threshold": 1.000001,
+        "threshold_found": false,
+        "validation_accepted_count": 0,
+        "validation_accuracy": 0.0,
+        "validation_coverage": 0.0,
+        "validation_error_rate": 0.0,
+        "validation_rejected_count": 794
+      },
+      "0.95": {
+        "target_accuracy": 0.95,
+        "test_abstention_rate": 1.0,
+        "test_accepted_count": 0,
+        "test_coverage": 0.0,
+        "test_error_count": 0,
+        "test_error_rate": 0.0,
+        "test_rejected_count": 779,
+        "test_risk": 0.0,
+        "test_selective_accuracy": 0.0,
+        "test_threshold": 1.000001,
+        "threshold": 1.000001,
+        "threshold_found": false,
+        "validation_accepted_count": 0,
+        "validation_accuracy": 0.0,
+        "validation_coverage": 0.0,
+        "validation_error_rate": 0.0,
+        "validation_rejected_count": 794
+      }
+    }
+  },
+  "test_ranking_metrics": {
+    "hit_at_10": 0.87163,
+    "hit_at_3": 0.71887,
+    "hit_at_5": 0.79846,
+    "mrr": 0.638869,
+    "rows": 779,
+    "top1_accuracy": 0.522465,
+    "top1_bootstrap_95ci": {
+      "high": 0.560976,
+      "low": 0.483954
+    }
+  },
+  "unseen_group": {
+    "calibrated_abstention_rate_at_0_85_policy": 1.0,
+    "calibrated_false_auto_assign_rate": 0.0,
+    "calibrated_manual_triage_recall": 1.0,
+    "mean_calibrated_probability": 0.431625,
+    "mean_raw_confidence": 0.853833,
+    "median_raw_confidence": 0.8335,
+    "open_set_group": "unseen_assignee",
+    "raw_abstention_rate_at_0_85_policy": 1.0,
+    "raw_false_auto_assign_rate": 0.0,
+    "rows": 18
+  },
+  "validation_ranking_metrics": {
+    "hit_at_10": 0.906801,
+    "hit_at_3": 0.763224,
+    "hit_at_5": 0.846348,
+    "mrr": 0.684036,
+    "rows": 794,
+    "top1_accuracy": 0.574307,
+    "top1_bootstrap_95ci": {
+      "high": 0.605793,
+      "low": 0.539043
+    }
+  }
+}

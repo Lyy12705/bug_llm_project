@@ -1,0 +1,85 @@
+{
+  "commands": {
+    "nvcc": {
+      "available": false,
+      "returncode": null,
+      "stderr": "command not found",
+      "stdout": ""
+    },
+    "nvidia_smi": {
+      "available": false,
+      "returncode": null,
+      "stderr": "command not found",
+      "stdout": ""
+    }
+  },
+  "decision": {
+    "acceptable_adaptation_if_remote_unavailable": "smaller instruction model or CPU/MPS candidate-scoring smoke test, clearly labeled resource-constrained adaptation.",
+    "blocking_reasons": [
+      "CUDA GPU not available to Python torch runtime.",
+      "peft is not installed.",
+      "trl is not installed.",
+      "bitsandbytes is not installed."
+    ],
+    "can_exact_8b_qlora_locally": false,
+    "minimum_remote_gpu_recommendation": "CUDA GPU with >=16 GB VRAM; >=24 GB preferred for DeepSeek-R1-Distill-Llama-8B QLoRA SFT.",
+    "recommended_mode": "resource_constrained_pretraining_only_until_remote_gpu",
+    "requires_remote_gpu": true
+  },
+  "disk": {
+    "free_gb": 126.667,
+    "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy",
+    "total_gb": 460.432
+  },
+  "memory": {
+    "ram_bytes": 25769803776,
+    "ram_gb": 24.0
+  },
+  "packages": {
+    "accelerate": {
+      "installed": true,
+      "version": "1.13.0"
+    },
+    "bitsandbytes": {
+      "installed": false,
+      "version": null
+    },
+    "datasets": {
+      "installed": true,
+      "version": "4.8.5"
+    },
+    "peft": {
+      "installed": false,
+      "version": null
+    },
+    "torch": {
+      "installed": true,
+      "version": "2.12.0"
+    },
+    "transformers": {
+      "installed": true,
+      "version": "5.8.1"
+    },
+    "trl": {
+      "installed": false,
+      "version": null
+    }
+  },
+  "platform": {
+    "machine": "arm64",
+    "processor": "arm",
+    "python": "3.13.1 (v3.13.1:06714517797, Dec  3 2024, 14:00:22) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "release": "25.5.0",
+    "system": "Darwin"
+  },
+  "torch": {
+    "cuda_available": false,
+    "cuda_device_count": 0,
+    "cuda_devices": [],
+    "cuda_version": null,
+    "installed": true,
+    "mps_available": false,
+    "mps_built": true,
+    "version": "2.12.0"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "feature_slices": [
+    {
+      "feature_config": "title_only",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_only/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_only/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": false,
+      "uses_metadata": false,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_only/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "description_only",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/description_only/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/description_only/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": true,
+      "uses_metadata": false,
+      "uses_title": false,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/description_only/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "metadata_only",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/metadata_only/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/metadata_only/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": false,
+      "uses_metadata": true,
+      "uses_title": false,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/metadata_only/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "title_plus_metadata",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_metadata/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_metadata/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": false,
+      "uses_metadata": true,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_metadata/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "title_plus_description",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": true,
+      "uses_metadata": false,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description/validation_set.jsonl",
+      "validation_rows": 168
+    },
+    {
+      "feature_config": "title_plus_description_plus_metadata",
+      "roster_size": 60,
+      "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description_plus_metadata/test_set.jsonl",
+      "test_rows": 192,
+      "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description_plus_metadata/history_train.jsonl",
+      "train_rows": 1569,
+      "uses_description": true,
+      "uses_metadata": true,
+      "uses_title": true,
+      "validation_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase2_temporal_description/reports/bmo_paper_2024_3k_description_enriched/description_ablation/feature_sliced_data/title_plus_description_plus_metadata/validation_set.jsonl",
+      "validation_rows": 168
+    }
+  ]
+}

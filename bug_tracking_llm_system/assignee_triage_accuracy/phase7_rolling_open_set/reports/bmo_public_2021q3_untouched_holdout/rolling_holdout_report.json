@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "method": "frozen_rolling_history_holdout_evaluation_v1",
+  "evaluated_at": "2026-07-13T15:09:16.963707+00:00",
+  "deployment_status": "research_only",
+  "protocol": {
+    "history_rows": 18069,
+    "query_rows_loaded": 2709,
+    "query_rows": 2696,
+    "overlap_rows_excluded": 13,
+    "unseen_owner_rows": 85,
+    "unseen_owner_rate": 0.031528,
+    "history_end": "2021-06-03T10:01:55Z",
+    "query_start": "2021-07-01T01:56:21Z",
+    "holdout_used_for_fitting": false,
+    "holdout_used_for_threshold_selection": false,
+    "rolling_history_updated_only_from_prior_windows": true
+  },
+  "recommendation_metrics": {
+    "rows": 2696,
+    "top1_accuracy": 0.451039,
+    "top3_accuracy": 0.630193,
+    "top5_accuracy": 0.709941,
+    "top10_accuracy": 0.790801,
+    "candidate_pool_recall": 0.878709,
+    "mrr": 0.559754,
+    "macro_f1": 0.127592
+  },
+  "recommendation_metrics_known_owner": {
+    "rows": 2611,
+    "top1_accuracy": 0.465722,
+    "top3_accuracy": 0.650709,
+    "top5_accuracy": 0.733052,
+    "top10_accuracy": 0.816545,
+    "candidate_pool_recall": 0.907315,
+    "mrr": 0.577977,
+    "macro_f1": 0.148338
+  },
+  "calibration_metrics": {
+    "rows": 2696,
+    "positive_rate": 0.451039,
+    "mean_probability": 0.401438,
+    "brier": 0.143099,
+    "ece": 0.060164
+  },
+  "open_set_metrics": {
+    "rows": 2696,
+    "known_rows": 2611,
+    "unknown_rows": 85,
+    "auroc": 0.69934,
+    "auprc": 0.065912,
+    "unknown_recall_at_5pct_known_fpr": 0.11764705882352941,
+    "threshold_at_5pct_known_fpr": 0.72503606,
+    "threshold": 0.29576978,
+    "unknown_recall": 0.9764705882352941,
+    "known_false_positive_rate": 0.6962849482956721
+  },
+  "routing_before_drift_gate": {
+    "rows": 2696,
+    "known_rows": 2611,
+    "unseen_rows": 85,
+    "auto_assignment_rows": 707,
+    "auto_assignment_coverage": 0.26224,
+    "auto_assignment_accuracy": 0.920792,
+    "unseen_auto_assignment_rows": 0,
+    "unseen_auto_assignment_rate": 0.0,
+    "top3_confirmation_rows": 460,
+    "top3_confirmation_rate": 0.170623,
+    "top3_confirmation_accuracy": 0.719565,
+    "manual_triage_rate": 0.567136,
+    "routing_status_breakdown": {
+      "auto_assign": 707,
+      "manual_triage_low_confidence": 1487,
+      "manual_triage_open_set": 42,
+      "top3_confirmation": 460
+    },
+    "fallback_reason_breakdown": {
+      "high_calibrated_confidence": 707,
+      "low_ranking_confidence": 1487,
+      "medium_calibrated_confidence": 460,
+      "unseen_owner_risk": 42
+    }
+  },
+  "score_drift": {
+    "rows": 2696,
+    "maximum_psi": 0.044111,
+    "threshold": 0.25,
+    "severe_drift": false,
+    "features": {
+      "calibrated_probability": {
+        "psi": 0.044111,
+        "current_distribution": {
+          "minimum": 0.02119206,
+          "p25": 0.15684273,
+          "median": 0.29940776,
+          "p75": 0.68052065,
+          "maximum": 0.93815976
+        }
+      },
+      "open_set_probability": {
+        "psi": 0.036042,
+        "current_distribution": {
+          "minimum": 0.0258591,
+          "p25": 0.25223044,
+          "median": 0.43620947,
+          "p75": 0.57150922,
+          "maximum": 0.87175472
+        }
+      },
+      "top_probability": {
+        "psi": 0.027291,
+        "current_distribution": {
+          "minimum": 0.01511763,
+          "p25": 0.17355441,
+          "median": 0.38652105,
+          "p75": 0.80456366,
+          "maximum": 0.98649554
+        }
+      },
+      "probability_margin": {
+        "psi": 0.015858,
+        "current_distribution": {
+          "minimum": 0.0,
+          "p25": 0.04798844,
+          "median": 0.19198913,
+          "p75": 0.60430135,
+          "maximum": 0.95015437
+        }
+      }
+    }
+  },
+  "routing_metrics": {
+    "rows": 2696,
+    "known_rows": 2611,
+    "unseen_rows": 85,
+    "auto_assignment_rows": 707,
+    "auto_assignment_coverage": 0.26224,
+    "auto_assignment_accuracy": 0.920792,
+    "unseen_auto_assignment_rows": 0,
+    "unseen_auto_assignment_rate": 0.0,
+    "top3_confirmation_rows": 460,
+    "top3_confirmation_rate": 0.170623,
+    "top3_confirmation_accuracy": 0.719565,
+    "manual_triage_rate": 0.567136,
+    "routing_status_breakdown": {
+      "auto_assign": 707,
+      "manual_triage_low_confidence": 1487,
+      "manual_triage_open_set": 42,
+      "top3_confirmation": 460
+    },
+    "fallback_reason_breakdown": {
+      "high_calibrated_confidence": 707,
+      "low_ranking_confidence": 1487,
+      "medium_calibrated_confidence": 460,
+      "unseen_owner_risk": 42
+    }
+  },
+  "routing_score_diagnostics": {
+    "rows": 2696,
+    "calibrated_probability": {
+      "minimum": 0.02119206,
+      "p25": 0.15684273,
+      "median": 0.29940776,
+      "p75": 0.68052065,
+      "maximum": 0.93815976
+    },
+    "open_set_probability": {
+      "minimum": 0.0258591,
+      "p25": 0.25223044,
+      "median": 0.43620947,
+      "p75": 0.57150922,
+      "maximum": 0.87175472
+    },
+    "frozen_t_high": 0.50279309,
+    "frozen_open_set_threshold": 0.29576978,
+    "rows_above_high_confidence": 930,
+    "rows_below_open_set_gate": 795,
+    "rows_passing_both_auto_assignment_gates": 707,
+    "maximum_calibrated_probability_below_open_set_gate": 0.93815976
+  },
+  "deployment_gate": {
+    "passed": true,
+    "checks": {
+      "auto_assignment_accuracy": true,
+      "auto_assignment_coverage": true,
+      "unseen_auto_assignment_rate": true
+    },
+    "targets": {
+      "target_auto_accuracy": 0.85,
+      "minimum_auto_coverage": 0.1,
+      "maximum_unseen_auto_rate": 0.05
+    },
+    "blocker": "explicit_operator_and_roster_approval_required",
+    "score_drift_check": true,
+    "production_integration_allowed": false,
+    "production_blocker": "reviewed_active_roster_and_explicit_operator_approval_required"
+  }
+}

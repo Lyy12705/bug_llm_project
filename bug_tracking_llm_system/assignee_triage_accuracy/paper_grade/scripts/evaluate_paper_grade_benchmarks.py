@@ -8,6 +8,7 @@ import random
 import re
 import sys
 from collections import Counter, defaultdict
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -49,6 +50,11 @@ def main() -> None:
     parser.add_argument("--bootstrap-samples", type=int, default=500)
     parser.add_argument("--seed", type=int, default=3407)
     parser.add_argument("--baselines", nargs="+", default=DEFAULT_BASELINES)
+    parser.add_argument(
+        "--write-details",
+        action="store_true",
+        help="Also write row-level predictions and CSV error analysis; metrics JSON is always written.",
+    )
     args = parser.parse_args()
 
     train_path = args.train or args.data_dir / f"{args.dataset}_history_train.jsonl"
@@ -74,6 +80,8 @@ def main() -> None:
         "top_k": args.top_k,
         "bm25_neighbors": args.bm25_neighbors,
         "bootstrap_samples": args.bootstrap_samples,
+        "class_imbalance": class_imbalance_report(train_rows, test_rows, roster),
+        "leakage_audit": leakage_audit(train_rows, test_rows),
         "baselines": {},
     }
 
@@ -103,8 +111,9 @@ def main() -> None:
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     write_json(args.output_dir / f"{args.dataset}_metrics.json", metrics)
-    write_jsonl(args.output_dir / f"{args.dataset}_predictions.jsonl", all_predictions)
-    write_error_analysis(args.output_dir / f"{args.dataset}_error_analysis.csv", all_predictions)
+    if args.write_details:
+        write_jsonl(args.output_dir / f"{args.dataset}_predictions.jsonl", all_predictions)
+        write_error_analysis(args.output_dir / f"{args.dataset}_error_analysis.csv", all_predictions)
     print(json.dumps(metrics, ensure_ascii=False, indent=2))
 
 
@@ -174,12 +183,19 @@ def predict_baseline(
         config = PipelineConfig(
             project_root=SYSTEM_ROOT,
             assignee_dataset_path=train_path,
+            assignee_top_k=top_k,
             save_checkpoints=False,
         )
         triager = AssigneeTriager(config=config)
 
     for row in test_rows:
         expected = normalize_assignee(row.get("assignee"))
+        result: dict[str, Any] = {}
+        fallback_used = False
+        fallback_reason = ""
+        routing_status = ""
+        needs_manual_triage = False
+        suggested_assignee = ""
         if baseline == "global_majority":
             candidates = from_counters([context["global_counts"]], context["roster"], top_k)
         elif baseline == "component_majority":
@@ -207,11 +223,21 @@ def predict_baseline(
         elif baseline == "current_assignee_triager":
             assert triager is not None
             result = triager.assign(row, {"predicted_priority": row.get("priority", "P3")})
-            candidates = current_triager_candidates(result, row, context, top_k)
+            candidates = current_triager_candidates(result, context, top_k)
+            fallback_used = bool(result.get("fallback_used"))
+            fallback_reason = str(result.get("fallback_reason") or "")
+            routing_status = str(result.get("routing_status") or "")
+            needs_manual_triage = bool(result.get("needs_manual_triage"))
+            suggested_assignee = normalize_assignee(result.get("suggested_assignee"))
         else:
             raise SystemExit(f"Unknown baseline: {baseline}")
 
-        predicted = candidates[0] if candidates else ""
+        predicted = candidates[0] if candidates else "manual_triage"
+        routed = (
+            normalize_assignee(result.get("assignee")) or "manual_triage"
+            if baseline == "current_assignee_triager"
+            else predicted
+        )
         rank = rank_of(expected, candidates)
         predictions.append(
             {
@@ -223,13 +249,20 @@ def predict_baseline(
                 "priority": row.get("priority", "P3"),
                 "expected_assignee": expected,
                 "predicted_assignee": predicted,
+                "routed_assignee": routed,
                 "ranked_candidates": candidates,
                 "rank": rank,
                 "reciprocal_rank": 0.0 if rank is None else 1.0 / rank,
                 "is_top1_correct": expected == predicted,
+                "is_routed_correct": expected == routed,
                 "is_hit_at_3": expected in candidates[:3],
                 "is_hit_at_5": expected in candidates[:5],
                 "is_hit_at_10": expected in candidates[:10],
+                "fallback_used": fallback_used,
+                "fallback_reason": fallback_reason,
+                "routing_status": routing_status,
+                "needs_manual_triage": needs_manual_triage,
+                "suggested_assignee": suggested_assignee,
                 "error_type": error_type(expected, predicted, row, context),
             }
         )
@@ -247,33 +280,25 @@ def from_counters(counters: list[Counter[str]], roster: set[str], top_k: int) ->
     return candidates[:top_k]
 
 
-def current_triager_candidates(
-    result: dict[str, Any], row: dict[str, Any], context: dict[str, Any], top_k: int
-) -> list[str]:
-    component = normalize_component(row.get("component"))
+def current_triager_candidates(result: dict[str, Any], context: dict[str, Any], top_k: int) -> list[str]:
     candidates: list[str] = []
 
     def add(value: Any) -> None:
         assignee = normalize_assignee(value)
         if not assignee or assignee in candidates:
             return
-        if assignee not in context["roster"] and assignee != "manual_triage":
+        if assignee == "manual_triage" or assignee not in context["roster"]:
             return
         candidates.append(assignee)
 
     for assignee in result.get("ranked_candidates", []):
         add(assignee)
-    add(result.get("assignee"))
-    for assignee, _ in context["component_counts"].get(component, Counter()).most_common():
-        add(assignee)
-    for assignee, _ in context["global_counts"].most_common():
-        add(assignee)
-    add("manual_triage")
     return candidates[:top_k]
 
 
 def build_metrics(predictions: list[dict[str, Any]], bootstrap_samples: int, seed: int) -> dict[str, Any]:
     total = len(predictions)
+    auto_assignment_rows = [row for row in predictions if row["routed_assignee"] != "manual_triage"]
     indicators = [1 if row["is_top1_correct"] else 0 for row in predictions]
     by_assignee: dict[str, list[int]] = defaultdict(list)
     by_component: dict[str, list[int]] = defaultdict(list)
@@ -288,8 +313,26 @@ def build_metrics(predictions: list[dict[str, Any]], bootstrap_samples: int, see
         "hit_at_5": ratio(sum(1 for row in predictions if row["is_hit_at_5"]), total),
         "hit_at_10": ratio(sum(1 for row in predictions if row["is_hit_at_10"]), total),
         "mrr": ratio(sum(float(row["reciprocal_rank"]) for row in predictions), total),
+        "macro_f1": macro_f1(
+            [row["expected_assignee"] for row in predictions],
+            [row["predicted_assignee"] for row in predictions],
+        ),
         "macro_top1_by_assignee": macro_average(by_assignee),
         "macro_top1_by_component": macro_average(by_component),
+        "unable_to_decide_rate": ratio(
+            sum(1 for row in predictions if row["routed_assignee"] == "manual_triage"),
+            total,
+        ),
+        "fallback_trigger_rate": ratio(sum(1 for row in predictions if row["fallback_used"]), total),
+        "auto_assignment_coverage": ratio(len(auto_assignment_rows), total),
+        "auto_assignment_accuracy": ratio(
+            sum(1 for row in auto_assignment_rows if row["is_routed_correct"]), len(auto_assignment_rows)
+        ),
+        "end_to_end_routing_accuracy": ratio(
+            sum(1 for row in predictions if row["is_routed_correct"]), total
+        ),
+        "routing_status_breakdown": dict(sorted(Counter(row["routing_status"] or "none" for row in predictions).items())),
+        "fallback_reason_breakdown": dict(sorted(Counter(row["fallback_reason"] or "none" for row in predictions).items())),
         "top1_bootstrap_95ci": bootstrap_ci(indicators, bootstrap_samples, seed),
         "error_breakdown": dict(sorted(Counter(row["error_type"] for row in predictions).items())),
     }
@@ -299,6 +342,21 @@ def macro_average(groups: dict[str, list[int]]) -> float:
     if not groups:
         return 0.0
     return round(sum(sum(values) / len(values) for values in groups.values()) / len(groups), 6)
+
+
+def macro_f1(expected: list[str], predicted: list[str]) -> float:
+    labels = sorted({label for label in expected + predicted if label})
+    if not labels:
+        return 0.0
+    scores = []
+    for label in labels:
+        true_positive = sum(1 for gold, pred in zip(expected, predicted, strict=True) if gold == label and pred == label)
+        false_positive = sum(1 for gold, pred in zip(expected, predicted, strict=True) if gold != label and pred == label)
+        false_negative = sum(1 for gold, pred in zip(expected, predicted, strict=True) if gold == label and pred != label)
+        precision = true_positive / (true_positive + false_positive) if true_positive + false_positive else 0.0
+        recall = true_positive / (true_positive + false_negative) if true_positive + false_negative else 0.0
+        scores.append(2 * precision * recall / (precision + recall) if precision + recall else 0.0)
+    return round(sum(scores) / len(scores), 6)
 
 
 def bootstrap_ci(indicators: list[int], samples: int, seed: int) -> dict[str, float]:
@@ -368,6 +426,93 @@ def ratio(numerator: float, denominator: int) -> float:
     return round(float(numerator) / denominator, 6)
 
 
+def class_imbalance_report(
+    train_rows: list[dict[str, Any]], test_rows: list[dict[str, Any]], roster: list[str]
+) -> dict[str, Any]:
+    train_counts = Counter(
+        normalize_assignee(row.get("assignee")) for row in train_rows if normalize_assignee(row.get("assignee"))
+    )
+    test_counts = Counter(
+        normalize_assignee(row.get("assignee")) for row in test_rows if normalize_assignee(row.get("assignee"))
+    )
+    train_values = list(train_counts.values())
+    max_count = max(train_values) if train_values else 0
+    min_count = min(train_values) if train_values else 0
+    test_labels = set(test_counts)
+    train_labels = set(train_counts)
+    roster_set = set(roster)
+    return {
+        "train_assignee_count": len(train_counts),
+        "test_assignee_count": len(test_counts),
+        "train_max_count": max_count,
+        "train_min_count": min_count,
+        "train_imbalance_ratio": round(max_count / min_count, 6) if min_count else None,
+        "train_top_assignee_share": ratio(max_count, len(train_rows)),
+        "train_singleton_assignees": sum(1 for count in train_values if count == 1),
+        "test_assignees_absent_from_train": sorted(test_labels - train_labels),
+        "test_assignees_absent_from_roster": sorted(test_labels - roster_set) if roster_set else [],
+        "roster_coverage_rate": ratio(sum(count for assignee, count in test_counts.items() if assignee in roster_set), len(test_rows))
+        if roster_set
+        else 0.0,
+        "top_train_assignees": [
+            {"assignee": assignee, "count": count} for assignee, count in train_counts.most_common(10)
+        ],
+    }
+
+
+def leakage_audit(train_rows: list[dict[str, Any]], test_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    train_ids = {str(row.get("ticket_id") or "").strip() for row in train_rows if str(row.get("ticket_id") or "").strip()}
+    test_ids = {str(row.get("ticket_id") or "").strip() for row in test_rows if str(row.get("ticket_id") or "").strip()}
+    train_titles = {_normalized_text_key(row.get("title")) for row in train_rows if _normalized_text_key(row.get("title"))}
+    test_titles = {_normalized_text_key(row.get("title")) for row in test_rows if _normalized_text_key(row.get("title"))}
+    train_title_desc = {
+        _normalized_text_key(f"{row.get('title', '')} {row.get('description', '')}")
+        for row in train_rows
+        if _normalized_text_key(f"{row.get('title', '')} {row.get('description', '')}")
+    }
+    test_title_desc = {
+        _normalized_text_key(f"{row.get('title', '')} {row.get('description', '')}")
+        for row in test_rows
+        if _normalized_text_key(f"{row.get('title', '')} {row.get('description', '')}")
+    }
+    train_dates = [_parse_date(row.get("created_at")) for row in train_rows]
+    test_dates = [_parse_date(row.get("created_at")) for row in test_rows]
+    train_dates = [value for value in train_dates if value is not None]
+    test_dates = [value for value in test_dates if value is not None]
+    test_start = min(test_dates) if test_dates else None
+    return {
+        "ticket_id_overlap_count": len(train_ids & test_ids),
+        "exact_title_overlap_count": len(train_titles & test_titles),
+        "exact_title_description_overlap_count": len(train_title_desc & test_title_desc),
+        "created_at_available": bool(train_dates and test_dates),
+        "test_start": test_start.isoformat() if test_start else "",
+        "history_rows_after_test_start": sum(1 for value in train_dates if test_start and value >= test_start),
+        "risk_flags": [
+            flag
+            for flag, triggered in (
+                ("ticket_id_overlap", bool(train_ids & test_ids)),
+                ("exact_title_overlap", bool(train_titles & test_titles)),
+                ("history_created_after_test_start", any(test_start and value >= test_start for value in train_dates)),
+            )
+            if triggered
+        ],
+    }
+
+
+def _normalized_text_key(value: Any) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", str(value or "").lower())).strip()
+
+
+def _parse_date(value: Any) -> datetime | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 def product_component_key(product: str, component: str) -> str:
     return f"{product}::{component}"
 
@@ -399,12 +544,18 @@ def write_error_analysis(path: Path, predictions: list[dict[str, Any]]) -> None:
         "priority",
         "expected_assignee",
         "predicted_assignee",
+        "routed_assignee",
         "rank",
         "reciprocal_rank",
         "is_top1_correct",
         "is_hit_at_3",
         "is_hit_at_5",
         "is_hit_at_10",
+        "fallback_used",
+        "fallback_reason",
+        "routing_status",
+        "needs_manual_triage",
+        "suggested_assignee",
         "error_type",
         "ranked_candidates",
         "title",

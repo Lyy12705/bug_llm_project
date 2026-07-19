@@ -146,6 +146,16 @@ DEMO_HISTORICAL_TICKETS = [
     },
 ]
 
+DEMO_COMPONENT_OWNERS = {
+    "authentication": "auth-team@example.com",
+    "email": "backend-team@example.com",
+    "frontend": "frontend-team@example.com",
+    "backend": "backend-team@example.com",
+    "database": "data-team@example.com",
+    "search": "backend-team@example.com",
+    "api": "backend-team@example.com",
+}
+
 
 def load_scenarios() -> dict:
     with DATA_PATH.open("r", encoding="utf-8") as handle:
@@ -243,7 +253,12 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
 
 def analyze_text(text: str, *, duplicate_decision: str = "", selected_duplicate_id: str = "") -> dict[str, Any]:
-    config = PipelineConfig(project_root=PROJECT_ROOT, duplicate_threshold=0.50, duplicate_top_k=10)
+    config = PipelineConfig(
+        project_root=PROJECT_ROOT,
+        duplicate_threshold=0.50,
+        duplicate_top_k=10,
+        component_owner_mapping=DEMO_COMPONENT_OWNERS,
+    )
     structured_ticket = normalize_structured_ticket(parse_user_input(text))
     matching_ticket = dict(structured_ticket)
     matching_ticket["title"] = _with_demo_keywords(str(structured_ticket.get("title", "")), text)

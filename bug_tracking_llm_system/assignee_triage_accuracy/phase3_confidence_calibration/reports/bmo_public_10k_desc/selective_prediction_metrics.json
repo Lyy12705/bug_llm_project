@@ -1,0 +1,183 @@
+{
+  "best_calibrator": "isotonic_regression",
+  "coverage_grid": [
+    {
+      "accepted_ticket_count": 259,
+      "rejected_ticket_count": 520,
+      "target_validation_coverage": 0.1,
+      "test_accuracy": 0.907336,
+      "test_coverage": 0.332478,
+      "test_error_count": 24,
+      "test_risk": 0.092664,
+      "threshold": 0.898089
+    },
+    {
+      "accepted_ticket_count": 259,
+      "rejected_ticket_count": 520,
+      "target_validation_coverage": 0.2,
+      "test_accuracy": 0.907336,
+      "test_coverage": 0.332478,
+      "test_error_count": 24,
+      "test_risk": 0.092664,
+      "threshold": 0.898089
+    },
+    {
+      "accepted_ticket_count": 259,
+      "rejected_ticket_count": 520,
+      "target_validation_coverage": 0.3,
+      "test_accuracy": 0.907336,
+      "test_coverage": 0.332478,
+      "test_error_count": 24,
+      "test_risk": 0.092664,
+      "threshold": 0.898089
+    },
+    {
+      "accepted_ticket_count": 277,
+      "rejected_ticket_count": 502,
+      "target_validation_coverage": 0.4,
+      "test_accuracy": 0.902527,
+      "test_coverage": 0.355584,
+      "test_error_count": 27,
+      "test_risk": 0.097473,
+      "threshold": 0.875
+    },
+    {
+      "accepted_ticket_count": 326,
+      "rejected_ticket_count": 453,
+      "target_validation_coverage": 0.5,
+      "test_accuracy": 0.849693,
+      "test_coverage": 0.418485,
+      "test_error_count": 49,
+      "test_risk": 0.150307,
+      "threshold": 0.492754
+    },
+    {
+      "accepted_ticket_count": 398,
+      "rejected_ticket_count": 381,
+      "target_validation_coverage": 0.6,
+      "test_accuracy": 0.773869,
+      "test_coverage": 0.510911,
+      "test_error_count": 90,
+      "test_risk": 0.226131,
+      "threshold": 0.455556
+    },
+    {
+      "accepted_ticket_count": 557,
+      "rejected_ticket_count": 222,
+      "target_validation_coverage": 0.7,
+      "test_accuracy": 0.64991,
+      "test_coverage": 0.715019,
+      "test_error_count": 195,
+      "test_risk": 0.35009,
+      "threshold": 0.283333
+    },
+    {
+      "accepted_ticket_count": 557,
+      "rejected_ticket_count": 222,
+      "target_validation_coverage": 0.8,
+      "test_accuracy": 0.64991,
+      "test_coverage": 0.715019,
+      "test_error_count": 195,
+      "test_risk": 0.35009,
+      "threshold": 0.253247
+    },
+    {
+      "accepted_ticket_count": 557,
+      "rejected_ticket_count": 222,
+      "target_validation_coverage": 0.9,
+      "test_accuracy": 0.64991,
+      "test_coverage": 0.715019,
+      "test_error_count": 195,
+      "test_risk": 0.35009,
+      "threshold": 0.253247
+    },
+    {
+      "accepted_ticket_count": 779,
+      "rejected_ticket_count": 0,
+      "target_validation_coverage": 1.0,
+      "test_accuracy": 0.522465,
+      "test_coverage": 1.0,
+      "test_error_count": 372,
+      "test_risk": 0.477535,
+      "threshold": 1e-06
+    }
+  ],
+  "targets": {
+    "0.8": {
+      "target_accuracy": 0.8,
+      "test_abstention_rate": 0.581515,
+      "test_accepted_count": 326,
+      "test_coverage": 0.418485,
+      "test_error_count": 49,
+      "test_error_rate": 0.150307,
+      "test_rejected_count": 453,
+      "test_risk": 0.150307,
+      "test_selective_accuracy": 0.849693,
+      "test_threshold": 0.492754,
+      "threshold": 0.492754,
+      "threshold_found": true,
+      "validation_accepted_count": 440,
+      "validation_accuracy": 0.809091,
+      "validation_coverage": 0.554156,
+      "validation_error_rate": 0.190909,
+      "validation_rejected_count": 354
+    },
+    "0.85": {
+      "target_accuracy": 0.85,
+      "test_abstention_rate": 0.581515,
+      "test_accepted_count": 326,
+      "test_coverage": 0.418485,
+      "test_error_count": 49,
+      "test_error_rate": 0.150307,
+      "test_rejected_count": 453,
+      "test_risk": 0.150307,
+      "test_selective_accuracy": 0.849693,
+      "test_threshold": 0.673469,
+      "threshold": 0.673469,
+      "threshold_found": true,
+      "validation_accepted_count": 371,
+      "validation_accuracy": 0.867925,
+      "validation_coverage": 0.467254,
+      "validation_error_rate": 0.132075,
+      "validation_rejected_count": 423
+    },
+    "0.9": {
+      "target_accuracy": 0.9,
+      "test_abstention_rate": 1.0,
+      "test_accepted_count": 0,
+      "test_coverage": 0.0,
+      "test_error_count": 0,
+      "test_error_rate": 0.0,
+      "test_rejected_count": 779,
+      "test_risk": 0.0,
+      "test_selective_accuracy": 0.0,
+      "test_threshold": 1.000001,
+      "threshold": 1.000001,
+      "threshold_found": false,
+      "validation_accepted_count": 0,
+      "validation_accuracy": 0.0,
+      "validation_coverage": 0.0,
+      "validation_error_rate": 0.0,
+      "validation_rejected_count": 794
+    },
+    "0.95": {
+      "target_accuracy": 0.95,
+      "test_abstention_rate": 1.0,
+      "test_accepted_count": 0,
+      "test_coverage": 0.0,
+      "test_error_count": 0,
+      "test_error_rate": 0.0,
+      "test_rejected_count": 779,
+      "test_risk": 0.0,
+      "test_selective_accuracy": 0.0,
+      "test_threshold": 1.000001,
+      "threshold": 1.000001,
+      "threshold_found": false,
+      "validation_accepted_count": 0,
+      "validation_accuracy": 0.0,
+      "validation_coverage": 0.0,
+      "validation_error_rate": 0.0,
+      "validation_rejected_count": 794
+    }
+  }
+}

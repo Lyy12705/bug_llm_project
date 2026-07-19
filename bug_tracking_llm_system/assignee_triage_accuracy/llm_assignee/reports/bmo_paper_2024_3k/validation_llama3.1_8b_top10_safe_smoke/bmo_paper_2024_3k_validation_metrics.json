@@ -1,0 +1,62 @@
+{
+  "dataset": "bmo_paper_2024_3k",
+  "split": "validation",
+  "train_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl",
+  "test_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_validation_set.jsonl",
+  "roster_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_candidate_roster.json",
+  "rows": 3,
+  "candidate_roster_size": 60,
+  "candidate_k": 10,
+  "model": "llama3.1:8b",
+  "temperature": 0.0,
+  "acceptance_policy": "safe",
+  "current_assignee_triager": {
+    "rows": 3,
+    "top1_accuracy": 0.666667,
+    "hit_at_3": 0.666667,
+    "hit_at_5": 0.666667,
+    "hit_at_10": 0.666667,
+    "mrr": 0.666667,
+    "macro_top1_by_assignee": 0.666667,
+    "macro_top1_by_component": 0.666667,
+    "top1_bootstrap_95ci": {
+      "low": 0.0,
+      "high": 1.0
+    },
+    "error_breakdown": {
+      "correct": 2,
+      "long_tail_assignee": 1
+    }
+  },
+  "hybrid_llm_reranker": {
+    "rows": 3,
+    "top1_accuracy": 0.666667,
+    "hit_at_3": 0.666667,
+    "hit_at_5": 0.666667,
+    "hit_at_10": 0.666667,
+    "mrr": 0.666667,
+    "macro_top1_by_assignee": 0.666667,
+    "macro_top1_by_component": 0.666667,
+    "top1_bootstrap_95ci": {
+      "low": 0.0,
+      "high": 1.0
+    },
+    "error_breakdown": {
+      "correct": 2,
+      "long_tail_assignee": 1
+    }
+  },
+  "comparison": {
+    "top1_delta_vs_current_triager": {
+      "delta": 0.0,
+      "low": 0.0,
+      "high": 0.0
+    },
+    "hit_at_3_delta": 0.0,
+    "hit_at_5_delta": 0.0,
+    "hit_at_10_delta": 0.0,
+    "mrr_delta": 0.0,
+    "should_promote": false
+  },
+  "note": "Production current_assignee_triager is not modified by this experiment."
+}

@@ -100,6 +100,9 @@ def main() -> int:
 def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: bool) -> list[CheckSpec]:
     main_pipeline_output = tmp_dir / "main_pipeline_result.json"
     fault_output = tmp_dir / "fault_localization_result.json"
+    fault_progress = tmp_dir / "fault_localization_progress.jsonl"
+    fault_index_cache = tmp_dir / "fault_index_cache"
+    fault_job_dir = tmp_dir / "fault_jobs"
 
     checks: list[CheckSpec] = [
         CheckSpec(
@@ -144,6 +147,14 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 "3",
                 "--embedding-backend",
                 "tfidf",
+                "--output-format",
+                "user-facing",
+                "--index-cache-dir",
+                str(fault_index_cache),
+                "--progress",
+                "json",
+                "--progress-file",
+                str(fault_progress),
                 "--output",
                 str(fault_output),
             ],
@@ -155,7 +166,39 @@ def build_checks(*, tmp_dir: Path, timeout_seconds: int, include_unit_tests: boo
                 SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
                 DUPLICATE_ROOT / "src",
             ),
-            validator=validate_fault_localization(fault_output),
+            validator=validate_fault_localization(fault_output, progress_path=fault_progress),
+        ),
+        CheckSpec(
+            name="fault_localization_job_smoke",
+            description="Run one foreground pollable fault-localization job with index cache and progress file.",
+            command=[
+                sys.executable,
+                "scripts/fault_localization_job.py",
+                "start",
+                "--foreground",
+                "--ticket",
+                "data/raw_tickets/raw_ticket.example.json",
+                "--repo-path",
+                "../bug-duplicate-detection",
+                "--top-k",
+                "3",
+                "--embedding-backend",
+                "tfidf",
+                "--jobs-dir",
+                str(fault_job_dir),
+                "--index-cache-dir",
+                str(fault_index_cache),
+            ],
+            cwd=SYSTEM_ROOT,
+            env=pythonpath_env(SYSTEM_ROOT / "src"),
+            timeout_seconds=timeout_seconds,
+            required_paths=(
+                SYSTEM_ROOT / "scripts" / "fault_localization_job.py",
+                SYSTEM_ROOT / "scripts" / "fault_localization.py",
+                SYSTEM_ROOT / "data" / "raw_tickets" / "raw_ticket.example.json",
+                DUPLICATE_ROOT / "src",
+            ),
+            validator=validate_fault_localization_job(),
         ),
         CheckSpec(
             name="duplicate_detection_smoke",
@@ -363,23 +406,65 @@ def validate_main_pipeline(output_path: Path) -> Callable[[subprocess.CompletedP
         candidates = location.get("localized_candidates") if isinstance(location, dict) else []
         if not isinstance(candidates, list) or not candidates:
             raise ValueError("missing fault-localization candidates in pipeline result")
+        user_facing = data.get("bug_location_user_facing") if isinstance(data.get("bug_location_user_facing"), dict) else {}
+        user_candidates = user_facing.get("top_k_suspicious_files") if isinstance(user_facing, dict) else []
+        if not isinstance(user_candidates, list) or not user_candidates:
+            raise ValueError("missing user-facing fault-localization candidates in pipeline result")
         patch = data.get("patch") if isinstance(data.get("patch"), dict) else {}
         patch_status = patch.get("patch_status", "unknown")
-        return f"pipeline status={status}; patch_status={patch_status}; localization_candidates={len(candidates)}"
+        return (
+            f"pipeline status={status}; patch_status={patch_status}; "
+            f"localization_candidates={len(candidates)}; user_facing_candidates={len(user_candidates)}"
+        )
 
     return _validate
 
 
-def validate_fault_localization(output_path: Path) -> Callable[[subprocess.CompletedProcess[str]], str]:
+def validate_fault_localization(output_path: Path, *, progress_path: Path | None = None) -> Callable[[subprocess.CompletedProcess[str]], str]:
     def _validate(_: subprocess.CompletedProcess[str]) -> str:
         data = read_json(output_path)
-        candidates = data.get("localized_candidates")
+        if "top_k_suspicious_files" in data:
+            candidates = data.get("top_k_suspicious_files")
+            summary = data.get("summary") if isinstance(data.get("summary"), dict) else {}
+            if not isinstance(summary, dict) or not summary.get("confidence_level"):
+                raise ValueError("missing user-facing summary confidence")
+        else:
+            candidates = data.get("localized_candidates")
         if not isinstance(candidates, list) or not candidates:
-            raise ValueError("no localized_candidates were produced")
+            raise ValueError("no localization candidates were produced")
         top = candidates[0] if isinstance(candidates[0], dict) else {}
         file_path = top.get("file_path") or top.get("file") or "unknown"
         score = top.get("score", top.get("final_score", "unknown"))
-        return f"localized_candidates={len(candidates)}; top_file={file_path}; top_score={score}"
+        progress_detail = ""
+        if progress_path is not None:
+            progress_events = read_jsonl(progress_path)
+            event_names = {str(row.get("event")) for row in progress_events}
+            if "index_ready" not in event_names or "localization_completed" not in event_names:
+                raise ValueError("progress file did not include index_ready and localization_completed")
+            progress_detail = f"; progress_events={len(progress_events)}"
+        return f"localized_candidates={len(candidates)}; top_file={file_path}; top_score={score}{progress_detail}"
+
+    return _validate
+
+
+def validate_fault_localization_job() -> Callable[[subprocess.CompletedProcess[str]], str]:
+    def _validate(completed: subprocess.CompletedProcess[str]) -> str:
+        try:
+            data = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"job output was not JSON: {exc}") from exc
+        if data.get("status") != "succeeded":
+            raise ValueError(f"job did not succeed: {data.get('status')}")
+        status_path = Path(str(data.get("status_path") or ""))
+        result_path = Path(str(data.get("result_path") or ""))
+        progress_path = Path(str(data.get("progress_path") or ""))
+        if not status_path.exists() or not result_path.exists() or not progress_path.exists():
+            raise ValueError("job did not create status, result, and progress files")
+        progress_events = read_jsonl(progress_path)
+        event_names = {str(row.get("event")) for row in progress_events}
+        if "index_ready" not in event_names or "localization_completed" not in event_names:
+            raise ValueError("job progress file is missing required events")
+        return f"job status=succeeded; progress_events={len(progress_events)}; result={result_path}"
 
     return _validate
 
@@ -402,6 +487,20 @@ def read_json(path: Path) -> dict[str, object]:
     if not isinstance(value, dict):
         raise ValueError(f"expected JSON object in {path}")
     return value
+
+
+def read_jsonl(path: Path) -> list[dict[str, object]]:
+    if not path.exists():
+        raise ValueError(f"expected JSONL file was not created: {path}")
+    rows: list[dict[str, object]] = []
+    with path.open("r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            value = json.loads(line)
+            if isinstance(value, dict):
+                rows.append(value)
+    return rows
 
 
 def command_text(command: list[str]) -> str:

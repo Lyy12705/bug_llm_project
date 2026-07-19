@@ -1,0 +1,5 @@
+{"ticket_id":"FL-DEMO-HIGH","repo_path":"demo/fault_localization_auth_repo","fixed_files":["src/auth/validator.py"],"fixed_symbols":["validate_token"],"demo_intent":"high confidence stack trace localization"}
+{"ticket_id":"FL-DEMO-MEDIUM","repo_path":"demo/fault_localization_auth_repo","fixed_files":["src/auth/password_reset.py"],"fixed_symbols":["request_password_reset"],"demo_intent":"ambiguous email/reset flow localization"}
+{"ticket_id":"FL-DEMO-LOW","repo_path":"demo/fault_localization_auth_repo","fixed_files":["src/auth/session.py"],"fixed_symbols":["refresh_session"],"demo_intent":"low confidence manual review case"}
+{"ticket_id":"FL-DEMO-PATH-HINT","repo_path":"demo/fault_localization_auth_repo","fixed_files":["src/auth/settings.py"],"fixed_symbols":["DEFAULT_SESSION_TTL"],"demo_intent":"path hint and identifier localization"}
+{"ticket_id":"FL-DEMO-INVALID","repo_path":"demo/fault_localization_auth_repo","fixed_files":[],"fixed_symbols":[],"demo_intent":"invalid input validation case"}

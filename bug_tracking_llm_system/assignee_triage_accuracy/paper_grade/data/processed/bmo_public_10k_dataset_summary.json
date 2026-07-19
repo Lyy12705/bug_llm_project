@@ -1,0 +1,348 @@
+{
+  "dataset": "bmo_public_10k",
+  "raw_path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_10k_raw.jsonl",
+  "usable_rows_before_frequency_filter": 9102,
+  "train_rows": 6507,
+  "validation_rows": 788,
+  "test_rows": 774,
+  "candidate_roster_size": 154,
+  "min_train_assignee_count": 10,
+  "assignees_anonymized": true,
+  "duplicate_audit": {
+    "input_rows": 9119,
+    "independent_clusters": 9102,
+    "rows_removed": 17,
+    "multi_row_clusters": 14,
+    "explicit_duplicate_links": 0
+  },
+  "created_at_min": "2020-01-01T00:09:13Z",
+  "created_at_max": "2020-06-29T20:44:43Z",
+  "train_component_distribution": [
+    [
+      "dom: core & html",
+      556
+    ],
+    [
+      "javascript engine",
+      350
+    ],
+    [
+      "graphics: webrender",
+      324
+    ],
+    [
+      "dom: security",
+      199
+    ],
+    [
+      "css parsing and computation",
+      188
+    ],
+    [
+      "layout: flexbox",
+      172
+    ],
+    [
+      "layout",
+      171
+    ],
+    [
+      "javascript engine: jit",
+      153
+    ],
+    [
+      "disability access apis",
+      142
+    ],
+    [
+      "messaging system",
+      136
+    ],
+    [
+      "layout: grid",
+      119
+    ],
+    [
+      "privacy: anti-tracking",
+      116
+    ],
+    [
+      "audio/video: playback",
+      110
+    ],
+    [
+      "search",
+      109
+    ],
+    [
+      "web painting",
+      107
+    ],
+    [
+      "address bar",
+      102
+    ],
+    [
+      "xpcom",
+      101
+    ],
+    [
+      "new tab page",
+      99
+    ],
+    [
+      "networking",
+      96
+    ],
+    [
+      "javascript: gc",
+      95
+    ]
+  ],
+  "test_component_distribution": [
+    [
+      "dom: core & html",
+      74
+    ],
+    [
+      "graphics: webrender",
+      32
+    ],
+    [
+      "javascript engine: jit",
+      30
+    ],
+    [
+      "layout",
+      28
+    ],
+    [
+      "xpcom",
+      25
+    ],
+    [
+      "javascript engine",
+      21
+    ],
+    [
+      "javascript: webassembly",
+      20
+    ],
+    [
+      "dom: navigation",
+      18
+    ],
+    [
+      "networking",
+      17
+    ],
+    [
+      "panning and zooming",
+      17
+    ],
+    [
+      "javascript: gc",
+      16
+    ],
+    [
+      "networking: http",
+      16
+    ],
+    [
+      "dom: networking",
+      16
+    ],
+    [
+      "layout: text and fonts",
+      15
+    ],
+    [
+      "graphics",
+      14
+    ],
+    [
+      "css parsing and computation",
+      14
+    ],
+    [
+      "address bar",
+      13
+    ],
+    [
+      "messaging system",
+      13
+    ],
+    [
+      "dom: content processes",
+      13
+    ],
+    [
+      "dom: editor",
+      12
+    ]
+  ],
+  "train_assignee_distribution": [
+    [
+      "dev_0152",
+      1452
+    ],
+    [
+      "dev_0050",
+      304
+    ],
+    [
+      "dev_0011",
+      108
+    ],
+    [
+      "dev_0071",
+      91
+    ],
+    [
+      "dev_0070",
+      89
+    ],
+    [
+      "dev_0010",
+      87
+    ],
+    [
+      "dev_0142",
+      86
+    ],
+    [
+      "dev_0136",
+      86
+    ],
+    [
+      "dev_0143",
+      85
+    ],
+    [
+      "dev_0141",
+      82
+    ],
+    [
+      "dev_0102",
+      73
+    ],
+    [
+      "dev_0033",
+      72
+    ],
+    [
+      "dev_0072",
+      70
+    ],
+    [
+      "dev_0088",
+      66
+    ],
+    [
+      "dev_0039",
+      64
+    ],
+    [
+      "dev_0145",
+      63
+    ],
+    [
+      "dev_0116",
+      62
+    ],
+    [
+      "dev_0057",
+      62
+    ],
+    [
+      "dev_0047",
+      60
+    ],
+    [
+      "dev_0062",
+      59
+    ]
+  ],
+  "test_assignee_distribution": [
+    [
+      "dev_0152",
+      134
+    ],
+    [
+      "dev_0050",
+      34
+    ],
+    [
+      "dev_0136",
+      24
+    ],
+    [
+      "dev_0092",
+      20
+    ],
+    [
+      "dev_0088",
+      19
+    ],
+    [
+      "dev_0072",
+      19
+    ],
+    [
+      "dev_0078",
+      17
+    ],
+    [
+      "dev_0071",
+      16
+    ],
+    [
+      "dev_0070",
+      15
+    ],
+    [
+      "dev_0089",
+      14
+    ],
+    [
+      "dev_0095",
+      13
+    ],
+    [
+      "dev_0142",
+      12
+    ],
+    [
+      "dev_0148",
+      11
+    ],
+    [
+      "dev_0051",
+      11
+    ],
+    [
+      "dev_0141",
+      11
+    ],
+    [
+      "dev_0057",
+      10
+    ],
+    [
+      "dev_0011",
+      10
+    ],
+    [
+      "dev_0093",
+      9
+    ],
+    [
+      "dev_0137",
+      9
+    ],
+    [
+      "dev_0004",
+      9
+    ]
+  ]
+}

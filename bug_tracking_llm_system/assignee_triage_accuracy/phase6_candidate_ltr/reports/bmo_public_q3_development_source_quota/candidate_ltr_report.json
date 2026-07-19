@@ -1,0 +1,282 @@
+{
+  "dataset": "bmo_public_10k",
+  "method": "candidate_ltr_v1",
+  "deployment_status": "research_only",
+  "validation_candidate": true,
+  "model": {
+    "selected": "hist_gradient_boosting",
+    "selection_rule": "validation Top-1, then MRR, then Macro-F1",
+    "compared": [
+      "hist_gradient_boosting",
+      "logistic_regression"
+    ],
+    "long_tail_sample_weight": "1/sqrt(train_assignee_frequency)",
+    "features": [
+      "base_score",
+      "global_log_count",
+      "component_log_count",
+      "product_component_log_count",
+      "product_log_count",
+      "component_share_smoothed",
+      "product_component_share_smoothed",
+      "product_share_smoothed",
+      "recency_component_share",
+      "recency_product_component_share",
+      "recent_30d_component_share",
+      "recent_90d_component_share",
+      "owner_recency",
+      "bm25_owner_score",
+      "bm25_best_issue_score",
+      "bm25_owner_issue_count",
+      "component_support_log",
+      "product_component_support_log",
+      "source_product_component",
+      "source_component",
+      "source_bm25",
+      "source_sbert",
+      "source_recent_component",
+      "source_product",
+      "source_global_prior",
+      "sbert_owner_score"
+    ],
+    "embedding_backend": "sbert_local:sentence-transformers/all-MiniLM-L6-v2"
+  },
+  "protocol": {
+    "train_rows": 6507,
+    "validation_rows": 788,
+    "test_rows": 2740,
+    "cross_split_overlap_rows_excluded": 16,
+    "candidate_pool_size": 30,
+    "output_k": 10,
+    "temporal_folds": [
+      {
+        "fold": 1,
+        "history_rows": 2928,
+        "query_rows": 1193,
+        "candidate_examples": 35855,
+        "positive_examples": 1193,
+        "history_end": "2020-03-13T20:18:54Z",
+        "query_start": "2020-03-13T20:35:10Z",
+        "leakage_free": true
+      },
+      {
+        "fold": 2,
+        "history_rows": 4121,
+        "query_rows": 1193,
+        "candidate_examples": 35681,
+        "positive_examples": 1187,
+        "history_end": "2020-04-08T08:57:11Z",
+        "query_start": "2020-04-08T09:10:11Z",
+        "leakage_free": true
+      },
+      {
+        "fold": 3,
+        "history_rows": 5314,
+        "query_rows": 1193,
+        "candidate_examples": 35856,
+        "positive_examples": 1193,
+        "history_end": "2020-04-30T06:14:15Z",
+        "query_start": "2020-04-30T06:19:31Z",
+        "leakage_free": true
+      }
+    ],
+    "test_interpretation": "exploratory_only_existing_test_was_previously_inspected"
+  },
+  "model_comparison_validation": {
+    "logistic_regression": {
+      "rows": 788,
+      "candidate_recall_at_pool": 0.944162,
+      "mean_candidate_pool_size": 30.0,
+      "base_top1_accuracy": 0.587563,
+      "top1_accuracy": 0.611675,
+      "base_macro_f1": 0.350639,
+      "macro_f1": 0.375842,
+      "candidate_recall_by_source": {
+        "product_component": 0.897208,
+        "component": 0.897208,
+        "bm25": 0.869289,
+        "sbert": 0.864213,
+        "recent_component": 0.897208,
+        "product": 0.944162,
+        "global_prior": 0.944162
+      },
+      "hit_at_3": 0.78934,
+      "hit_at_5": 0.84264,
+      "hit_at_10": 0.89467,
+      "mrr": 0.710516,
+      "base_mrr": 0.703448,
+      "top1_delta_vs_v2_base": 0.024112,
+      "mrr_delta_vs_v2_base": 0.007068,
+      "macro_f1_delta_vs_v2_base": 0.025203
+    },
+    "hist_gradient_boosting": {
+      "rows": 788,
+      "candidate_recall_at_pool": 0.944162,
+      "mean_candidate_pool_size": 30.0,
+      "base_top1_accuracy": 0.587563,
+      "top1_accuracy": 0.620558,
+      "base_macro_f1": 0.350639,
+      "macro_f1": 0.400807,
+      "candidate_recall_by_source": {
+        "product_component": 0.897208,
+        "component": 0.897208,
+        "bm25": 0.869289,
+        "sbert": 0.864213,
+        "recent_component": 0.897208,
+        "product": 0.944162,
+        "global_prior": 0.944162
+      },
+      "hit_at_3": 0.814721,
+      "hit_at_5": 0.857868,
+      "hit_at_10": 0.909898,
+      "mrr": 0.724967,
+      "base_mrr": 0.703448,
+      "top1_delta_vs_v2_base": 0.032995,
+      "mrr_delta_vs_v2_base": 0.021519,
+      "macro_f1_delta_vs_v2_base": 0.050168
+    }
+  },
+  "current_hybrid_reference": {
+    "validation": {
+      "top1_accuracy": 0.573604,
+      "hit_at_3": 0.794416,
+      "hit_at_5": 0.856599,
+      "hit_at_10": 0.898477,
+      "mrr": 0.692038,
+      "macro_f1": 0.335428
+    },
+    "test_exploratory": {
+      "top1_accuracy": 0.527132,
+      "hit_at_3": 0.71447,
+      "hit_at_5": 0.801034,
+      "hit_at_10": 0.868217,
+      "mrr": 0.637273,
+      "macro_f1": 0.311216
+    }
+  },
+  "validation": {
+    "rows": 788,
+    "candidate_recall_at_pool": 0.944162,
+    "mean_candidate_pool_size": 30.0,
+    "base_top1_accuracy": 0.587563,
+    "top1_accuracy": 0.620558,
+    "base_macro_f1": 0.350639,
+    "macro_f1": 0.400807,
+    "candidate_recall_by_source": {
+      "product_component": 0.897208,
+      "component": 0.897208,
+      "bm25": 0.869289,
+      "sbert": 0.864213,
+      "recent_component": 0.897208,
+      "product": 0.944162,
+      "global_prior": 0.944162
+    },
+    "hit_at_3": 0.814721,
+    "hit_at_5": 0.857868,
+    "hit_at_10": 0.909898,
+    "mrr": 0.724967,
+    "base_mrr": 0.703448,
+    "top1_delta_vs_v2_base": 0.032995,
+    "mrr_delta_vs_v2_base": 0.021519,
+    "macro_f1_delta_vs_v2_base": 0.050168
+  },
+  "validation_known_owner": {
+    "rows": 788,
+    "candidate_recall_at_pool": 0.944162,
+    "mean_candidate_pool_size": 30.0,
+    "base_top1_accuracy": 0.587563,
+    "top1_accuracy": 0.620558,
+    "base_macro_f1": 0.350639,
+    "macro_f1": 0.400807,
+    "candidate_recall_by_source": {
+      "product_component": 0.897208,
+      "component": 0.897208,
+      "bm25": 0.869289,
+      "sbert": 0.864213,
+      "recent_component": 0.897208,
+      "product": 0.944162,
+      "global_prior": 0.944162
+    },
+    "hit_at_3": 0.814721,
+    "hit_at_5": 0.857868,
+    "hit_at_10": 0.909898,
+    "mrr": 0.724967,
+    "base_mrr": 0.703448,
+    "top1_delta_vs_v2_base": 0.032995,
+    "mrr_delta_vs_v2_base": 0.021519,
+    "macro_f1_delta_vs_v2_base": 0.050168
+  },
+  "test_exploratory": {
+    "rows": 2740,
+    "candidate_recall_at_pool": 0.783942,
+    "mean_candidate_pool_size": 30.0,
+    "base_top1_accuracy": 0.405474,
+    "top1_accuracy": 0.404015,
+    "base_macro_f1": 0.123192,
+    "macro_f1": 0.132678,
+    "candidate_recall_by_source": {
+      "product_component": 0.718248,
+      "component": 0.718248,
+      "bm25": 0.690511,
+      "sbert": 0.683577,
+      "recent_component": 0.718248,
+      "product": 0.783212,
+      "global_prior": 0.783942
+    },
+    "hit_at_3": 0.578832,
+    "hit_at_5": 0.64708,
+    "hit_at_10": 0.720438,
+    "mrr": 0.511091,
+    "base_mrr": 0.509844,
+    "top1_delta_vs_v2_base": -0.00146,
+    "mrr_delta_vs_v2_base": 0.001248,
+    "macro_f1_delta_vs_v2_base": 0.009486
+  },
+  "test_exploratory_known_owner": {
+    "rows": 2313,
+    "candidate_recall_at_pool": 0.928664,
+    "mean_candidate_pool_size": 30.0,
+    "base_top1_accuracy": 0.480329,
+    "top1_accuracy": 0.478599,
+    "base_macro_f1": 0.284224,
+    "macro_f1": 0.310151,
+    "candidate_recall_by_source": {
+      "product_component": 0.850843,
+      "component": 0.850843,
+      "bm25": 0.817985,
+      "sbert": 0.809771,
+      "recent_component": 0.850843,
+      "product": 0.927799,
+      "global_prior": 0.928664
+    },
+    "hit_at_3": 0.68569,
+    "hit_at_5": 0.766537,
+    "hit_at_10": 0.853437,
+    "mrr": 0.605443,
+    "base_mrr": 0.603965,
+    "top1_delta_vs_v2_base": -0.001729,
+    "mrr_delta_vs_v2_base": 0.001478,
+    "macro_f1_delta_vs_v2_base": 0.025928
+  },
+  "test_exploratory_unseen_owner_rate": 0.155839,
+  "promotion_gate": {
+    "passed": true,
+    "requirements": {
+      "validation_top1_delta_min": 0.01,
+      "validation_mrr_delta_positive": true,
+      "validation_macro_f1_non_decreasing": true,
+      "candidate_pool_recall_min": 0.9,
+      "new_holdout_required_for_deployment": true,
+      "new_holdout_top1_delta_vs_v2_base_min": 0.01
+    },
+    "observed": {
+      "top1_delta_vs_current_hybrid": 0.046954,
+      "mrr_delta_vs_current_hybrid": 0.032929,
+      "macro_f1_delta_vs_current_hybrid": 0.065379,
+      "candidate_pool_recall": 0.944162
+    },
+    "new_holdout_evaluated": false,
+    "new_holdout_known_owner_observed": {},
+    "deployment_blocker": "new_untouched_temporal_holdout_required"
+  }
+}

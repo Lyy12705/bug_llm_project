@@ -55,6 +55,7 @@ class BatchRunConfig:
     ollama_model: str = "codellama:7b-instruct"
     ollama_url: str = "http://localhost:11434/api/generate"
     ollama_timeout: int = 180
+    repository_proximity: bool = True
     demo_case_limit: int = 5
     resume: bool = False
     progress_every: int = 10
@@ -116,6 +117,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ollama-model", default="codellama:7b-instruct")
     parser.add_argument("--ollama-url", default="http://localhost:11434/api/generate")
     parser.add_argument("--ollama-timeout", type=int, default=180)
+    parser.add_argument(
+        "--disable-repository-proximity",
+        action="store_true",
+        help="Disable lightweight import/symbol repository proximity scoring for controlled comparisons.",
+    )
     parser.add_argument("--demo-case-limit", type=int, default=5)
     parser.add_argument(
         "--resume",
@@ -172,6 +178,7 @@ def main() -> None:
         ollama_model=args.ollama_model,
         ollama_url=args.ollama_url,
         ollama_timeout=args.ollama_timeout,
+        repository_proximity=not args.disable_repository_proximity,
         demo_case_limit=args.demo_case_limit,
         resume=args.resume,
         progress_every=args.progress_every,
@@ -196,6 +203,7 @@ def run_batch(config: BatchRunConfig) -> dict[str, Any]:
     completed_ticket_ids = {_ticket_id(row) for row in predictions if _ticket_id(row)}
     failures: list[dict[str, Any]] = []
     skipped_existing = 0
+    cached_index_checkout_skips = 0
     processed_this_run = 0
 
     for row_number, ticket in enumerate(tickets, start=1):
@@ -214,12 +222,15 @@ def run_batch(config: BatchRunConfig) -> dict[str, Any]:
             continue
         try:
             repo_path = resolve_repository(ticket, config)
-            if config.checkout:
+            cached_index_available = _cached_index_available(ticket, repo_path, config)
+            if config.checkout and not cached_index_available:
                 checkout_repository(
                     repo_path,
                     str(ticket.get("base_commit") or ""),
                     fetch_missing=config.fetch_missing_commits,
                 )
+            elif config.checkout and cached_index_available:
+                cached_index_checkout_skips += 1
             index = load_or_build_index(ticket, repo_path, config)
             result = localize_ticket(
                 ticket,
@@ -233,12 +244,13 @@ def run_batch(config: BatchRunConfig) -> dict[str, Any]:
                 llm_rerank=config.llm_rerank,
                 llm_candidate_k=config.llm_candidate_k,
                 llm_cache_dir=config.llm_cache_dir,
+                repository_proximity=config.repository_proximity,
             )
             result["repo"] = str(ticket.get("repo") or "")
             result["base_commit"] = str(ticket.get("base_commit") or "")
             predictions.append(result)
             completed_ticket_ids.add(ticket_id)
-            status = "ok"
+            status = "ok_cached_index" if config.checkout and cached_index_available else "ok"
         except Exception as exc:
             failures.append(
                 {
@@ -284,6 +296,7 @@ def run_batch(config: BatchRunConfig) -> dict[str, Any]:
         "predictions": len(predictions),
         "failures": len(failures),
         "skipped_existing_predictions": skipped_existing,
+        "cached_index_checkout_skips": cached_index_checkout_skips,
         "processed_this_run": processed_this_run,
         "predictions_output": str(config.predictions_output),
         "metrics_output": str(config.metrics_output) if config.metrics_output else "",
@@ -298,6 +311,7 @@ def run_batch(config: BatchRunConfig) -> dict[str, Any]:
             "llm_cache_dir": str(config.llm_cache_dir) if config.llm_rerank and config.llm_cache_dir else "",
             "ollama_model": config.ollama_model if config.llm_rerank else "",
             "ollama_timeout": config.ollama_timeout if config.llm_rerank else 0,
+            "repository_proximity": config.repository_proximity,
             "include_tests": config.include_tests,
             "resume": config.resume,
             "progress_every": config.progress_every,
@@ -393,6 +407,12 @@ def load_or_build_index(ticket: dict[str, Any], repo_path: Path, config: BatchRu
     index_path.parent.mkdir(parents=True, exist_ok=True)
     index.save(index_path)
     return index
+
+
+def _cached_index_available(ticket: dict[str, Any], repo_path: Path, config: BatchRunConfig) -> bool:
+    if config.force_reindex:
+        return False
+    return _index_path(ticket, repo_path, config.index_cache_dir).exists()
 
 
 def build_demo_cases(predictions: list[dict[str, Any]], gold_rows: list[dict[str, Any]], *, limit: int = 5) -> list[dict[str, Any]]:

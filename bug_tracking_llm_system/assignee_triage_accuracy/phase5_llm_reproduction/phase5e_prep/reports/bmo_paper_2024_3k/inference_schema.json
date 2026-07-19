@@ -1,0 +1,44 @@
+{
+  "candidate_roster_size": 60,
+  "evaluator_compatibility": {
+    "has_candidate_scores": true,
+    "has_ranked_candidates": true,
+    "has_ticket_id": true,
+    "invalid_output_rate": 0.0,
+    "topk_unique": true
+  },
+  "fields": [
+    "model_name",
+    "inference_mode",
+    "ticket_id",
+    "candidate_roster_size",
+    "top1",
+    "top3",
+    "top5",
+    "top10",
+    "ranked_candidates",
+    "candidate_ranks",
+    "candidate_scores",
+    "score_type",
+    "scores_are_model_logprobs",
+    "topk_unique",
+    "score_sortable",
+    "invalid_output",
+    "invalid_output_rate_applicable",
+    "note"
+  ],
+  "required_for_real_inference": [
+    "scores_are_model_logprobs must be true",
+    "model_name must identify base/adapted checkpoint",
+    "invalid_output_rate must be computed for free/post-hoc modes",
+    "candidate roster must remain train-derived only"
+  ],
+  "rows": 192,
+  "status": "schema_smoke_only",
+  "top_k": [
+    1,
+    3,
+    5,
+    10
+  ]
+}

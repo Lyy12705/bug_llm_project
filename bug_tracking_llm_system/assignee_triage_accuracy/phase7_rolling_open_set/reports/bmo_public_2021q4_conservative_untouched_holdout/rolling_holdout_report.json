@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "method": "frozen_rolling_history_holdout_evaluation_v1",
+  "evaluated_at": "2026-07-13T15:28:22.724404+00:00",
+  "deployment_status": "research_only",
+  "protocol": {
+    "window": "2021_q4",
+    "source": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl",
+    "prior_snapshot_rows": 20765,
+    "history_rows": 17318,
+    "history_rows_withheld_future_last_change": 3447,
+    "history_rows_withheld_missing_last_change": 0,
+    "query_rows_loaded": 2792,
+    "query_rows": 2779,
+    "overlap_rows_excluded": 13,
+    "history_end": "2021-09-23T11:56:51Z",
+    "label_availability_cutoff": "2021-10-01T00:18:42Z",
+    "query_start": "2021-10-01T00:18:42Z",
+    "query_end": "2021-12-21T02:09:29Z",
+    "known_owner_rows": 2638,
+    "unseen_owner_rows": 141,
+    "unseen_owner_rate": 0.050738,
+    "temporal_order_valid": true,
+    "holdout_used_for_fitting": false,
+    "holdout_used_for_threshold_selection": false,
+    "rolling_history_updated_only_from_prior_windows": true,
+    "label_availability_policy": "last_change_time_at_or_before_query_start",
+    "assignment_time_history_available": false
+  },
+  "recommendation_metrics": {
+    "rows": 2779,
+    "top1_accuracy": 0.459518,
+    "top3_accuracy": 0.610651,
+    "top5_accuracy": 0.668946,
+    "top10_accuracy": 0.764664,
+    "candidate_pool_recall": 0.847427,
+    "mrr": 0.551222,
+    "macro_f1": 0.105103
+  },
+  "recommendation_metrics_known_owner": {
+    "rows": 2638,
+    "top1_accuracy": 0.484079,
+    "top3_accuracy": 0.64329,
+    "top5_accuracy": 0.704701,
+    "top10_accuracy": 0.805534,
+    "candidate_pool_recall": 0.892722,
+    "mrr": 0.580685,
+    "macro_f1": 0.142123
+  },
+  "calibration_metrics": {
+    "rows": 2779,
+    "positive_rate": 0.459518,
+    "mean_probability": 0.445803,
+    "brier": 0.139401,
+    "ece": 0.04186
+  },
+  "open_set_metrics": {
+    "rows": 2779,
+    "known_rows": 2638,
+    "unknown_rows": 141,
+    "auroc": 0.696259,
+    "auprc": 0.08188,
+    "unknown_recall_at_5pct_known_fpr": 0.06382978723404255,
+    "threshold_at_5pct_known_fpr": 0.70389331,
+    "threshold": 0.16378581,
+    "unknown_recall": 1.0,
+    "known_false_positive_rate": 0.7463987869598181
+  },
+  "routing_before_drift_gate": {
+    "rows": 2779,
+    "known_rows": 2638,
+    "unseen_rows": 141,
+    "auto_assignment_rows": 668,
+    "auto_assignment_coverage": 0.240374,
+    "auto_assignment_accuracy": 0.977545,
+    "unseen_auto_assignment_rows": 0,
+    "unseen_auto_assignment_rate": 0.0,
+    "top3_confirmation_rows": 585,
+    "top3_confirmation_rate": 0.210507,
+    "top3_confirmation_accuracy": 0.711111,
+    "manual_triage_rate": 0.549118,
+    "routing_status_breakdown": {
+      "auto_assign": 668,
+      "manual_triage_low_confidence": 506,
+      "manual_triage_open_set": 1020,
+      "top3_confirmation": 585
+    },
+    "fallback_reason_breakdown": {
+      "high_calibrated_confidence": 668,
+      "low_ranking_confidence": 506,
+      "medium_calibrated_confidence": 585,
+      "unseen_owner_risk": 1020
+    }
+  },
+  "score_drift": {
+    "rows": 2779,
+    "maximum_psi": 0.051827,
+    "threshold": 0.25,
+    "severe_drift": false,
+    "features": {
+      "calibrated_probability": {
+        "psi": 0.029053,
+        "current_distribution": {
+          "minimum": 0.02578676,
+          "p25": 0.16510609,
+          "median": 0.34563846,
+          "p75": 0.77765007,
+          "maximum": 0.95557016
+        }
+      },
+      "open_set_probability": {
+        "psi": 0.051827,
+        "current_distribution": {
+          "minimum": 0.01992593,
+          "p25": 0.18503242,
+          "median": 0.42219223,
+          "p75": 0.58090672,
+          "maximum": 0.83536189
+        }
+      },
+      "top_probability": {
+        "psi": 0.044363,
+        "current_distribution": {
+          "minimum": 0.01262429,
+          "p25": 0.16988616,
+          "median": 0.40984885,
+          "p75": 0.85257384,
+          "maximum": 0.98649554
+        }
+      },
+      "probability_margin": {
+        "psi": 0.030045,
+        "current_distribution": {
+          "minimum": 0.0,
+          "p25": 0.05128762,
+          "median": 0.2342103,
+          "p75": 0.65196737,
+          "maximum": 0.95586672
+        }
+      }
+    }
+  },
+  "routing_metrics": {
+    "rows": 2779,
+    "known_rows": 2638,
+    "unseen_rows": 141,
+    "auto_assignment_rows": 668,
+    "auto_assignment_coverage": 0.240374,
+    "auto_assignment_accuracy": 0.977545,
+    "unseen_auto_assignment_rows": 0,
+    "unseen_auto_assignment_rate": 0.0,
+    "top3_confirmation_rows": 585,
+    "top3_confirmation_rate": 0.210507,
+    "top3_confirmation_accuracy": 0.711111,
+    "manual_triage_rate": 0.549118,
+    "routing_status_breakdown": {
+      "auto_assign": 668,
+      "manual_triage_low_confidence": 506,
+      "manual_triage_open_set": 1020,
+      "top3_confirmation": 585
+    },
+    "fallback_reason_breakdown": {
+      "high_calibrated_confidence": 668,
+      "low_ranking_confidence": 506,
+      "medium_calibrated_confidence": 585,
+      "unseen_owner_risk": 1020
+    }
+  },
+  "routing_score_diagnostics": {
+    "rows": 2779,
+    "calibrated_probability": {
+      "minimum": 0.02578676,
+      "p25": 0.16510609,
+      "median": 0.34563846,
+      "p75": 0.77765007,
+      "maximum": 0.95557016
+    },
+    "open_set_probability": {
+      "minimum": 0.01992593,
+      "p25": 0.18503242,
+      "median": 0.42219223,
+      "p75": 0.58090672,
+      "maximum": 0.83536189
+    },
+    "frozen_t_high": 0.5157215,
+    "frozen_open_set_threshold": 0.16378581,
+    "rows_above_high_confidence": 1122,
+    "rows_below_open_set_gate": 669,
+    "rows_passing_both_auto_assignment_gates": 668,
+    "maximum_calibrated_probability_below_open_set_gate": 0.95557016
+  },
+  "deployment_gate": {
+    "passed": true,
+    "checks": {
+      "auto_assignment_accuracy": true,
+      "auto_assignment_coverage": true,
+      "unseen_auto_assignment_rate": true
+    },
+    "targets": {
+      "target_auto_accuracy": 0.85,
+      "minimum_auto_coverage": 0.1,
+      "maximum_unseen_auto_rate": 0.05
+    },
+    "blocker": "explicit_operator_and_roster_approval_required",
+    "score_drift_check": true,
+    "production_integration_allowed": false,
+    "production_blocker": "reviewed_active_roster_and_explicit_operator_approval_required"
+  }
+}

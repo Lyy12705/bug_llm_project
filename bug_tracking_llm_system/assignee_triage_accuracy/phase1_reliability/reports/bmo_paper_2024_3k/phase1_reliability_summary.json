@@ -1,0 +1,109 @@
+{
+  "dataset": "bmo_paper_2024_3k",
+  "experiments": [
+    {
+      "excluded_count": 0,
+      "exclusion_reason": "",
+      "experiment_name": "closed_set_current_repro",
+      "hit_at_10": 0.958333,
+      "hit_at_3": 0.90625,
+      "hit_at_5": 0.9375,
+      "mrr": 0.838777,
+      "roster_size": 60,
+      "test_count": 192,
+      "top1_95ci": {
+        "high": 0.828125,
+        "low": 0.703125
+      },
+      "top1_accuracy": 0.765625,
+      "train_count": 1569,
+      "validation_count": 168
+    },
+    {
+      "excluded_count": 0,
+      "exclusion_reason": "none in prefilter view; low-frequency and unseen are included",
+      "experiment_name": "prefilter_open_world_eval",
+      "hit_at_10": 0.825,
+      "hit_at_3": 0.710714,
+      "hit_at_5": 0.771429,
+      "mrr": 0.624089,
+      "roster_size": 276,
+      "test_count": 280,
+      "top1_95ci": {
+        "high": 0.575,
+        "low": 0.460714
+      },
+      "top1_accuracy": 0.517857,
+      "train_count": 2240,
+      "validation_count": 280
+    },
+    {
+      "excluded_count": 0,
+      "exclusion_reason": "",
+      "experiment_name": "assignment_safe_current_snapshot",
+      "hit_at_10": 0.958333,
+      "hit_at_3": 0.90625,
+      "hit_at_5": 0.9375,
+      "mrr": 0.838777,
+      "roster_size": 60,
+      "test_count": 192,
+      "top1_95ci": {
+        "high": 0.828125,
+        "low": 0.703125
+      },
+      "top1_accuracy": 0.765625,
+      "train_count": 1569,
+      "validation_count": 168
+    },
+    {
+      "excluded_count": 41,
+      "exclusion_reason": "expected assignee absent from conservative train-frequency roster",
+      "experiment_name": "assignment_safe_conservative",
+      "hit_at_10": 0.993377,
+      "hit_at_3": 0.953642,
+      "hit_at_5": 0.966887,
+      "mrr": 0.907248,
+      "roster_size": 29,
+      "test_count": 151,
+      "top1_95ci": {
+        "high": 0.913907,
+        "low": 0.794702
+      },
+      "top1_accuracy": 0.854305,
+      "train_count": 1050,
+      "validation_count": 121
+    },
+    {
+      "excluded_count": 192,
+      "exclusion_reason": "assignment history unavailable; creation-time assignee cannot be verified",
+      "experiment_name": "assignment_safe_strict",
+      "hit_at_10": 0.0,
+      "hit_at_3": 0.0,
+      "hit_at_5": 0.0,
+      "mrr": 0.0,
+      "roster_size": 0,
+      "test_count": 0,
+      "top1_95ci": {
+        "high": 0.0,
+        "low": 0.0
+      },
+      "top1_accuracy": 0.0,
+      "train_count": 0,
+      "validation_count": 0
+    }
+  ],
+  "key_findings": {
+    "assignment_safe_conservative_top1": 0.854305,
+    "closed_set_top1": 0.765625,
+    "low_frequency_seen_count": 70,
+    "prefilter_open_world_top1": 0.517857,
+    "strict_assignment_safe_computable": false,
+    "unseen_assignee_count": 18
+  },
+  "limitations": [
+    "Strict creation-time assignee semantics remain unverifiable without assignment history.",
+    "Duplicate detection is an upstream feature and is outside the assignee-triage scope.",
+    "Phase 1 does not modify current_assignee_triager or the original frozen closed-set benchmark."
+  ],
+  "report_root": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase1_reliability/reports/bmo_paper_2024_3k"
+}

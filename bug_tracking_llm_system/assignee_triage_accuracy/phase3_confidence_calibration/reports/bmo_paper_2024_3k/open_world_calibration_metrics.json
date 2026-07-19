@@ -1,0 +1,8 @@
+{
+  "best_method": "isotonic_regression",
+  "calibrated_threshold_for_0_85_validation_accuracy": 1.000001,
+  "calibrated_unseen_detection_auc_using_negative_probability": 0.664334,
+  "confidence_alone_open_set_detector_judgment": "insufficient_if_unseen_false_auto_assign_or_auc_is_poor",
+  "raw_threshold_for_0_85_validation_accuracy": 1.000001,
+  "raw_unseen_detection_auc_using_negative_confidence": 0.659563
+}
