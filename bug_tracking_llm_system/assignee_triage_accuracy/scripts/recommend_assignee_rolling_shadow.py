@@ -14,7 +14,7 @@ SRC_ROOT = SYSTEM_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from modules.assignee_deployment import load_assignee_set  # noqa: E402
+from modules.assignee_deployment import load_active_assignee_set  # noqa: E402
 
 from assignee_open_set_common import (  # noqa: E402
     predict_portable_logistic,
@@ -126,7 +126,7 @@ def main() -> None:
     )
     route_predictions(predictions, policy)
 
-    active = load_assignee_set(args.active_roster)
+    active = load_active_assignee_set(args.active_roster)
     ranked_active = [owner for owner in prediction["ranked_candidates"] if owner in active]
     predicted = str(prediction["predicted_assignee"])
     proposed_status = str(prediction["routing_status"])

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "method": "rolling_routing_registered_replay_comparison_v1",
+  "rows_reference": 2777,
+  "rows_replay": 2777,
+  "rows_compared": 2777,
+  "row_count_matches": true,
+  "decision_fields": [
+    "ticket_id",
+    "expected_assignee",
+    "predicted_assignee",
+    "ranked_candidates",
+    "known_owner",
+    "is_top1_correct",
+    "is_top3_correct",
+    "routing_status",
+    "fallback_reason"
+  ],
+  "reference_decision_sha256": "a30103be4ed2b6484b2f235ac688a54c852d830b3cbea6eaa697e563ddf24d2b",
+  "replay_decision_sha256": "a30103be4ed2b6484b2f235ac688a54c852d830b3cbea6eaa697e563ddf24d2b",
+  "decision_mismatch_rows": 0,
+  "decision_mismatch_examples": [],
+  "maximum_numeric_delta": 0.00012679850762875589,
+  "maximum_numeric_delta_by_field": {
+    "bm25_best_issue_score": 2.842170943040401e-14,
+    "bm25_owner_score": 0.0,
+    "calibrated_probability": 1.2699999999976619e-06,
+    "candidate_count": 0.0,
+    "candidate_source_count": 0.0,
+    "component_owner_share": 0.0,
+    "component_recency_drift": 0.0,
+    "component_support_log": 0.0,
+    "history_rows": 0.0,
+    "one_minus_entropy": 0.00012679850762875589,
+    "open_set_probability": 1.6459999999995922e-05,
+    "open_set_risk": 0.0,
+    "owner_recency": 0.0,
+    "predicted_owner_component_log_count": 0.0,
+    "predicted_owner_global_log_count": 0.0,
+    "predicted_owner_pair_log_count": 0.0,
+    "probability_margin": 0.0,
+    "product_component_owner_share": 0.0,
+    "product_component_support_log": 0.0,
+    "recent_component_owner_share": 0.0,
+    "sbert_owner_score": 0.0,
+    "strong_source_agreement": 0.0,
+    "top_probability": 0.0
+  },
+  "numeric_tolerance": 0.0002,
+  "checks": {
+    "row_count_matches": true,
+    "routing_decisions_exactly_match": true,
+    "numeric_deltas_within_tolerance": true
+  },
+  "passed": true,
+  "release_evidence": false,
+  "reference": {
+    "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_rolling_2022q1_holdout/rolling_holdout_predictions.jsonl",
+    "sha256": "5a6a54cb2da0efac3914f0ee97403b171f208084e3a131cf09d2a0c8921c59f9"
+  },
+  "replay": {
+    "path": "/private/tmp/assignee_rolling_2022q1_replay/rolling_holdout_predictions.jsonl",
+    "sha256": "24a27cd60132dd7273e15882430bcc42eea36c052236ee61857648e033906dc5"
+  }
+}

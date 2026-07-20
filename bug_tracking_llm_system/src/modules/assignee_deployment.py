@@ -383,6 +383,53 @@ def load_assignee_set(path: Path | None) -> set[str]:
     return owners
 
 
+def load_active_assignee_set(path: Path | None) -> set[str]:
+    """Load active candidates without accidentally treating `inactive` as active.
+
+    Versioned roster objects may contain both fields. The generic
+    ``load_assignee_set`` helper is retained for simple active or inactive list
+    files, while runtime active-roster consumers should use this explicit
+    loader.
+    """
+
+    if path is None:
+        return set()
+    try:
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid active assignee roster: {path}") from exc
+    if isinstance(payload, list):
+        values: Any = payload
+        inactive_values: Any = []
+    elif isinstance(payload, dict):
+        values = payload.get("candidates")
+        if values is None:
+            values = [
+                row
+                for row in payload.get("assignees", [])
+                if isinstance(row, dict) and row.get("active") is True
+            ]
+        inactive_values = payload.get("inactive") or []
+    else:
+        raise ValueError("active assignee roster must contain a JSON object or list")
+    if not isinstance(values, list) or not isinstance(inactive_values, list):
+        raise ValueError("active assignee roster candidates and inactive must be lists")
+
+    def owner_value(value: Any) -> str:
+        if isinstance(value, dict):
+            value = value.get("assignee") or value.get("email") or value.get("id")
+        return str(value or "").strip().lower()
+
+    active = {owner for value in values if (owner := owner_value(value))}
+    inactive = {owner for value in inactive_values if (owner := owner_value(value))}
+    overlap = active & inactive
+    if overlap:
+        raise ValueError(
+            "active assignee roster also marks candidates inactive: " + ", ".join(sorted(overlap))
+        )
+    return active
+
+
 def load_assignee_alias_map(path: Path | None) -> dict[str, str]:
     if path is None:
         return {}

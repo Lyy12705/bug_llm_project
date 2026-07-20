@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import ssl
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -47,6 +49,11 @@ def main() -> None:
     parser.add_argument("--sleep", type=float, default=0.25, help="Delay between requests.")
     parser.add_argument("--include-comments", action="store_true", help="Fetch the first public comment as description.")
     parser.add_argument(
+        "--seal-output",
+        action="store_true",
+        help="Refuse to overwrite an existing output or manifest when creating a sealed holdout.",
+    )
+    parser.add_argument(
         "--insecure",
         action="store_true",
         help="Disable TLS certificate verification for local environments with broken CA bundles.",
@@ -66,6 +73,13 @@ def main() -> None:
     args = parser.parse_args()
     setattr(get_json, "insecure", args.insecure)
 
+    if args.seal_output:
+        existing = [path for path in (args.output, args.manifest) if path.exists()]
+        if existing:
+            raise SystemExit(
+                "Sealed holdout target already exists: " + ", ".join(str(path) for path in existing)
+            )
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
 
@@ -74,30 +88,60 @@ def main() -> None:
     seen_ids: set[int] = set()
     started_at = datetime.now(UTC).isoformat()
     end_date = parse_date(args.end_date) if args.end_date else None
+    complete = True
+    termination_reason = "source_exhausted"
+    reached_limit = False
+    reached_end_date = False
+    temporary_handle = tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        dir=args.output.parent,
+        prefix=f".{args.output.name}.",
+        suffix=".partial",
+        delete=False,
+    )
+    temporary_output = Path(temporary_handle.name)
+    try:
+        with temporary_handle as handle:
+            while True:
+                bugs = search_bugs(args, offset)
+                if not bugs:
+                    break
+                for bug in bugs:
+                    bug_id = int(bug["id"])
+                    if bug_id in seen_ids:
+                        continue
+                    seen_ids.add(bug_id)
+                    if end_date and parse_date(str(bug.get("creation_time", ""))) > end_date:
+                        reached_end_date = True
+                        termination_reason = "end_date_reached"
+                        break
+                    if args.include_comments:
+                        bug["description"] = fetch_first_comment(args.base_url, bug_id, args.sleep)
+                    handle.write(json.dumps(bug, ensure_ascii=False, sort_keys=True) + "\n")
+                    written += 1
+                    if args.max_bugs and written >= args.max_bugs:
+                        complete = False
+                        reached_limit = True
+                        termination_reason = "max_bugs_reached"
+                        break
+                if reached_limit or reached_end_date:
+                    break
+                offset += args.limit
+                time.sleep(args.sleep)
+        temporary_output.replace(args.output)
+    except BaseException:
+        temporary_output.unlink(missing_ok=True)
+        raise
 
-    with args.output.open("w", encoding="utf-8") as handle:
-        while True:
-            bugs = search_bugs(args, offset)
-            if not bugs:
-                break
-            for bug in bugs:
-                bug_id = int(bug["id"])
-                if bug_id in seen_ids:
-                    continue
-                seen_ids.add(bug_id)
-                if end_date and parse_date(str(bug.get("creation_time", ""))) > end_date:
-                    continue
-                if args.include_comments:
-                    bug["description"] = fetch_first_comment(args.base_url, bug_id, args.sleep)
-                handle.write(json.dumps(bug, ensure_ascii=False, sort_keys=True) + "\n")
-                written += 1
-                if args.max_bugs and written >= args.max_bugs:
-                    write_manifest(args, started_at, written, offset, complete=False)
-                    return
-            offset += args.limit
-            time.sleep(args.sleep)
-
-    write_manifest(args, started_at, written, offset, complete=True)
+    write_manifest(
+        args,
+        started_at,
+        written,
+        offset,
+        complete=complete,
+        termination_reason=termination_reason,
+    )
 
 
 def search_bugs(args: argparse.Namespace, offset: int) -> list[dict[str, Any]]:
@@ -135,12 +179,22 @@ def fetch_first_comment(base_url: str, bug_id: int, sleep: float) -> str:
 
 def get_json(url: str) -> dict[str, Any]:
     request = urllib.request.Request(url, headers={"User-Agent": "bug-llm-project-assignee-triage/1.0"})
-    context = ssl._create_unverified_context() if getattr(get_json, "insecure", False) else None
+    context = tls_context(insecure=bool(getattr(get_json, "insecure", False)))
     try:
         with urllib.request.urlopen(request, timeout=60, context=context) as response:
             return json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise RuntimeError(f"Request failed: {url}: {exc}") from exc
+
+
+def tls_context(*, insecure: bool) -> ssl.SSLContext | None:
+    if insecure:
+        return ssl._create_unverified_context()
+    try:
+        import certifi
+    except ImportError:
+        return None
+    return ssl.create_default_context(cafile=certifi.where())
 
 
 def parse_date(value: str) -> datetime:
@@ -150,7 +204,16 @@ def parse_date(value: str) -> datetime:
     return datetime.fromisoformat(normalized)
 
 
-def write_manifest(args: argparse.Namespace, started_at: str, written: int, offset: int, *, complete: bool) -> None:
+def write_manifest(
+    args: argparse.Namespace,
+    started_at: str,
+    written: int,
+    offset: int,
+    *,
+    complete: bool,
+    termination_reason: str,
+) -> None:
+    output_sha256, first_creation_time, last_creation_time = inspect_output(args.output)
     manifest = {
         "source": args.base_url,
         "products": args.products,
@@ -162,14 +225,38 @@ def write_manifest(args: argparse.Namespace, started_at: str, written: int, offs
         "max_bugs": args.max_bugs,
         "include_comments": args.include_comments,
         "output": str(args.output),
+        "output_sha256": output_sha256,
+        "first_creation_time": first_creation_time,
+        "last_creation_time": last_creation_time,
         "bugs_written": written,
         "last_offset": offset,
         "complete": complete,
+        "termination_reason": termination_reason,
+        "sealed_output": bool(args.seal_output),
         "started_at": started_at,
         "finished_at": datetime.now(UTC).isoformat(),
     }
     args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
+
+
+def inspect_output(path: Path) -> tuple[str, str, str]:
+    digest = hashlib.sha256()
+    first_creation_time = ""
+    last_creation_time = ""
+    with path.open("rb") as handle:
+        for raw_line in handle:
+            digest.update(raw_line)
+            try:
+                row = json.loads(raw_line)
+            except json.JSONDecodeError as exc:
+                raise RuntimeError(f"Fetched output is not valid JSONL: {path}") from exc
+            creation_time = str(row.get("creation_time") or "").strip()
+            if creation_time and not first_creation_time:
+                first_creation_time = creation_time
+            if creation_time:
+                last_creation_time = creation_time
+    return digest.hexdigest(), first_creation_time, last_creation_time
 
 
 if __name__ == "__main__":

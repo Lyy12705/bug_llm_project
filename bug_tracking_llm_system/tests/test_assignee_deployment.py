@@ -4,6 +4,7 @@ import json
 import sys
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 
@@ -21,19 +22,205 @@ from modules.assignee_deployment import (  # noqa: E402
     build_roster,
     canonicalize_assignee_set,
     derive_ownership,
+    load_active_assignee_set,
     load_assignee_set,
     load_assignee_alias_map,
     load_deployment_bundle,
     normalize_history_record,
+    sha256_file,
     split_temporal_partition,
     temporal_split,
     temporal_protocol_manifest,
     wilson_interval,
 )
+from modules.assignee_rolling_deployment import (  # noqa: E402
+    load_rolling_deployment_bundle,
+)
 from prepare_assignee_deployment import prediction_metrics, selective_routing_gate  # noqa: E402
+from prepare_assignee_rolling_deployment import (  # noqa: E402
+    REQUIRED_HOLDOUT_CHECKS,
+    rolling_deployment_gates,
+    unavailable_roster,
+    unavailable_shadow_report,
+)
+from recommend_assignee_rolling import fail_closed_payload, history_available_before  # noqa: E402
 
 
 class AssigneeDeploymentTests(unittest.TestCase):
+    def test_rolling_production_entrypoint_fails_closed_and_filters_future_labels(self) -> None:
+        payload = fail_closed_payload(ValueError("bundle is research-only"))
+        recommendation = payload["assignee_recommendation"]
+        self.assertEqual(recommendation["assignee"], "manual_triage")
+        self.assertFalse(recommendation["auto_assignment_authorized"])
+        self.assertEqual(recommendation["open_set_risk"], 1.0)
+
+        rows = [
+            {
+                "ticket_id": "past",
+                "created_at": "2024-01-01T00:00:00Z",
+                "label_available_at": "2024-01-02T00:00:00Z",
+            },
+            {
+                "ticket_id": "future-label",
+                "created_at": "2024-01-03T00:00:00Z",
+                "label_available_at": "2024-03-01T00:00:00Z",
+            },
+        ]
+        included, withheld = history_available_before(
+            rows, datetime.fromisoformat("2024-02-01T00:00:00+00:00").timestamp()
+        )
+        self.assertEqual([row["ticket_id"] for row in included], ["past"])
+        self.assertEqual(withheld, 1)
+
+    def test_active_roster_loader_never_confuses_inactive_entries_with_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "roster.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "candidates": ["active@example.com"],
+                        "inactive": ["departed@example.com"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(load_active_assignee_set(path), {"active@example.com"})
+
+            path.write_text(
+                json.dumps(
+                    {
+                        "candidates": ["same@example.com"],
+                        "inactive": ["same@example.com"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "marks candidates inactive"):
+                load_active_assignee_set(path)
+
+    def test_rolling_deployment_stays_research_only_without_roster_shadow_and_approval(self) -> None:
+        routing_hash = "a" * 64
+        routing = {
+            "ranker_name": "ranker-v1",
+            "development_gate": {"passed": True},
+        }
+        holdout = {
+            "protocol": {
+                "holdout_provenance": {"manifest_verified": True},
+                "holdout_used_for_fitting": False,
+                "holdout_used_for_threshold_selection": False,
+                "routing_artifact_sha256": routing_hash,
+            },
+            "deployment_gate": {
+                "passed": True,
+                "score_drift_check": True,
+                "checks": {name: True for name in REQUIRED_HOLDOUT_CHECKS},
+            },
+        }
+
+        gates = rolling_deployment_gates(
+            routing,
+            {"name": "ranker-v1"},
+            holdout,
+            unavailable_roster(),
+            unavailable_shadow_report(),
+            operator_approved=False,
+            bundled_routing_hash=routing_hash,
+            history_rows=100,
+        )
+
+        self.assertTrue(gates["new_holdout_gate_passed"])
+        self.assertTrue(gates["all_required_holdout_checks_passed"])
+        self.assertFalse(gates["active_roster_review_confirmed"])
+        self.assertFalse(gates["shadow_gate_passed"])
+        self.assertFalse(gates["explicit_operator_approval"])
+        self.assertFalse(all(gates.values()))
+
+    def test_rolling_bundle_loader_verifies_integrity_and_cross_artifact_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            files = {
+                "assignee_dataset_path": root / "history.jsonl",
+                "assignee_active_roster_path": root / "roster.json",
+                "assignee_ranker_model_path": root / "ranker.joblib",
+                "assignee_ranker_artifact_path": root / "ranker.json",
+                "assignee_rolling_routing_artifact_path": root / "routing.json",
+                "assignee_holdout_report_path": root / "holdout.json",
+                "assignee_shadow_report_path": root / "shadow.json",
+            }
+            files["assignee_dataset_path"].write_text("{}\n", encoding="utf-8")
+            files["assignee_ranker_model_path"].write_bytes(b"model")
+            files["assignee_active_roster_path"].write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "review_confirmed": False,
+                        "assignees": [],
+                        "candidates": [],
+                        "inactive": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            files["assignee_ranker_artifact_path"].write_text(
+                json.dumps({"name": "ranker-v1"}), encoding="utf-8"
+            )
+            files["assignee_rolling_routing_artifact_path"].write_text(
+                json.dumps(
+                    {
+                        "artifact_type": "assignee_rolling_open_set_routing_bundle",
+                        "ranker_name": "ranker-v1",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            routing_hash = sha256_file(files["assignee_rolling_routing_artifact_path"])
+            files["assignee_holdout_report_path"].write_text(
+                json.dumps(
+                    {
+                        "protocol": {"routing_artifact_sha256": routing_hash},
+                        "deployment_gate": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            files["assignee_shadow_report_path"].write_text(
+                json.dumps({"deployment_gate": {"passed": False}}), encoding="utf-8"
+            )
+            bundle = root / "deployment_bundle.json"
+            bundle.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "artifact_type": "assignee_rolling_deployment_bundle",
+                        "deployment_status": "research_only",
+                        "approval_gate_passed": False,
+                        "expires_at": "2099-01-01T00:00:00Z",
+                        "approval_gates": {"active_roster_review_confirmed": False},
+                        "pipeline_config": {
+                            "assignee_router_engine": "rolling_ltr_v1",
+                            **{key: path.name for key, path in files.items()},
+                        },
+                        "artifact_manifest": {
+                            key: artifact_manifest_entry(path, root) for key, path in files.items()
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            loaded = load_rolling_deployment_bundle(bundle, require_approved=False)
+            self.assertEqual(
+                loaded["pipeline_config"]["assignee_ranker_model_path"],
+                files["assignee_ranker_model_path"].resolve(),
+            )
+            with self.assertRaisesRegex(ValueError, "not approved"):
+                load_rolling_deployment_bundle(bundle)
+
+            files["assignee_ranker_model_path"].write_bytes(b"tampered")
+            with self.assertRaisesRegex(ValueError, "size mismatch|hash mismatch"):
+                load_rolling_deployment_bundle(bundle, require_approved=False)
+
     def test_normalizes_common_issue_tracker_fields(self) -> None:
         row = normalize_history_record(
             {

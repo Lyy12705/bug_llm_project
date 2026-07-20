@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/assignee/rolling_deployment_bundle.schema.json",
+  "title": "Rolling LTR assignee deployment bundle",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "deployment_status",
+    "approval_gate_passed",
+    "created_at",
+    "expires_at",
+    "pipeline_config",
+    "artifact_manifest",
+    "approval_gates",
+    "blocked_by"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "artifact_type": {"const": "assignee_rolling_deployment_bundle"},
+    "deployment_status": {"enum": ["approved", "research_only"]},
+    "approval_gate_passed": {"type": "boolean"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "blocked_by": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "pipeline_config": {
+      "type": "object",
+      "required": [
+        "assignee_router_engine",
+        "assignee_dataset_path",
+        "assignee_active_roster_path",
+        "assignee_ranker_model_path",
+        "assignee_ranker_artifact_path",
+        "assignee_rolling_routing_artifact_path",
+        "assignee_holdout_report_path",
+        "assignee_shadow_report_path",
+        "assignee_fail_closed",
+        "assignee_execution_mode"
+      ],
+      "properties": {
+        "assignee_router_engine": {"const": "rolling_ltr_v1"},
+        "assignee_fail_closed": {"const": true},
+        "assignee_execution_mode": {"enum": ["production", "shadow_only"]}
+      }
+    },
+    "approval_gates": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": "boolean"}
+    },
+    "artifact_manifest": {
+      "type": "object",
+      "minProperties": 7,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size_bytes"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"deployment_status": {"const": "approved"}}},
+      "then": {
+        "properties": {
+          "approval_gate_passed": {"const": true},
+          "blocked_by": {"maxItems": 0},
+          "pipeline_config": {
+            "properties": {"assignee_execution_mode": {"const": "production"}}
+          }
+        }
+      }
+    }
+  ]
+}

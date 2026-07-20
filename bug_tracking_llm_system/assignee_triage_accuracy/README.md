@@ -259,26 +259,29 @@ ranker and local SBERT feature from Phase 6, then adds:
 python3 assignee_triage_accuracy/scripts/train_assignee_rolling_open_set.py
 
 python3 assignee_triage_accuracy/scripts/evaluate_assignee_rolling_holdout.py \
-  --holdout assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
-  --holdout-name 2021_q4 \
-  --output-dir assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_public_2021q4_conservative_untouched_holdout \
+  --intermediate-history 2021_q4=assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
+  --holdout assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_raw.jsonl \
+  --holdout-name 2022_q1 \
+  --holdout-manifest assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_manifest.json \
+  --output-dir assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_rolling_2022q1_holdout \
   --confirm-untouched-holdout
 ```
 
-The frozen Q4 holdout has 2,779 evaluated rows. Automatic assignment reached
-`97.75%` accuracy at `24.04%` coverage, with zero false automatic assignments
-among 141 unseen-owner rows. Another `21.05%` of rows were sent to Top-3
-confirmation at `71.11%` Top-3 accuracy; `54.91%` remained manual. Maximum PSI
-was `0.052`, below the `0.25` drift limit. Known-owner Top-1 was still only
-`48.41%`, so this is a selective routing improvement rather than evidence that
-all issues can be assigned automatically.
+Q4 had already been inspected and is retained only as a consistency check. The
+new SHA-256-sealed 2022 Q1 holdout has 2,777 evaluated rows. Automatic
+assignment reached `99.17%` accuracy at `21.79%` coverage; its Wilson 95% lower
+bound was `98.08%`. None of 178 unseen-owner rows was automatically assigned
+(upper confidence bound `2.11%`). Maximum PSI was `0.0525`, below the `0.25`
+drift limit, and every hard holdout gate passed. Top-3 confirmation accuracy was
+only `67.23%`, below its 90% advisory target, so this remains selective routing
+rather than evidence that all issues can be assigned automatically.
 
-The bundle deliberately remains `research_only`. Public BMO snapshots do not
-provide a reviewed active/departed roster, verified ownership policy, or exact
-assignment-change timestamps. Runtime integration therefore still requires a
-target-project roster, operator approval, and target-project temporal
-validation. See `phase7_rolling_open_set/README.md` for the protocol and
-limitations.
+Production remains blocked. Public BMO snapshots do not provide a reviewed
+active/departed roster, verified ownership policy, exact assignment-change
+timestamps, or real shadow feedback. Runtime integration therefore still
+requires a reviewed target-project roster, 500 reviewed shadow tickets or 28
+observation days, and explicit operator approval. See
+`phase7_rolling_open_set/README.md` for the protocol and limitations.
 
 ## Build Assignee Responsibility Profiles
 
@@ -441,6 +444,39 @@ python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling_shadow.py \
 python3 assignee_triage_accuracy/scripts/evaluate_assignee_shadow.py \
   --feedback models/assignee_deployment/assignee_feedback.jsonl \
   --output reports/assignee_shadow_report.json
+```
+
+After the sealed holdout, build the rolling-LTR candidate from ordered history.
+The output is self-contained and hash-verified. Without both a reviewed roster
+and a passed real shadow report it is deliberately emitted as `research_only`;
+`--approve` cannot bypass a missing gate.
+
+```bash
+python3 assignee_triage_accuracy/scripts/prepare_assignee_rolling_deployment.py \
+  --history assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_history_train.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_validation_set.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q1_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q2_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q3_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
+  --active-roster data/active_assignees.reviewed.json \
+  --shadow-report reports/assignee_shadow_report.json \
+  --output-dir models/assignee_rolling_deployment \
+  --approve
+```
+
+Only an approved, unexpired, integrity-checked rolling bundle is accepted by
+the production entry point. A research-only, expired, modified, mismatched, or
+invalid-roster bundle writes an explicit `manual_triage` result and returns a
+failure status; it never authorizes automatic assignment.
+
+```bash
+python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling.py \
+  --bundle models/assignee_rolling_deployment/deployment_bundle.json \
+  --ticket data/new_ticket.json \
+  --output reports/assignee_rolling_decision.json
 ```
 
 ## Build And Run Eclipse Sample Evaluation

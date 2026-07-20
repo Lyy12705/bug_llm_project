@@ -1,9 +1,9 @@
 # 負責人自動分流模型完成與部署計劃書
 
-- 文件版本：1.0
+- 文件版本：1.1
 - 制定日期：2026-07-19
 - 專題階段：負責人推薦與自動分流
-- 文件狀態：執行中（第一批穩定性補強已完成）
+- 文件狀態：執行中（模型／政策 sealed holdout 已通過；roster 與 shadow 待完成）
 
 ## 0. 2026-07-19 執行進度
 
@@ -11,12 +11,12 @@
 |---|---|---|
 | M0 時間協定 | 已完成程式補強 | train、calibration fit、policy selection、sealed test 分離；輸出時間邊界、row hash 與跨切分洩漏 audit |
 | M1 roster／身分 | 部分完成 | 支援 reviewed active roster、inactive hard block、alias chain canonicalization 與 cold-start owner；仍需專案維護者提供並簽核實際 roster |
-| M2 LTR | Shadow adapter 已完成 | rolling LTR 已在既有 Q4 holdout 通過主要 gate，且可對單筆新 ticket 做時間安全的 shadow routing；正式 production adapter 仍須等 roster 與 shadow gate 通過 |
+| M2 LTR | 程式實作已完成 | rolling LTR 可做時間安全 shadow routing；新增 self-contained bundle builder／loader、SHA-256、效期、交叉 artifact 驗證與 production entrypoint；未 approved、過期、竄改或 runtime 例外一律輸出 manual，真正啟用仍須等 roster 與 shadow gate 通過 |
 | M3 信心校準 | 已補強 | calibration fit 與 policy selection 不再共用相同 validation rows；加入 Wilson 95% 信賴區間 |
 | M4 Open-set | 部分完成 | rolling open-set 已驗證；generic deployment 暫時固定使用與 gate 相同的 fallback score，禁止把不同公式的 candidate detector 誤標 approved |
 | M5 路由政策 | 已完成程式補強 | 85%／10%／低於 5%、最小樣本數、信賴區間、component floor 與 fail-closed reason code 已程式化 |
 | M6 Shadow | 評估器已完成 | 可讀 append-only feedback、去除同 ticket 舊事件、產出週報與 gate；仍需累積至少 500 筆或 28 天真實 feedback |
-| M7 最終驗收 | 尚未完成 | 已用 hardened gate 重跑既有 2021 Q4；仍需一份未曾用於任何決策的更晚時間 holdout 與人工核准 |
+| M7 最終驗收 | 技術 gate 已通過 | 2022 Q1 sealed holdout 第一次評估通過全部 hard gates；整體上線驗收仍缺 reviewed roster、真實 shadow gate 與人工核准 |
 
 Hardened gate 對既有 2021 Q4 holdout 的重跑結果如下。這是既有 holdout 的一致性驗證，不重新宣稱為全新 untouched holdout：
 
@@ -32,6 +32,27 @@ Hardened gate 對既有 2021 Q4 holdout 的重跑結果如下。這是既有 hol
 | Top-3 confirmation accuracy | 71.11% | 低於 90% 輔助目標，需重新 finalization |
 
 主要 component 中目前最弱的是 `DOM: Security`：47 筆 auto、正確率 76.60%、Wilson 下界 62.78%。它通過 75% point floor 與 60% confidence floor，但安全餘裕小，shadow 期間應列為優先監控與可能暫停 auto 的分群。
+
+## 0.1 2026-07-20 sealed holdout 與 deployment candidate 結果
+
+2022 Q1 資料先以 `--seal-output` 寫入 3,000 筆，manifest 記錄時間範圍、截斷狀態與 SHA-256 `6aaf8a291301553d3d9ab1b31040c3bcbe376909ab377473adea59300b2bb791`。正式評估前沒有使用其 label 調整模型或政策；2021 Q4 只更新候選歷史，沒有重訓 ranker、calibrator、open-set detector 或重新選門檻。正規化與跨窗 overlap 排除後，有效評估 2,777 筆。
+
+| 指標 | 2022 Q1 結果 | Gate |
+|---|---:|---|
+| Holdout rows | 2,777 | ≥ 2,500，通過 |
+| Auto rows | 605 | ≥ 250，通過 |
+| Auto accuracy | 99.17%（600/605） | ≥ 85%，通過 |
+| Auto accuracy Wilson 95% 下界 | 98.08% | ≥ 80%，通過 |
+| Auto coverage | 21.79% | ≥ 10%，通過 |
+| Unseen-owner auto rate | 0%（0/178） | < 5%，通過 |
+| Unseen-owner rate Wilson 95% 上界 | 2.11% | 低於 5% 安全線 |
+| Component point／confidence floor | 無失敗 component | 通過 |
+| Maximum PSI | 0.0525 | < 0.25，未觸發 drift fallback |
+| Top-3 confirmation accuracy | 67.23% | 低於 90% 輔助目標，不阻擋 auto hard gate |
+
+因此，模型與凍結政策已達成 sealed holdout 的主要 85%／10%／5% 聯合門檻。這不等於整個自動派工階段已可上線：目前產生的 rolling deployment candidate 正確保持 `research_only`，blocker 為 `active_roster_review_confirmed`、`active_roster_nonempty`、`shadow_gate_passed`、`shadow_unseen_labels_complete` 與 `explicit_operator_approval`。候選包已驗證 23,533 筆歷史快照及七個必要 artifact 的完整性。
+
+同一 holdout 的 registered replay 不被視為第二份 release evidence，只用來驗證 G7。2,777 筆的 ticket、Top-1／Top-3、候選順序、known/unseen、routing status 與 fallback reason 全部逐筆一致，decision SHA-256 皆為 `a30103be4ed2b6484b2f235ac688a54c852d830b3cbea6eaa697e563ddf24d2b`。底層浮點最大差異為 `0.0001268`（entropy 特徵），低於 `0.0002` 容忍值，且沒有造成任何路由決策差異。
 
 ## 1. 計劃目的
 
@@ -492,20 +513,20 @@ subject to:
 
 只有以下項目全部為「是」，才可宣稱負責人自動分流階段完成：
 
-- [ ] 資料採時間切分，sealed holdout 未用於訓練、選模、校準或選門檻。
-- [ ] Auto accuracy ≥ 85%。
-- [ ] Auto coverage ≥ 10%。
-- [ ] Unseen-owner auto error rate < 5%。
-- [ ] Auto 樣本至少 250 筆且統計保護條件通過。
+- [x] 資料採時間切分，sealed holdout 未用於訓練、選模、校準或選門檻。
+- [x] Auto accuracy ≥ 85%。
+- [x] Auto coverage ≥ 10%。
+- [x] Unseen-owner auto error rate < 5%。
+- [x] Auto 樣本至少 250 筆且統計保護條件通過。
 - [ ] Active/inactive/cold-start owner 有明確資料來源與時間版本。
-- [ ] 主要 component 分群未出現不可接受的自動錯派。
+- [x] 主要 component 分群未出現不可接受的自動錯派。
 - [ ] Shadow evaluation 連續兩個週期通過。
-- [ ] Artifact、policy、資料與程式版本可重現且可稽核。
-- [ ] 任一故障或漂移情況可自動退回 Top-3／manual。
-- [ ] 本階段報告只宣稱負責人分流成果，不混入錯誤定位或補丁生成能力。
+- [x] Artifact、policy、資料與程式版本可重現且可稽核。
+- [x] 任一故障或漂移情況可自動退回 Top-3／manual。
+- [x] 本階段報告只宣稱負責人分流成果，不混入錯誤定位或補丁生成能力。
 
 ## 14. Definition of Done
 
 本階段的 Definition of Done 不是「模型能輸出一個負責人名稱」，而是：系統能在新時間資料中辨識一小部分足夠安全的案件自動派工，對不確定、未知、失效或資料不足的案件可靠拒答，並以 sealed holdout 與 shadow data 證明 85% accuracy、10% coverage、低於 5% unseen-owner auto error 三項條件同時成立。
 
-若未達聯合門檻，現有成果應定義為「Top-3 負責人推薦／人工確認系統」，而不是已完成的自動派工系統。
+目前 sealed holdout 已達聯合門檻，但 reviewed roster 與真實 shadow 證據尚未完成，因此成果應定義為「已通過離線技術驗收、等待營運安全驗收的選擇性自動分流 candidate」，而不是已核准上線的自動派工系統。

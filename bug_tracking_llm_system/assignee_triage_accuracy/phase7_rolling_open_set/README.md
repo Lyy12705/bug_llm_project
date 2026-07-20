@@ -17,7 +17,11 @@ The temporal order is:
 
 1. Fit calibration and open-set models on validation, 2020 Q3, and 2020 Q4.
 2. Select one shared routing policy on 2021 Q1, Q2, and Q3.
-3. Evaluate the frozen bundle once on 2021 Q4.
+3. Treat the already-inspected 2021 Q4 result as a consistency check, not as
+   untouched evidence.
+4. Update candidate history from Q4 without refitting any model or threshold,
+   then evaluate the still-frozen bundle once on a SHA-256-sealed 2022 Q1
+   holdout.
 
 An issue is eligible for historical owner profiles only when its
 `last_change_time` is at or before the next query window. This is conservative
@@ -61,16 +65,29 @@ assignment for the evaluated window.
 ```bash
 python3 assignee_triage_accuracy/scripts/train_assignee_rolling_open_set.py
 
+python3 assignee_triage_accuracy/paper_grade/scripts/fetch_bmo_assignee_dataset.py \
+  --start-date 2022-01-01 \
+  --end-date 2022-03-31 \
+  --max-bugs 3000 \
+  --seal-output \
+  --output assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_raw.jsonl \
+  --manifest assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_manifest.json
+
 python3 assignee_triage_accuracy/scripts/evaluate_assignee_rolling_holdout.py \
-  --holdout assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
-  --holdout-name 2021_q4 \
-  --output-dir assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_public_2021q4_conservative_untouched_holdout \
+  --intermediate-history 2021_q4=assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
+  --holdout assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_raw.jsonl \
+  --holdout-name 2022_q1 \
+  --holdout-manifest assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_manifest.json \
+  --output-dir assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_rolling_2022q1_holdout \
   --confirm-untouched-holdout
 ```
 
-The evaluator rejects missing confirmation, a mismatched ranker, a failed
-development gate, and a history-window mismatch. It never refits models or
-selects thresholds from the holdout.
+The evaluator rejects missing confirmation or manifest, a SHA-256 mismatch, a
+mismatched ranker, a failed development gate, duplicate window names, and a
+frozen history-window mismatch. Intermediate windows update history only. They
+never refit the ranker, calibrator, open-set detector, or routing policy. An
+append-only registry claims the holdout before scoring and rejects any second
+attempt to reuse the same SHA-256 as untouched evidence.
 
 ## Results
 
@@ -82,7 +99,7 @@ Development policy selection:
 | 2021 Q2 | 99.54% | 16.25% | 0.00% | 19.67% | 64.08% |
 | 2021 Q3 | 98.57% | 18.21% | 0.00% | 18.99% | 62.80% |
 
-Untouched 2021 Q4 holdout:
+Previously inspected 2021 Q4 consistency check:
 
 | Metric | Result |
 | --- | ---: |
@@ -98,9 +115,52 @@ Untouched 2021 Q4 holdout:
 | Open-set AUROC / AUPRC | 0.6963 / 0.0819 |
 | Maximum PSI | 0.0518 |
 
+Sealed 2022 Q1 holdout, evaluated once with Q4 as history-update-only:
+
+| Metric | Result |
+| --- | ---: |
+| Evaluated rows | 2,777 |
+| Known/unseen owners | 2,599 / 178 |
+| Overall Top-1 / Top-3 / candidate recall | 44.29% / 60.61% / 83.58% |
+| Known-owner Top-1 / Top-3 / candidate recall | 47.33% / 64.76% / 89.30% |
+| Automatic rows | 605 |
+| Automatic accuracy / coverage | 99.17% / 21.79% |
+| Automatic-accuracy Wilson 95% lower bound | 98.08% |
+| Unseen-owner false-auto rate / upper bound | 0.00% / 2.11% |
+| Top-3 confirmation rate / accuracy | 21.32% / 67.23% |
+| Manual-triage rate | 56.90% |
+| Brier / ECE | 0.1424 / 0.0418 |
+| Open-set AUROC / AUPRC | 0.6550 / 0.0960 |
+| Maximum PSI | 0.0525 |
+| Hard deployment gate | Passed |
+
+The sealed file contains the earliest 3,000 matching rows in the Q1 fetch
+window; 2,777 remained after normalization and cross-window overlap removal.
+The manifest records the capped fetch, time range, immutable SHA-256, and seal
+status. The result passes the model/policy hard gate but does not itself grant
+production approval.
+
+A registered reproducibility replay produced exactly the same 2,777 routing
+decisions and decision digest
+`a30103be4ed2b6484b2f235ac688a54c852d830b3cbea6eaa697e563ddf24d2b`.
+The largest low-level numeric delta was `0.0001268`, below the declared `0.0002`
+tolerance, and did not change any candidate order, routing status, or fallback
+reason. The replay is marked `release_evidence=false`.
+
 These results support selective routing, not full automatic assignment. The
 open-set detector has modest discrimination and rejects many known-owner rows;
 its conservative threshold is useful for safety but reduces coverage.
+
+## Deployment boundary
+
+`prepare_assignee_rolling_deployment.py` builds a self-contained history,
+ranker, policy, roster, holdout, and shadow bundle. The loader verifies all
+seven SHA-256 entries, path containment, expiry, cross-artifact versions, and
+every approval gate. `recommend_assignee_rolling.py` accepts approved bundles
+only. A research-only or invalid bundle returns a fail-closed manual-triage
+decision and never authorizes automatic assignment. The current candidate is
+correctly `research_only` because the roster and shadow gates below are not yet
+available.
 
 ## Remaining blockers
 
@@ -109,11 +169,13 @@ its conservative threshold is useful for safety but reduces coverage.
 - `last_change_time` is not the exact time at which the final assignee became
   known.
 - File/module ownership is not available consistently enough for validation.
-- Long-tail Macro-F1 remains low and candidate recall drops on future data.
-- The holdout is capped at 3,000 fetched records and is not the complete Q4
+- Long-tail Macro-F1 remains low and Top-3 confirmation quality is below its
+  90% advisory target.
+- The holdout is capped at 3,000 fetched records and is not the complete Q1
   population.
-- Production integration needs a target-project roster, authoritative
-  ownership configuration, monitoring, and explicit operator approval.
+- Production integration still needs a reviewed target-project roster,
+  authoritative ownership configuration, at least 500 reviewed shadow tickets
+  or 28 observation days, and explicit operator approval.
 
 The next practical improvement is owner/component candidate-recall work using
 additional rolling windows, followed by a lightweight candidate-level logistic

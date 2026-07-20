@@ -43,9 +43,123 @@ from assignee_open_set_common import (  # noqa: E402
     wilson_interval as open_set_wilson_interval,
 )
 from train_assignee_rolling_open_set import prepare_rolling_windows  # noqa: E402
+from evaluate_assignee_rolling_holdout import (  # noqa: E402
+    claim_sealed_holdout,
+    complete_sealed_holdout_claim,
+    parse_named_path,
+    read_registry,
+    sha256_file,
+    validate_holdout_manifest,
+    validate_registered_replay,
+    validate_window_names,
+)
+from compare_assignee_rolling_replay import compare_predictions  # noqa: E402
 
 
 class AssigneeLtrTests(unittest.TestCase):
+    def test_registered_replay_comparison_requires_exact_decisions_with_float_tolerance(self) -> None:
+        reference = [
+            {
+                "ticket_id": "T-1",
+                "predicted_assignee": "dev-a",
+                "ranked_candidates": ["dev-a", "dev-b"],
+                "routing_status": "auto_assign",
+                "fallback_reason": "high_confidence_low_open_set_risk",
+                "calibrated_probability": 0.90000,
+            }
+        ]
+        replay = [{**reference[0], "calibrated_probability": 0.90001}]
+
+        report = compare_predictions(reference, replay, maximum_numeric_delta=0.0002)
+        self.assertTrue(report["passed"])
+        self.assertEqual(
+            report["reference_decision_sha256"], report["replay_decision_sha256"]
+        )
+
+        replay[0]["routing_status"] = "top3_confirmation"
+        failed = compare_predictions(reference, replay, maximum_numeric_delta=0.0002)
+        self.assertFalse(failed["passed"])
+        self.assertEqual(failed["decision_mismatch_rows"], 1)
+
+    def test_sealed_holdout_registry_prevents_a_second_formal_evaluation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            registry = root / "registry.jsonl"
+            report = root / "report.json"
+            report.write_text("{}\n", encoding="utf-8")
+            holdout_hash = "a" * 64
+            evaluation_id = claim_sealed_holdout(
+                registry,
+                holdout_name="2022_q1",
+                holdout_sha256=holdout_hash,
+                routing_artifact_sha256="b" * 64,
+            )
+            complete_sealed_holdout_claim(
+                registry, evaluation_id=evaluation_id, report_path=report
+            )
+
+            self.assertEqual([row["status"] for row in read_registry(registry)], ["started", "completed"])
+            validate_registered_replay(
+                registry,
+                evaluation_id=evaluation_id,
+                holdout_sha256=holdout_hash,
+                routing_artifact_sha256="b" * 64,
+            )
+            with self.assertRaisesRegex(SystemExit, "routing artifact"):
+                validate_registered_replay(
+                    registry,
+                    evaluation_id=evaluation_id,
+                    holdout_sha256=holdout_hash,
+                    routing_artifact_sha256="c" * 64,
+                )
+            with self.assertRaisesRegex(SystemExit, "already been claimed"):
+                claim_sealed_holdout(
+                    registry,
+                    holdout_name="renamed_holdout",
+                    holdout_sha256=holdout_hash,
+                    routing_artifact_sha256="c" * 64,
+                )
+
+    def test_rolling_holdout_accepts_named_intermediate_history_without_name_reuse(self) -> None:
+        parsed = parse_named_path("2021_q4=/tmp/2021q4.jsonl")
+
+        self.assertEqual(parsed, ("2021_q4", Path("/tmp/2021q4.jsonl")))
+        validate_window_names([("validation", Path("validation.jsonl"))], [parsed], "2022_q1")
+        with self.assertRaises(SystemExit):
+            validate_window_names(
+                [("validation", Path("validation.jsonl"))],
+                [("validation", Path("other.jsonl"))],
+                "2022_q1",
+            )
+
+    def test_rolling_holdout_manifest_must_match_path_and_sha256(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            holdout = root / "holdout.jsonl"
+            holdout.write_text('{"id": 1}\n', encoding="utf-8")
+            manifest = root / "manifest.json"
+            manifest.write_text(
+                json.dumps(
+                    {
+                        "output": str(holdout),
+                        "output_sha256": sha256_file(holdout),
+                        "start_date": "2022-01-01",
+                        "end_date": "2022-03-31",
+                        "bugs_written": 1,
+                        "sealed_output": True,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            provenance = validate_holdout_manifest(holdout, manifest)
+            self.assertTrue(provenance["manifest_verified"])
+            self.assertEqual(provenance["sha256"], sha256_file(holdout))
+
+            holdout.write_text('{"id": 2}\n', encoding="utf-8")
+            with self.assertRaises(SystemExit):
+                validate_holdout_manifest(holdout, manifest)
+
     def test_scored_predictions_preserve_product_and_component_for_subgroup_gates(self) -> None:
         index = CandidateIndex(
             [
