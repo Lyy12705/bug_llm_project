@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_candidate_ranker",
+  "name": "candidate_top3_temporal_ltr_v2",
+  "deployment_status": "research_only",
+  "validation_candidate": false,
+  "feature_names": [
+    "base_score",
+    "global_log_count",
+    "component_log_count",
+    "product_component_log_count",
+    "product_log_count",
+    "component_share_smoothed",
+    "product_component_share_smoothed",
+    "product_share_smoothed",
+    "recency_component_share",
+    "recency_product_component_share",
+    "recent_30d_component_share",
+    "recent_90d_component_share",
+    "owner_recency",
+    "bm25_owner_score",
+    "bm25_best_issue_score",
+    "bm25_owner_issue_count",
+    "component_support_log",
+    "product_component_support_log",
+    "source_product_component",
+    "source_component",
+    "source_bm25",
+    "source_sbert",
+    "source_recent_component",
+    "source_product",
+    "source_global_prior",
+    "sbert_owner_score"
+  ],
+  "model_file": "candidate_ltr_model.joblib",
+  "parameters": {
+    "candidate_pool_size": 50,
+    "half_life_days": 90.0,
+    "smoothing_alpha": 5.0,
+    "description_cleaner": "section_weighted_v1",
+    "embedding_backend": "sbert",
+    "selection_objective": "top3"
+  },
+  "training_protocol": [
+    {
+      "fold": 1,
+      "history_rows": 5316,
+      "query_rows": 1625,
+      "candidate_examples": 79052,
+      "positive_examples": 1579,
+      "history_end": "2020-05-04T12:21:40Z",
+      "query_start": "2020-05-04T12:28:32Z",
+      "leakage_free": true
+    },
+    {
+      "fold": 2,
+      "history_rows": 6941,
+      "query_rows": 1625,
+      "candidate_examples": 79635,
+      "positive_examples": 1591,
+      "history_end": "2020-06-08T21:42:18Z",
+      "query_start": "2020-06-08T22:18:24Z",
+      "leakage_free": true
+    },
+    {
+      "fold": 3,
+      "history_rows": 8566,
+      "query_rows": 1625,
+      "candidate_examples": 79647,
+      "positive_examples": 1591,
+      "history_end": "2020-07-21T13:19:23Z",
+      "query_start": "2020-07-21T13:22:42Z",
+      "leakage_free": true
+    },
+    {
+      "fold": 4,
+      "history_rows": 10191,
+      "query_rows": 1624,
+      "candidate_examples": 79944,
+      "positive_examples": 1597,
+      "history_end": "2020-10-06T14:51:15Z",
+      "query_start": "2020-10-06T15:59:05Z",
+      "leakage_free": true
+    }
+  ],
+  "validation_metrics": {
+    "rows": 2692,
+    "candidate_recall_at_pool": 0.880758,
+    "mean_candidate_pool_size": 50.0,
+    "base_top1_accuracy": 0.450223,
+    "top1_accuracy": 0.459881,
+    "base_macro_f1": 0.12736,
+    "macro_f1": 0.135607,
+    "candidate_recall_by_source": {
+      "product_component": 0.750371,
+      "component": 0.764487,
+      "bm25": 0.692793,
+      "sbert": 0.710253,
+      "recent_component": 0.565007,
+      "product": 0.228455,
+      "global_prior": 0.15899
+    },
+    "hit_at_3": 0.647845,
+    "hit_at_5": 0.713224,
+    "hit_at_10": 0.787519,
+    "mrr": 0.572467,
+    "base_mrr": 0.557481,
+    "top1_delta_vs_v2_base": 0.009658,
+    "mrr_delta_vs_v2_base": 0.014986,
+    "macro_f1_delta_vs_v2_base": 0.008247
+  },
+  "approval_note": "Requires a new untouched temporal holdout and explicit approval before runtime use."
+}

@@ -32,6 +32,7 @@ def evaluate_shadow_feedback(
     review = [row for row in latest if str(row.get("routing_status") or "") in TOP3_STATUSES]
     correct_review = sum(_final_owner(row) in _ranked_candidates(row)[:3] for row in review)
     observation_days = _observation_days(latest)
+    provenance = _shadow_provenance(latest)
 
     metrics = {
         "rows": len(latest),
@@ -39,6 +40,10 @@ def evaluate_shadow_feedback(
         "duplicate_or_superseded_events": duplicate_events,
         "invalid_events": invalid_events,
         "observation_days": observation_days,
+        "feedback_origin_breakdown": provenance["feedback_origin_breakdown"],
+        "live_shadow_rows": provenance["live_shadow_rows"],
+        "provenance_invalid_rows": provenance["invalid_rows"],
+        "duplicate_source_event_ids": provenance["duplicate_source_event_ids"],
         "auto_assignment_rows": len(auto),
         "auto_assignment_correct_rows": correct_auto,
         "auto_assignment_coverage": _ratio(len(auto), len(latest)),
@@ -66,6 +71,7 @@ def evaluate_shadow_feedback(
         "weekly_metrics": _weekly_metrics(latest),
     }
     checks = {
+        "live_shadow_provenance_complete": provenance["complete"],
         "minimum_observation": len(latest) >= minimum_rows or observation_days >= minimum_observation_days,
         "auto_assignment_accuracy": metrics["auto_assignment_accuracy"] >= target_auto_accuracy,
         "auto_assignment_coverage": metrics["auto_assignment_coverage"] >= minimum_auto_coverage,
@@ -85,8 +91,8 @@ def evaluate_shadow_feedback(
         ),
     }
     return {
-        "schema_version": 1,
-        "method": "append_only_assignee_shadow_evaluation_v1",
+        "schema_version": 2,
+        "method": "provenance_checked_append_only_assignee_shadow_evaluation_v2",
         "metrics": metrics,
         "deployment_gate": {
             "passed": all(checks.values()),
@@ -125,6 +131,43 @@ def _latest_valid_feedback(
             latest[ticket_id] = candidate
     selected = [value[2] for value in sorted(latest.values(), key=lambda value: (value[0], value[1]))]
     return selected, valid_events - len(selected), invalid
+
+
+def _shadow_provenance(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    origins = Counter(str(row.get("feedback_origin") or "unspecified").strip().lower() for row in rows)
+    source_ids: Counter[tuple[str, str]] = Counter()
+    invalid_rows = 0
+    live_rows = 0
+    for row in rows:
+        origin = str(row.get("feedback_origin") or "unspecified").strip().lower()
+        source_system = str(row.get("source_system") or "").strip()
+        source_event_id = str(row.get("source_event_id") or "").strip()
+        prediction_at = _timestamp(row.get("prediction_created_at"))
+        finalized_at = _timestamp(row.get("created_at"))
+        ticket_at = _timestamp(row.get("ticket_created_at"))
+        if origin == "live_shadow":
+            live_rows += 1
+        valid = (
+            origin == "live_shadow"
+            and bool(source_system)
+            and bool(source_event_id)
+            and prediction_at is not None
+            and finalized_at is not None
+            and prediction_at <= finalized_at
+            and (ticket_at is None or ticket_at <= prediction_at)
+        )
+        if not valid:
+            invalid_rows += 1
+        if source_system and source_event_id:
+            source_ids[(source_system, source_event_id)] += 1
+    duplicate_ids = sum(count - 1 for count in source_ids.values() if count > 1)
+    return {
+        "complete": bool(rows) and invalid_rows == 0 and duplicate_ids == 0,
+        "live_shadow_rows": live_rows,
+        "invalid_rows": invalid_rows,
+        "duplicate_source_event_ids": duplicate_ids,
+        "feedback_origin_breakdown": dict(sorted(origins.items())),
+    }
 
 
 def _component_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:

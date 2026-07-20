@@ -150,6 +150,17 @@ def main() -> None:
         help="Fix the ranker before a new holdout; auto selects on validation only.",
     )
     parser.add_argument(
+        "--selection-objective",
+        choices=("top1", "top3"),
+        default="top1",
+        help="Validation-only model selection objective fixed before the later holdout.",
+    )
+    parser.add_argument(
+        "--artifact-name",
+        default="",
+        help="Explicit immutable model version. Defaults to the legacy generated v1 name.",
+    )
+    parser.add_argument(
         "--current-validation-metrics",
         type=Path,
         default=DEFAULT_CURRENT_REPORT_DIR / "validation" / "bmo_public_10k_metrics.json",
@@ -217,7 +228,11 @@ def main() -> None:
         name: evaluate_split(validation_rows, train_index, model, args.candidate_pool_size, args.output_k)
         for name, model in models.items()
     }
-    selected_name = select_model(validation_by_model) if args.ranker == "auto" else args.ranker
+    selected_name = (
+        select_model(validation_by_model, objective=args.selection_objective)
+        if args.ranker == "auto"
+        else args.ranker
+    )
     model = models[selected_name]
     validation_result = validation_by_model[selected_name]
     development_by_model = {}
@@ -242,7 +257,8 @@ def main() -> None:
         "model": {
             "selected": selected_name,
             "selection_rule": (
-                "validation Top-1, then MRR, then Macro-F1" if args.ranker == "auto"
+                f"validation {args.selection_objective}, then MRR, then Macro-F1"
+                if args.ranker == "auto"
                 else "fixed_by_cli_before_holdout"
             ),
             "compared": sorted(models),
@@ -741,12 +757,16 @@ def fit_rankers(examples: list[dict[str, Any]], *, seed: int) -> dict[str, Pipel
     return models
 
 
-def select_model(results: dict[str, dict[str, Any]]) -> str:
+def select_model(results: dict[str, dict[str, Any]], *, objective: str = "top1") -> str:
+    if objective not in {"top1", "top3"}:
+        raise ValueError("objective must be top1 or top3")
+    primary = "top1_accuracy" if objective == "top1" else "hit_at_3"
     return max(
         results,
         key=lambda name: (
-            results[name]["metrics"]["top1_accuracy"],
+            results[name]["metrics"][primary],
             results[name]["metrics"]["mrr"],
+            results[name]["metrics"]["top1_accuracy"],
             results[name]["metrics"]["macro_f1"],
         ),
     )
@@ -916,7 +936,7 @@ def export_artifact(
     artifact = {
         "schema_version": 1,
         "artifact_type": "assignee_candidate_ranker",
-        "name": f"candidate_{selected_name}_ltr_v1",
+        "name": args.artifact_name or f"candidate_{selected_name}_ltr_v1",
         "deployment_status": "research_only",
         "validation_candidate": promote,
         "feature_names": list(pipeline.feature_names_),
@@ -927,6 +947,7 @@ def export_artifact(
             "smoothing_alpha": args.smoothing_alpha,
             "description_cleaner": "section_weighted_v1",
             "embedding_backend": args.embedding_backend,
+            "selection_objective": args.selection_objective,
         },
         "training_protocol": fold_audit,
         "validation_metrics": validation_result["metrics"],

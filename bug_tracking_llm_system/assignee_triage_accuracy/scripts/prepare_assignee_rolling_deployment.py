@@ -274,11 +274,16 @@ def rolling_deployment_gates(
         "history_snapshot_not_used_for_refit": True,
         "active_roster_schema_valid": valid_roster_shape(roster),
         "active_roster_review_confirmed": roster.get("review_confirmed") is True,
+        "active_roster_not_expired": roster_not_expired(roster),
         "active_roster_nonempty": isinstance(roster_candidates, list)
         and bool(roster_candidates)
         and isinstance(roster_assignees, list)
         and bool(roster_assignees),
         "shadow_gate_passed": shadow_gate.get("passed") is True,
+        "shadow_live_provenance_complete": shadow_gate.get("checks", {}).get(
+            "live_shadow_provenance_complete"
+        )
+        is True,
         "shadow_unseen_labels_complete": shadow_gate.get("checks", {}).get(
             "unseen_labels_available"
         )
@@ -311,6 +316,17 @@ def valid_roster_shape(roster: dict[str, Any]) -> bool:
         if isinstance(row, dict) and row.get("active") is True
     }
     return set(candidate_values).issubset(active_records)
+
+
+def roster_not_expired(roster: dict[str, Any], *, now: datetime | None = None) -> bool:
+    try:
+        expires_at = datetime.fromisoformat(str(roster.get("expires_at") or "").replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=UTC)
+    current = now or datetime.now(UTC)
+    return expires_at.astimezone(UTC) > current.astimezone(UTC)
 
 
 def unavailable_roster() -> dict[str, Any]:

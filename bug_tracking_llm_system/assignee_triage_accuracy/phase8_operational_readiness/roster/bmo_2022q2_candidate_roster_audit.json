@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "method": "time_versioned_assignee_roster_audit_v1",
+  "snapshot_at": "2022-04-01T00:00:00+00:00",
+  "eligible_rows": 23996,
+  "future_created_rows_excluded": 0,
+  "future_label_rows_excluded": 4110,
+  "owners_with_history": 640,
+  "active_candidates": 165,
+  "inactive_candidates": 99,
+  "cold_start_candidates": 0,
+  "technical_checks": {
+    "eligible_history_available": true,
+    "active_candidates_nonempty": true,
+    "active_inactive_disjoint": true,
+    "generic_accounts_excluded": true,
+    "all_active_have_evidence_or_review": true
+  },
+  "technical_review_confirmed": true,
+  "organizational_review_confirmed": false,
+  "review_confirmed": false,
+  "blocked_by": [
+    "organizational_review_not_confirmed",
+    "maintainer_reviewer_missing"
+  ],
+  "source_audit": {
+    "sources": [
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_10k_raw.jsonl",
+        "sha256": "441c8a7bbdb5004b0b73599d56365369acce30c70a5e744ceda2c3b832ea3e41",
+        "rows_loaded": 9119,
+        "rows_included": 9083,
+        "overlap_rows_excluded": 36
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl",
+        "sha256": "4d1ae1bb3e271afbef40ec2312cdcc05ac23529192291bcb94a8cb45c33d9e86",
+        "rows_loaded": 2756,
+        "rows_included": 2736,
+        "overlap_rows_excluded": 20
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl",
+        "sha256": "6c45c94b1ecc1fe5d9c420e94dcb5e39eb7c92dfe1a204f6fff7ba9c67ed5208",
+        "rows_loaded": 2713,
+        "rows_included": 2702,
+        "overlap_rows_excluded": 11
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q1_raw.jsonl",
+        "sha256": "2b1d259b871284475ea38be2fb352bd167b8f2b3aea79e6556943926cdd6d4b1",
+        "rows_loaded": 2692,
+        "rows_included": 2670,
+        "overlap_rows_excluded": 22
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q2_raw.jsonl",
+        "sha256": "805ddb8405d0229ad1484f9d7704347d9bffdcd7630a9f23d048a28efe2e5561",
+        "rows_loaded": 2683,
+        "rows_included": 2663,
+        "overlap_rows_excluded": 20
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q3_raw.jsonl",
+        "sha256": "e7c38448bca7c09097f33d785614b5ace3ba59103646b2b4001e39640c3c90aa",
+        "rows_loaded": 2709,
+        "rows_included": 2696,
+        "overlap_rows_excluded": 13
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl",
+        "sha256": "027b75727e243459ba03c057585040c57cc2e1b408b8ac5cac14e33840f45dfb",
+        "rows_loaded": 2792,
+        "rows_included": 2779,
+        "overlap_rows_excluded": 13
+      },
+      {
+        "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_raw.jsonl",
+        "sha256": "6aaf8a291301553d3d9ab1b31040c3bcbe376909ab377473adea59300b2bb791",
+        "rows_loaded": 2809,
+        "rows_included": 2777,
+        "overlap_rows_excluded": 32
+      }
+    ],
+    "rows": 28106
+  }
+}

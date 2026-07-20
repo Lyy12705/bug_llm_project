@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "method": "label_availability_as_of_history_v1",
+  "as_of": "2021-04-01T00:00:00+00:00",
+  "input_rows": 17191,
+  "eligible_rows": 14178,
+  "owners": 472,
+  "exclusions": {
+    "label_unavailable_at_cutoff": 3013
+  },
+  "temporal_order_valid": true,
+  "sources": [
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_10k_raw.jsonl",
+      "sha256": "441c8a7bbdb5004b0b73599d56365369acce30c70a5e744ceda2c3b832ea3e41",
+      "rows_loaded": 9119,
+      "rows_included": 9083,
+      "overlap_rows_excluded": 36
+    },
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl",
+      "sha256": "4d1ae1bb3e271afbef40ec2312cdcc05ac23529192291bcb94a8cb45c33d9e86",
+      "rows_loaded": 2756,
+      "rows_included": 2736,
+      "overlap_rows_excluded": 20
+    },
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl",
+      "sha256": "6c45c94b1ecc1fe5d9c420e94dcb5e39eb7c92dfe1a204f6fff7ba9c67ed5208",
+      "rows_loaded": 2713,
+      "rows_included": 2702,
+      "overlap_rows_excluded": 11
+    },
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q1_raw.jsonl",
+      "sha256": "2b1d259b871284475ea38be2fb352bd167b8f2b3aea79e6556943926cdd6d4b1",
+      "rows_loaded": 2692,
+      "rows_included": 2670,
+      "overlap_rows_excluded": 22
+    }
+  ]
+}

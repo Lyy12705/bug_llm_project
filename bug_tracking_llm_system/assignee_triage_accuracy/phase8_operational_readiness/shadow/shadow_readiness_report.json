@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "method": "provenance_checked_append_only_assignee_shadow_evaluation_v2",
+  "metrics": {
+    "rows": 0,
+    "raw_feedback_events": 0,
+    "duplicate_or_superseded_events": 0,
+    "invalid_events": 0,
+    "observation_days": 0,
+    "feedback_origin_breakdown": {},
+    "live_shadow_rows": 0,
+    "provenance_invalid_rows": 0,
+    "duplicate_source_event_ids": 0,
+    "auto_assignment_rows": 0,
+    "auto_assignment_correct_rows": 0,
+    "auto_assignment_coverage": 0.0,
+    "auto_assignment_accuracy": 0.0,
+    "auto_assignment_accuracy_ci95": {
+      "lower": 0.0,
+      "upper": 1.0
+    },
+    "unseen_label_rows": 0,
+    "unseen_rows": 0,
+    "unseen_auto_assignment_rows": 0,
+    "unseen_auto_assignment_rate": 0.0,
+    "unseen_auto_assignment_rate_ci95": {
+      "lower": 0.0,
+      "upper": 1.0
+    },
+    "top3_confirmation_rows": 0,
+    "top3_confirmation_accuracy": 0.0,
+    "routing_status_breakdown": {},
+    "decision_reason_breakdown": {},
+    "component_metrics": {},
+    "weekly_metrics": {}
+  },
+  "deployment_gate": {
+    "passed": false,
+    "checks": {
+      "live_shadow_provenance_complete": false,
+      "minimum_observation": false,
+      "auto_assignment_accuracy": false,
+      "auto_assignment_coverage": false,
+      "unseen_labels_available": false,
+      "unseen_auto_assignment_rate": false,
+      "auto_accuracy_confidence_lower_bound": false
+    },
+    "failed_checks": [
+      "live_shadow_provenance_complete",
+      "minimum_observation",
+      "auto_assignment_accuracy",
+      "auto_assignment_coverage",
+      "unseen_labels_available",
+      "unseen_auto_assignment_rate",
+      "auto_accuracy_confidence_lower_bound"
+    ],
+    "targets": {
+      "target_auto_accuracy": 0.85,
+      "minimum_auto_coverage": 0.1,
+      "maximum_unseen_auto_rate": 0.05,
+      "minimum_rows": 500,
+      "minimum_observation_days": 28,
+      "minimum_auto_accuracy_lower_bound": 0.8
+    },
+    "advisory_checks": {
+      "top3_confirmation_accuracy": false,
+      "two_latest_weeks_pass_primary_rates": false
+    },
+    "advisory_targets": {
+      "target_top3_accuracy": 0.9
+    }
+  }
+}

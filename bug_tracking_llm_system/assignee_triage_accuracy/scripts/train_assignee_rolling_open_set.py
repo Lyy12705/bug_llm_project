@@ -100,6 +100,19 @@ def main() -> None:
     parser.add_argument("--q2", type=Path, default=RAW_DIR / "bmo_public_future_2021q2_raw.jsonl")
     parser.add_argument("--q3-2021", type=Path, default=RAW_DIR / "bmo_public_future_2021q3_raw.jsonl")
     parser.add_argument(
+        "--rolling-window",
+        action="append",
+        default=[],
+        metavar="NAME=PATH",
+        help="Override the legacy rolling windows with a repeated ordered NAME=PATH list.",
+    )
+    parser.add_argument(
+        "--fit-window-count",
+        type=int,
+        default=3,
+        help="Leading rolling windows used only to fit calibration/open-set models.",
+    )
+    parser.add_argument(
         "--assignee-label-map",
         type=Path,
         default=DEFAULT_DATA_DIR / "bmo_public_10k_assignee_label_map.json",
@@ -113,9 +126,17 @@ def main() -> None:
     parser.add_argument("--maximum-unseen-auto-rate", type=float, default=0.05)
     parser.add_argument("--minimum-high-confidence", type=float, default=0.50)
     parser.add_argument("--minimum-review-confidence", type=float, default=0.20)
+    parser.add_argument("--minimum-review-rows-per-window", type=int, default=1)
+    parser.add_argument("--minimum-review-coverage", type=float, default=0.0)
+    parser.add_argument(
+        "--require-review-policy",
+        action="store_true",
+        help="Make a cross-window Top-3 confirmation policy mandatory for the development gate.",
+    )
     parser.add_argument("--maximum-drift-psi", type=float, default=0.25)
     parser.add_argument("--sbert-model", default="sentence-transformers/all-MiniLM-L6-v2")
     parser.add_argument("--seed", type=int, default=3407)
+    parser.add_argument("--artifact-name", default="assignee_rolling_open_set_logistic_v1")
     args = parser.parse_args()
 
     ranker, ranker_artifact = load_ranker(args.model_dir, args.expected_ranker_name)
@@ -131,25 +152,36 @@ def main() -> None:
     label_map = read_label_map(args.assignee_label_map)
     availability = read_label_availability(args.base_raw)
     base_history = apply_label_availability(load_rows(args.train, label_map), availability)
+    default_specs = [
+        ("validation", args.validation),
+        ("2020_q3", args.q3),
+        ("2020_q4", args.q4),
+        ("2021_q1", args.q1),
+        ("2021_q2", args.q2),
+        ("2021_q3", args.q3_2021),
+    ]
+    window_specs = (
+        [parse_named_path(value) for value in args.rolling_window]
+        if args.rolling_window
+        else default_specs
+    )
+    if len(window_specs) < 3 or len({name for name, _ in window_specs}) != len(window_specs):
+        raise SystemExit("rolling windows require at least three unique ordered names")
+    if not 1 <= args.fit_window_count < len(window_specs):
+        raise SystemExit("--fit-window-count must leave at least one policy-selection window")
     windows = prepare_rolling_windows(
         base_history,
-        [
-            ("validation", args.validation),
-            ("2020_q3", args.q3),
-            ("2020_q4", args.q4),
-            ("2021_q1", args.q1),
-            ("2021_q2", args.q2),
-            ("2021_q3", args.q3_2021),
-        ],
+        window_specs,
         label_map,
         availability,
     )
-    fit_windows = windows[:3]
-    selection_windows = windows[3:]
+    fit_windows = windows[: args.fit_window_count]
+    selection_windows = windows[args.fit_window_count :]
 
     calibration_predictions: list[dict[str, Any]] = []
     normal_fit_by_window: dict[str, list[dict[str, Any]]] = {}
     for window in fit_windows:
+        print(f"[rolling] scoring calibration window: {window.name}", flush=True)
         predictions = score_window(
             window, ranker, pool_size, half_life_days, smoothing_alpha, semantic
         )
@@ -168,6 +200,7 @@ def main() -> None:
     detector_training_predictions: list[dict[str, Any]] = []
     leave_owner_audits = []
     for window in fit_windows:
+        print(f"[rolling] scoring leave-assignee-out window: {window.name}", flush=True)
         fold = build_leave_assignee_out_folds(
             window.history_before,
             window.query_rows,
@@ -204,6 +237,7 @@ def main() -> None:
 
     selection_predictions: dict[str, list[dict[str, Any]]] = {}
     for window in selection_windows:
+        print(f"[rolling] scoring policy-selection window: {window.name}", flush=True)
         predictions = score_window(
             window, ranker, pool_size, half_life_days, smoothing_alpha, semantic
         )
@@ -218,6 +252,8 @@ def main() -> None:
         target_review_accuracy=args.target_review_accuracy,
         minimum_high_confidence=args.minimum_high_confidence,
         minimum_review_confidence=args.minimum_review_confidence,
+        minimum_review_rows_per_window=max(1, args.minimum_review_rows_per_window),
+        minimum_review_coverage=max(0.0, args.minimum_review_coverage),
     )
     for predictions in selection_predictions.values():
         route_predictions(predictions, policy)
@@ -239,6 +275,7 @@ def main() -> None:
             and metrics["unseen_auto_assignment_rate"] <= args.maximum_unseen_auto_rate
             for metrics in selection_routing.values()
         )
+        and (not args.require_review_policy or policy.get("review_policy_found") is True)
     )
 
     report = {
@@ -289,6 +326,8 @@ def main() -> None:
         "development_gate": {
             "passed": selection_passed,
             "requires_every_selection_window": True,
+            "requires_review_policy": args.require_review_policy,
+            "review_policy_found": policy.get("review_policy_found") is True,
             "blocker": (
                 "new_untouched_holdout_required" if selection_passed
                 else "multi_window_routing_safety_gate_failed"
@@ -298,7 +337,7 @@ def main() -> None:
     artifact = {
         "schema_version": 1,
         "artifact_type": "assignee_rolling_open_set_routing_bundle",
-        "name": "assignee_rolling_open_set_logistic_v1",
+        "name": args.artifact_name,
         "deployment_status": "research_only",
         "ranker_name": ranker_artifact.get("name"),
         "ranker_requirements": {
@@ -319,9 +358,12 @@ def main() -> None:
             "target_auto_accuracy": args.target_auto_accuracy,
             "minimum_auto_coverage": args.minimum_auto_coverage,
             "maximum_unseen_auto_rate": args.maximum_unseen_auto_rate,
+            "target_review_accuracy": args.target_review_accuracy,
+            "minimum_review_rows_per_window": max(1, args.minimum_review_rows_per_window),
+            "minimum_review_coverage": max(0.0, args.minimum_review_coverage),
         },
         "approval_note": (
-            "Frozen after 2021 Q3 development. Requires one new untouched temporal holdout, "
+            f"Frozen after {windows[-1].name} development. Requires one new untouched temporal holdout, "
             "reviewed active roster, and explicit operator approval."
         ),
     }
@@ -391,6 +433,13 @@ def prepare_rolling_windows(
         history.extend(rows)
         history.sort(key=row_sort_key)
     return output
+
+
+def parse_named_path(value: str) -> tuple[str, Path]:
+    name, separator, raw_path = value.partition("=")
+    if not separator or not name.strip() or not raw_path.strip():
+        raise SystemExit(f"Expected NAME=PATH rolling window, got: {value}")
+    return name.strip(), Path(raw_path.strip())
 
 
 def score_window(

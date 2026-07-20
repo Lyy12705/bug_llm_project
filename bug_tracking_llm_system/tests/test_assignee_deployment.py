@@ -39,6 +39,7 @@ from modules.assignee_rolling_deployment import (  # noqa: E402
 from prepare_assignee_deployment import prediction_metrics, selective_routing_gate  # noqa: E402
 from prepare_assignee_rolling_deployment import (  # noqa: E402
     REQUIRED_HOLDOUT_CHECKS,
+    roster_not_expired,
     rolling_deployment_gates,
     unavailable_roster,
     unavailable_shadow_report,
@@ -132,9 +133,20 @@ class AssigneeDeploymentTests(unittest.TestCase):
         self.assertTrue(gates["new_holdout_gate_passed"])
         self.assertTrue(gates["all_required_holdout_checks_passed"])
         self.assertFalse(gates["active_roster_review_confirmed"])
+        self.assertFalse(gates["active_roster_not_expired"])
         self.assertFalse(gates["shadow_gate_passed"])
         self.assertFalse(gates["explicit_operator_approval"])
         self.assertFalse(all(gates.values()))
+
+    def test_roster_expiration_is_a_hard_deployment_gate(self) -> None:
+        now = datetime.fromisoformat("2026-07-20T00:00:00+00:00")
+        self.assertFalse(
+            roster_not_expired({"expires_at": "2026-07-19T23:59:59Z"}, now=now)
+        )
+        self.assertTrue(
+            roster_not_expired({"expires_at": "2026-07-21T00:00:00Z"}, now=now)
+        )
+        self.assertFalse(roster_not_expired({}, now=now))
 
     def test_rolling_bundle_loader_verifies_integrity_and_cross_artifact_contract(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

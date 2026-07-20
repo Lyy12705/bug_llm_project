@@ -370,6 +370,8 @@ def select_multi_window_routing_policy(
     minimum_review_confidence: float = 0.20,
     minimum_auto_rows_per_window: int = 1,
     minimum_accuracy_lower_bound: float = 0.0,
+    minimum_review_rows_per_window: int = 1,
+    minimum_review_coverage: float = 0.0,
 ) -> dict[str, Any]:
     if len(windows) < 2 or any(not rows for rows in windows.values()):
         raise ValueError("multi-window policy selection requires at least two non-empty windows")
@@ -455,7 +457,8 @@ def select_multi_window_routing_policy(
                 for name, values in arrays.items()
             }
             if not all(
-                row["top3_confirmation_rows"] > 0
+                row["top3_confirmation_rows"] >= minimum_review_rows_per_window
+                and row["top3_confirmation_rate"] >= minimum_review_coverage
                 and row["top3_confirmation_accuracy"] >= target_review_accuracy
                 for row in metrics.values()
             ):
@@ -465,6 +468,9 @@ def select_multi_window_routing_policy(
                 "open_set_review_threshold": round(float(review_risk_threshold), 8),
                 "t_low": round(float(threshold), 8),
                 "minimum_review_confidence": minimum_review_confidence,
+                "minimum_review_rows_per_window": minimum_review_rows_per_window,
+                "minimum_review_coverage": minimum_review_coverage,
+                "review_policy_found": True,
                 "review_window_metrics": metrics,
                 "minimum_window_review_rate": round(min(rates), 6),
                 "mean_window_review_rate": round(float(np.mean(rates)), 6),
@@ -485,6 +491,10 @@ def select_multi_window_routing_policy(
             "review_window_metrics": {},
             "minimum_window_review_rate": 0.0,
             "mean_window_review_rate": 0.0,
+            "minimum_review_rows_per_window": minimum_review_rows_per_window,
+            "minimum_review_coverage": minimum_review_coverage,
+            "review_policy_found": False,
+            "review_policy_blocker": "no_top3_policy_passed_every_development_window",
         }
     )
     return best

@@ -1,9 +1,9 @@
 # 負責人自動分流模型完成與部署計劃書
 
-- 文件版本：1.1
+- 文件版本：1.2
 - 制定日期：2026-07-19
 - 專題階段：負責人推薦與自動分流
-- 文件狀態：執行中（模型／政策 sealed holdout 已通過；roster 與 shadow 待完成）
+- 文件狀態：工程與新 holdout 驗證完成；正式部署仍待組織 roster 簽核、真實 shadow 證據與操作人核准
 
 ## 0. 2026-07-19 執行進度
 
@@ -17,6 +17,30 @@
 | M5 路由政策 | 已完成程式補強 | 85%／10%／低於 5%、最小樣本數、信賴區間、component floor 與 fail-closed reason code 已程式化 |
 | M6 Shadow | 評估器已完成 | 可讀 append-only feedback、去除同 ticket 舊事件、產出週報與 gate；仍需累積至少 500 筆或 28 天真實 feedback |
 | M7 最終驗收 | 技術 gate 已通過 | 2022 Q1 sealed holdout 第一次評估通過全部 hard gates；整體上線驗收仍缺 reviewed roster、真實 shadow gate 與人工核准 |
+
+## 0.2 2026-07-20 v2 執行結果
+
+本輪已將原本仍屬開發資料的 2022 Q1 改作 policy-selection window，重新建立不洩漏的 v2 協定：Ranker 僅讀取截至 2021-01-01 已可得標籤；2021 Q1 僅作 Ranker 選型；2021 Q2／Q3 僅擬合 calibration 與 open-set；2021 Q4／2022 Q1 僅選 routing policy。模型與門檻凍結後，才首次取得 2022 Q2 封存資料。
+
+Top-3 v2 實驗沒有達成 90%：Q4／2022 Q1 的 known-owner Top-3 分別為 66.82%／67.14%，找不到「每窗至少 30 筆、coverage 至少 1%、accuracy 至少 90%」的共同 confirmation policy。因此系統沒有降低門檻，而是把 Top-3 confirmation 關閉，低可信案件一律送 `manual_triage`；高可信 auto policy 在兩個開發窗仍同時通過 85%／10%／5% 門檻。
+
+凍結後的 2022 Q2 sealed holdout SHA-256 為 `38ea3b996b214edc7dc38eb29f02449311501b168b1ee16027000677c5e7bb10`。原始封存 3,000 筆，時間正規化與 overlap 排除後正式評估 2,803 筆；此資料已登記為一次性 release evidence，不得回頭調整 v2。
+
+| 指標 | 2022 Q2 v2 結果 | Gate |
+|---|---:|---|
+| Holdout rows | 2,803 | ≥ 2,500，通過 |
+| Auto rows | 721 | ≥ 250，通過 |
+| Auto accuracy | 87.79%（633/721） | ≥ 85%，通過 |
+| Auto accuracy Wilson 95% 下界 | 85.20% | ≥ 80%，通過 |
+| Auto coverage | 25.72% | ≥ 10%，通過 |
+| Unseen-owner auto rate | 4.00%（8/200） | < 5%，通過 |
+| Component point／confidence floor | 無達最小樣本門檻的失敗 component | 通過 |
+| Score drift | 未觸發 severe drift | 通過 |
+| Known-owner Top-3 | 66.73% | 低於 90%；confirmation 已關閉 |
+
+資料活動代理產生 165 位 active、99 位 inactive 的時間版本化 roster，技術 schema 與互斥檢查通過；但活動紀錄不能證明人員仍在職，因此 `review_confirmed=false`。Shadow evaluator 已升級為 provenance-checked v2：只有 `live_shadow`、唯一來源事件 ID、來源系統及合法預測／最終分派時間鏈的事件可通過，historical replay 與 synthetic 永遠不能作部署證據。目前真實 shadow 為 0 筆。
+
+最新 deployment candidate 因此正確保持 `research_only`。剩餘 blocker 為 `active_roster_review_confirmed`、`active_roster_not_expired`、`shadow_gate_passed`、`shadow_live_provenance_complete`、`shadow_unseen_labels_complete` 與 `explicit_operator_approval`；2022 時點的 roster 只可作 holdout 稽核，正式上線必須由維護者提供新的當期快照。這些是組織或真實運行證據，不能由離線程式偽造。
 
 Hardened gate 對既有 2021 Q4 holdout 的重跑結果如下。這是既有 holdout 的一致性驗證，不重新宣稱為全新 untouched holdout：
 

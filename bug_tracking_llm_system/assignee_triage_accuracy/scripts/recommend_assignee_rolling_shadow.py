@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -152,6 +153,7 @@ def main() -> None:
         "model_version": str(artifact.get("ranker_name") or ""),
         "policy_version": "rolling_open_set_policy_v1",
         "candidate_source_count": prediction["candidate_source_count"],
+        "decision_created_at": datetime.now(UTC).isoformat(),
     }
     payload = {
         "schema_version": 1,

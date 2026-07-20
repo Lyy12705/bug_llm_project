@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "method": "label_availability_as_of_history_v1",
+  "as_of": "2021-01-01T00:00:00+00:00",
+  "input_rows": 14521,
+  "eligible_rows": 11815,
+  "owners": 440,
+  "exclusions": {
+    "label_unavailable_at_cutoff": 2706
+  },
+  "temporal_order_valid": true,
+  "sources": [
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_10k_raw.jsonl",
+      "sha256": "441c8a7bbdb5004b0b73599d56365369acce30c70a5e744ceda2c3b832ea3e41",
+      "rows_loaded": 9119,
+      "rows_included": 9083,
+      "overlap_rows_excluded": 36
+    },
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl",
+      "sha256": "4d1ae1bb3e271afbef40ec2312cdcc05ac23529192291bcb94a8cb45c33d9e86",
+      "rows_loaded": 2756,
+      "rows_included": 2736,
+      "overlap_rows_excluded": 20
+    },
+    {
+      "path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl",
+      "sha256": "6c45c94b1ecc1fe5d9c420e94dcb5e39eb7c92dfe1a204f6fff7ba9c67ed5208",
+      "rows_loaded": 2713,
+      "rows_included": 2702,
+      "overlap_rows_excluded": 11
+    }
+  ]
+}

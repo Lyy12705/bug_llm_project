@@ -6,8 +6,10 @@ from pathlib import Path
 from typing import Any
 
 
-ASSIGNEE_FEEDBACK_SCHEMA_VERSION = 1
+ASSIGNEE_FEEDBACK_SCHEMA_VERSION = 2
+SUPPORTED_ASSIGNEE_FEEDBACK_SCHEMA_VERSIONS = {1, 2}
 MANUAL_TRIAGE = "manual_triage"
+FEEDBACK_ORIGINS = {"live_shadow", "historical_replay", "synthetic", "unspecified"}
 
 
 def build_assignee_feedback_record(
@@ -21,6 +23,10 @@ def build_assignee_feedback_record(
     created_at: str | None = None,
     known_owner: bool | None = None,
     owner_status: str = "",
+    feedback_origin: str = "unspecified",
+    source_system: str = "",
+    source_event_id: str = "",
+    prediction_created_at: str | None = None,
 ) -> dict[str, Any]:
     final_owner = _normalize_assignee(final_assignee)
     predicted_owner = _normalize_assignee(prediction.get("assignee"))
@@ -28,6 +34,9 @@ def build_assignee_feedback_record(
         "schema_version": ASSIGNEE_FEEDBACK_SCHEMA_VERSION,
         "event_type": "assignee_feedback",
         "created_at": created_at or datetime.now(timezone.utc).isoformat(),
+        "prediction_created_at": str(
+            prediction_created_at or prediction.get("decision_created_at") or ""
+        ),
         "ticket_id": str(ticket_json.get("ticket_id") or ticket_json.get("id") or ""),
         "ticket_created_at": str(
             ticket_json.get("created_at") or ticket_json.get("creation_time") or ticket_json.get("reported_at") or ""
@@ -61,6 +70,9 @@ def build_assignee_feedback_record(
         "accepted_auto_assignment": bool(final_owner and final_owner == predicted_owner and final_owner != MANUAL_TRIAGE),
         "reviewer": reviewer,
         "source": source,
+        "feedback_origin": str(feedback_origin or "unspecified").strip().lower(),
+        "source_system": str(source_system or "").strip(),
+        "source_event_id": str(source_event_id or "").strip(),
         "notes": notes,
     }
 
@@ -161,8 +173,11 @@ def merge_feedback_into_history(
 def _validate_feedback_record(record: dict[str, Any]) -> None:
     if record.get("event_type") != "assignee_feedback":
         raise ValueError("assignee feedback record must use event_type='assignee_feedback'")
-    if record.get("schema_version") != ASSIGNEE_FEEDBACK_SCHEMA_VERSION:
+    if record.get("schema_version") not in SUPPORTED_ASSIGNEE_FEEDBACK_SCHEMA_VERSIONS:
         raise ValueError("unsupported assignee feedback schema_version")
+    origin = str(record.get("feedback_origin") or "unspecified").strip().lower()
+    if origin not in FEEDBACK_ORIGINS:
+        raise ValueError("unsupported feedback_origin")
     if not _normalize_assignee(record.get("final_assignee")):
         raise ValueError("final_assignee is required")
     if not str(record.get("ticket_id") or "").strip():

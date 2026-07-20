@@ -26,7 +26,14 @@ class AssigneeShadowTests(unittest.TestCase):
                 {
                     "event_type": "assignee_feedback",
                     "ticket_id": f"T-{index}",
+                    "ticket_created_at": (start + timedelta(days=index % 30, minutes=index - 1)).isoformat(),
                     "created_at": (start + timedelta(days=index % 30, minutes=index)).isoformat(),
+                    "prediction_created_at": (
+                        start + timedelta(days=index % 30, minutes=index - 1)
+                    ).isoformat(),
+                    "feedback_origin": "live_shadow",
+                    "source_system": "bugzilla-production",
+                    "source_event_id": f"change-{index}",
                     "component": "core" if index % 2 == 0 else "ui",
                     "predicted_assignee": "dev-a@example.com" if auto else "manual_triage",
                     "routing_status": "auto_assign" if auto else "manual_triage_low_confidence",
@@ -46,6 +53,34 @@ class AssigneeShadowTests(unittest.TestCase):
         self.assertEqual(report["metrics"]["auto_assignment_coverage"], 0.2)
         self.assertEqual(report["metrics"]["unseen_auto_assignment_rate"], 0.02)
         self.assertGreaterEqual(report["metrics"]["auto_assignment_accuracy_ci95"]["lower"], 0.8)
+        self.assertTrue(report["deployment_gate"]["checks"]["live_shadow_provenance_complete"])
+
+    def test_historical_replay_cannot_pass_as_live_shadow_evidence(self) -> None:
+        rows = [
+            {
+                "ticket_id": "T-1",
+                "created_at": "2026-01-02T00:00:00Z",
+                "prediction_created_at": "2026-01-01T00:00:00Z",
+                "feedback_origin": "historical_replay",
+                "source_system": "offline-fixture",
+                "source_event_id": "replay-1",
+                "predicted_assignee": "dev@example.com",
+                "routing_status": "auto_assign",
+                "final_assignee": "dev@example.com",
+                "known_owner": True,
+            }
+        ]
+
+        report = evaluate_shadow_feedback(
+            rows,
+            minimum_rows=1,
+            minimum_observation_days=1,
+            minimum_auto_accuracy_lower_bound=0.0,
+        )
+
+        self.assertFalse(report["deployment_gate"]["passed"])
+        self.assertFalse(report["deployment_gate"]["checks"]["live_shadow_provenance_complete"])
+        self.assertEqual(report["metrics"]["feedback_origin_breakdown"], {"historical_replay": 1})
 
     def test_shadow_gate_fails_closed_when_known_owner_labels_are_missing(self) -> None:
         rows = [

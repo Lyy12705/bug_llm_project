@@ -27,7 +27,6 @@ from train_assignee_ltr import (
     build_semantic_backend,
     read_label_map,
 )
-from train_assignee_open_set import EXPECTED_RANKER_NAME
 from train_assignee_rolling_open_set import (
     DEFAULT_MODEL_DIR,
     RAW_DIR,
@@ -75,6 +74,13 @@ def main() -> None:
     parser.add_argument("--q1", type=Path, default=RAW_DIR / "bmo_public_future_2021q1_raw.jsonl")
     parser.add_argument("--q2", type=Path, default=RAW_DIR / "bmo_public_future_2021q2_raw.jsonl")
     parser.add_argument("--q3-2021", type=Path, default=RAW_DIR / "bmo_public_future_2021q3_raw.jsonl")
+    parser.add_argument(
+        "--frozen-history",
+        action="append",
+        default=[],
+        metavar="NAME=PATH",
+        help="Override legacy frozen history with the exact repeated NAME=PATH list in the artifact.",
+    )
     parser.add_argument(
         "--intermediate-history",
         action="append",
@@ -134,9 +140,6 @@ def main() -> None:
         raise SystemExit("Holdout evaluation expects a research-only artifact")
     if not artifact.get("development_gate", {}).get("passed"):
         raise SystemExit("The rolling development gate did not pass")
-    if artifact.get("ranker_name") != EXPECTED_RANKER_NAME:
-        raise SystemExit("Frozen bundle does not reference the expected shallow ranker")
-
     ranker_artifact = json.loads(
         (args.model_dir / "candidate_ltr_artifact.json").read_text(encoding="utf-8")
     )
@@ -154,7 +157,7 @@ def main() -> None:
     label_map = read_label_map(args.assignee_label_map)
     availability = read_label_availability(args.base_raw)
     base_history = apply_label_availability(load_rows(args.train, label_map), availability)
-    frozen_specs = [
+    legacy_frozen_specs = [
         ("validation", args.validation),
         ("2020_q3", args.q3),
         ("2020_q4", args.q4),
@@ -162,6 +165,11 @@ def main() -> None:
         ("2021_q2", args.q2),
         ("2021_q3", args.q3_2021),
     ]
+    frozen_specs = (
+        [parse_named_path(value) for value in args.frozen_history]
+        if args.frozen_history
+        else legacy_frozen_specs
+    )
     intermediate_specs = [parse_named_path(value) for value in args.intermediate_history]
     validate_window_names(frozen_specs, intermediate_specs, args.holdout_name)
     holdout_provenance = validate_holdout_manifest(args.holdout, args.holdout_manifest)

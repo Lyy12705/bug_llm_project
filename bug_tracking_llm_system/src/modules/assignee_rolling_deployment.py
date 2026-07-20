@@ -128,6 +128,10 @@ def _verify_cross_artifact_contract(config: dict[str, Any]) -> None:
         "review_confirmed"
     ) is not True:
         raise ValueError("a passed shadow report requires a reviewed active roster")
+    if shadow.get("deployment_gate", {}).get("passed") is True and shadow.get(
+        "deployment_gate", {}
+    ).get("checks", {}).get("live_shadow_provenance_complete") is not True:
+        raise ValueError("a passed shadow report requires complete live-shadow provenance")
 
 
 def _read_object(path: Path, label: str) -> dict[str, Any]:
