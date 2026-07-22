@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 import joblib
@@ -14,7 +15,8 @@ SRC_ROOT = SYSTEM_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from modules.assignee_deployment import load_active_assignee_set  # noqa: E402
+from modules.assignee_deployment import load_active_assignee_set, sha256_file  # noqa: E402
+from modules.assignee_operational_guard import evaluate_ticket_guard  # noqa: E402
 from modules.assignee_rolling_deployment import load_rolling_deployment_bundle  # noqa: E402
 
 from assignee_open_set_common import predict_portable_logistic, route_predictions  # noqa: E402
@@ -36,12 +38,13 @@ def main() -> None:
     )
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--ticket", type=Path, required=True)
+    parser.add_argument("--operational-state", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
     exit_code = 0
     try:
-        payload = route_ticket(args.bundle, args.ticket)
+        payload = route_ticket(args.bundle, args.ticket, args.operational_state)
     except Exception as exc:  # fail closed at the process boundary
         payload = fail_closed_payload(exc)
         exit_code = 2
@@ -52,7 +55,10 @@ def main() -> None:
         raise SystemExit(exit_code)
 
 
-def route_ticket(bundle_path: Path, ticket_path: Path) -> dict[str, Any]:
+def route_ticket(
+    bundle_path: Path, ticket_path: Path, operational_state_path: Path
+) -> dict[str, Any]:
+    started_at = perf_counter()
     bundle = load_rolling_deployment_bundle(bundle_path)
     config = bundle["pipeline_config"]
     routing = read_object(config["assignee_rolling_routing_artifact_path"], "routing artifact")
@@ -77,6 +83,12 @@ def route_ticket(bundle_path: Path, ticket_path: Path) -> dict[str, Any]:
     query_time = parse_timestamp(row_timestamp(query))
     if query_time is None:
         raise ValueError("ticket requires a valid created_at/creation_time timestamp")
+    operational_state = read_object(operational_state_path, "operational state")
+    guard = evaluate_ticket_guard(
+        operational_state,
+        bundle_sha256=sha256_file(bundle_path),
+        ticket_id=str(query["ticket_id"]),
+    )
 
     history = load_rows(config["assignee_dataset_path"], {})
     history, withheld = history_available_before(history, query_time)
@@ -115,8 +127,13 @@ def route_ticket(bundle_path: Path, ticket_path: Path) -> dict[str, Any]:
     if not ranked_active:
         routing_status = "manual_triage_invalid_owner"
         reason = "no_active_ranked_candidate"
-    auto_assign = routing_status == "auto_assign" and predicted in active
+    model_would_auto_assign = routing_status == "auto_assign" and predicted in active
+    auto_assign = model_would_auto_assign and guard["auto_assignment_authorized"]
+    if model_would_auto_assign and not guard["auto_assignment_authorized"]:
+        routing_status = "manual_triage_rollout_holdback"
+        reason = str(guard["reason"])
     suggested = predicted if predicted in active else (ranked_active[0] if ranked_active else "")
+    prediction_latency_ms = round((perf_counter() - started_at) * 1000.0, 3)
     return {
         "schema_version": 1,
         "execution_mode": "production_routing_decision",
@@ -126,6 +143,7 @@ def route_ticket(bundle_path: Path, ticket_path: Path) -> dict[str, Any]:
         "semantic_backend": semantic.status,
         "bundle_created_at": bundle.get("created_at"),
         "bundle_expires_at": bundle.get("expires_at"),
+        "operational_guard": guard,
         "assignee_recommendation": {
             "assignee": predicted if auto_assign else "manual_triage",
             "suggested_assignee": suggested,
@@ -137,10 +155,12 @@ def route_ticket(bundle_path: Path, ticket_path: Path) -> dict[str, Any]:
             "fallback_reason": reason,
             "decision_reason_code": reason,
             "auto_assignment_authorized": auto_assign,
+            "model_would_auto_assign": model_would_auto_assign,
             "needs_manual_triage": not auto_assign,
             "model_version": str(routing.get("ranker_name") or ""),
             "policy_version": "rolling_open_set_policy_v1",
             "candidate_source_count": prediction["candidate_source_count"],
+            "prediction_latency_ms": prediction_latency_ms,
         },
     }
 

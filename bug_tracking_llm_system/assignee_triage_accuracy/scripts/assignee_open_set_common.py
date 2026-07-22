@@ -273,6 +273,7 @@ def select_routing_policy(
     target_review_accuracy: float,
     minimum_auto_rows: int = 1,
     minimum_accuracy_lower_bound: float = 0.0,
+    minimum_candidate_source_count: int = 0,
 ) -> dict[str, Any]:
     if not rows:
         raise ValueError("routing policy selection requires predictions")
@@ -281,7 +282,13 @@ def select_routing_policy(
     unknown_total = sum(not row["known_owner"] for row in rows)
     best: dict[str, Any] | None = None
     for risk_threshold in risk_values:
-        eligible = [row for row in rows if row["open_set_probability"] < risk_threshold]
+        eligible = [
+            row
+            for row in rows
+            if row["open_set_probability"] < risk_threshold
+            and int(safe_float(row.get("candidate_source_count")))
+            >= minimum_candidate_source_count
+        ]
         for high_threshold in confidence_values:
             accepted = [row for row in eligible if row["calibrated_probability"] >= high_threshold]
             if not accepted:
@@ -311,6 +318,7 @@ def select_routing_policy(
                     "unseen_auto_assignment_rate": round(unseen_rate, 6),
                     "minimum_auto_rows": minimum_auto_rows,
                     "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
+                    "minimum_candidate_source_count": minimum_candidate_source_count,
                 }
                 if best is None or (
                     candidate["auto_assignment_coverage"],
@@ -336,6 +344,8 @@ def select_routing_policy(
         for row in rows
         if row["open_set_probability"] < best["open_set_threshold"]
         and row["calibrated_probability"] < best["t_high"]
+        and int(safe_float(row.get("candidate_source_count")))
+        >= minimum_candidate_source_count
     ]
     low = best["t_high"]
     review_rows = 0
@@ -372,6 +382,7 @@ def select_multi_window_routing_policy(
     minimum_accuracy_lower_bound: float = 0.0,
     minimum_review_rows_per_window: int = 1,
     minimum_review_coverage: float = 0.0,
+    minimum_candidate_source_count: int = 0,
 ) -> dict[str, Any]:
     if len(windows) < 2 or any(not rows for rows in windows.values()):
         raise ValueError("multi-window policy selection requires at least two non-empty windows")
@@ -387,7 +398,12 @@ def select_multi_window_routing_policy(
     for risk_threshold in risk_values:
         for high_threshold in confidence_values:
             metrics = {
-                name: _auto_metrics(values, risk_threshold, high_threshold)
+                name: _auto_metrics(
+                    values,
+                    risk_threshold,
+                    high_threshold,
+                    minimum_candidate_source_count,
+                )
                 for name, values in arrays.items()
             }
             if not all(
@@ -410,6 +426,7 @@ def select_multi_window_routing_policy(
                 "minimum_high_confidence": minimum_high_confidence,
                 "minimum_auto_rows_per_window": minimum_auto_rows_per_window,
                 "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
+                "minimum_candidate_source_count": minimum_candidate_source_count,
                 "selection_window_metrics": metrics,
                 "minimum_window_coverage": round(min(coverages), 6),
                 "mean_window_coverage": round(float(np.mean(coverages)), 6),
@@ -453,6 +470,7 @@ def select_multi_window_routing_policy(
                     review_risk_threshold,
                     best["t_high"],
                     threshold,
+                    minimum_candidate_source_count,
                 )
                 for name, values in arrays.items()
             }
@@ -577,6 +595,7 @@ def deployment_gate(
     minimum_component_auto_rows: int = 30,
     minimum_component_accuracy: float = 0.0,
     minimum_component_accuracy_lower_bound: float = 0.0,
+    maximum_unseen_rate_upper_bound: float | None = None,
 ) -> dict[str, Any]:
     component_failures = {
         name: values
@@ -604,6 +623,11 @@ def deployment_gate(
         "component_accuracy_floor": not component_failures,
         "component_accuracy_confidence_floor": not component_confidence_failures,
     }
+    if maximum_unseen_rate_upper_bound is not None:
+        checks["unseen_auto_assignment_rate_confidence_upper_bound"] = (
+            metrics.get("unseen_auto_assignment_rate_ci95", {"upper": 1.0})["upper"]
+            < maximum_unseen_rate_upper_bound
+        )
     failed_checks = [name for name, passed in checks.items() if not passed]
     return {
         "passed": all(checks.values()),
@@ -621,6 +645,7 @@ def deployment_gate(
             "minimum_component_auto_rows": minimum_component_auto_rows,
             "minimum_component_accuracy": minimum_component_accuracy,
             "minimum_component_accuracy_lower_bound": minimum_component_accuracy_lower_bound,
+            "maximum_unseen_rate_upper_bound": maximum_unseen_rate_upper_bound,
         },
         "blocker": (
             "explicit_operator_and_roster_approval_required"
@@ -858,11 +883,33 @@ def _routing_arrays(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
         "correct": np.asarray([bool(row["is_top1_correct"]) for row in rows]),
         "top3": np.asarray([bool(row["is_top3_correct"]) for row in rows]),
         "unknown": np.asarray([not bool(row["known_owner"]) for row in rows]),
+        "source_count": np.asarray(
+            [
+                max(
+                    0,
+                    int(
+                        safe_float(
+                            row.get("candidate_source_count", row.get("source_count"))
+                        )
+                    ),
+                )
+                for row in rows
+            ]
+        ),
     }
 
 
-def _auto_metrics(values: dict[str, np.ndarray], risk_threshold: float, high_threshold: float) -> dict[str, Any]:
-    accepted = (values["risk"] < risk_threshold) & (values["confidence"] >= high_threshold)
+def _auto_metrics(
+    values: dict[str, np.ndarray],
+    risk_threshold: float,
+    high_threshold: float,
+    minimum_candidate_source_count: int = 0,
+) -> dict[str, Any]:
+    accepted = (
+        (values["risk"] < risk_threshold)
+        & (values["confidence"] >= high_threshold)
+        & (values["source_count"] >= minimum_candidate_source_count)
+    )
     accepted_rows = int(np.sum(accepted))
     correct_rows = int(np.sum(values["correct"] & accepted))
     unknown_rows = int(np.sum(values["unknown"]))
@@ -884,12 +931,19 @@ def _review_metrics(
     review_risk_threshold: float,
     high_threshold: float,
     low_threshold: float,
+    minimum_candidate_source_count: int = 0,
 ) -> dict[str, Any]:
-    auto = (values["risk"] < auto_risk_threshold) & (values["confidence"] >= high_threshold)
+    source_eligible = values["source_count"] >= minimum_candidate_source_count
+    auto = (
+        (values["risk"] < auto_risk_threshold)
+        & (values["confidence"] >= high_threshold)
+        & source_eligible
+    )
     accepted = (
         ~auto
         & (values["risk"] < review_risk_threshold)
         & (values["confidence"] >= low_threshold)
+        & source_eligible
     )
     accepted_rows = int(np.sum(accepted))
     return {

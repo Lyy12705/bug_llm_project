@@ -89,6 +89,7 @@ def main() -> None:
     parser.add_argument("--target-review-accuracy", type=float, default=0.90)
     parser.add_argument("--minimum-auto-coverage", type=float, default=0.10)
     parser.add_argument("--maximum-unseen-auto-rate", type=float, default=0.05)
+    parser.add_argument("--minimum-candidate-source-count", type=int, default=2)
     parser.add_argument("--sbert-model", default="sentence-transformers/all-MiniLM-L6-v2")
     parser.add_argument("--seed", type=int, default=3407)
     args = parser.parse_args()
@@ -173,6 +174,7 @@ def main() -> None:
         minimum_auto_coverage=args.minimum_auto_coverage,
         maximum_unseen_auto_rate=args.maximum_unseen_auto_rate,
         target_review_accuracy=args.target_review_accuracy,
+        minimum_candidate_source_count=max(0, args.minimum_candidate_source_count),
     )
     route_predictions(development_predictions, policy)
     development_routing = routing_metrics(development_predictions)

@@ -20,6 +20,21 @@ ROLLING_PATH_KEYS = {
     "assignee_holdout_report_path",
     "assignee_shadow_report_path",
 }
+SYSTEM_ROOT = Path(__file__).resolve().parents[2]
+RUNTIME_SOURCE_PATHS = {
+    "assignee_open_set_common": SYSTEM_ROOT
+    / "assignee_triage_accuracy"
+    / "scripts"
+    / "assignee_open_set_common.py",
+    "recommend_assignee_rolling": SYSTEM_ROOT
+    / "assignee_triage_accuracy"
+    / "scripts"
+    / "recommend_assignee_rolling.py",
+    "assignee_rolling_deployment": Path(__file__).resolve(),
+    "assignee_operational_guard": Path(__file__).resolve().with_name(
+        "assignee_operational_guard.py"
+    ),
+}
 
 
 def load_rolling_deployment_bundle(
@@ -58,6 +73,7 @@ def load_rolling_deployment_bundle(
     if verify_integrity:
         _verify_manifest(payload, resolved, root)
         _verify_cross_artifact_contract(resolved)
+        _verify_runtime_contract(payload)
     if require_approved:
         _validate_approval(payload, now=now)
     return {**payload, "pipeline_config": resolved}
@@ -71,6 +87,8 @@ def _validate_approval(payload: dict[str, Any], *, now: datetime | None) -> None
     gates = payload.get("approval_gates")
     if not isinstance(gates, dict) or not gates or any(value is not True for value in gates.values()):
         raise ValueError("rolling deployment bundle has failed or incomplete approval gates")
+    if not isinstance(payload.get("runtime_contract"), dict):
+        raise ValueError("approved rolling deployment bundle requires a runtime contract")
     expires_at = _timestamp(payload.get("expires_at"))
     if expires_at is None:
         raise ValueError("approved rolling deployment bundle requires a valid expires_at")
@@ -104,6 +122,25 @@ def _verify_manifest(payload: dict[str, Any], config: dict[str, Any], root: Path
             raise ValueError(f"rolling deployment artifact hash mismatch: {key}")
 
 
+def current_runtime_contract() -> dict[str, str]:
+    return {name: sha256_file(path) for name, path in sorted(RUNTIME_SOURCE_PATHS.items())}
+
+
+def _verify_runtime_contract(payload: dict[str, Any]) -> None:
+    contract = payload.get("runtime_contract")
+    if contract is None and payload.get("deployment_status") != "approved":
+        return
+    if not isinstance(contract, dict) or set(contract) != set(RUNTIME_SOURCE_PATHS):
+        raise ValueError("rolling deployment runtime contract is missing or incomplete")
+    current = current_runtime_contract()
+    for name, digest in current.items():
+        expected = str(contract.get(name) or "")
+        if not re.fullmatch(r"[0-9a-f]{64}", expected):
+            raise ValueError(f"rolling deployment runtime hash is invalid: {name}")
+        if expected != digest:
+            raise ValueError(f"rolling deployment runtime hash mismatch: {name}")
+
+
 def _verify_cross_artifact_contract(config: dict[str, Any]) -> None:
     roster = _read_object(Path(config["assignee_active_roster_path"]), "active roster")
     ranker = _read_object(Path(config["assignee_ranker_artifact_path"]), "ranker artifact")
@@ -132,6 +169,21 @@ def _verify_cross_artifact_contract(config: dict[str, Any]) -> None:
         "deployment_gate", {}
     ).get("checks", {}).get("live_shadow_provenance_complete") is not True:
         raise ValueError("a passed shadow report requires complete live-shadow provenance")
+    if shadow.get("deployment_gate", {}).get("passed") is True:
+        checks = shadow.get("deployment_gate", {}).get("checks", {})
+        required = {
+            "consecutive_weeks_pass_primary_rates",
+            "unseen_auto_assignment_rate_confidence_upper_bound",
+            "prediction_latency_complete",
+            "prediction_latency_p95",
+            "invalid_event_rate",
+        }
+        missing = sorted(name for name in required if checks.get(name) is not True)
+        if missing:
+            raise ValueError(
+                "a passed shadow report is missing operational safety checks: "
+                + ", ".join(missing)
+            )
 
 
 def _read_object(path: Path, label: str) -> dict[str, Any]:

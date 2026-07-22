@@ -5,6 +5,7 @@ import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 import joblib
@@ -44,6 +45,7 @@ from train_assignee_ltr import DEFAULT_DATA_DIR  # noqa: E402
 
 
 def main() -> None:
+    started_at = perf_counter()
     parser = argparse.ArgumentParser(
         description="Run the frozen rolling LTR policy in shadow mode without changing the real assignee."
     )
@@ -154,6 +156,7 @@ def main() -> None:
         "policy_version": "rolling_open_set_policy_v1",
         "candidate_source_count": prediction["candidate_source_count"],
         "decision_created_at": datetime.now(UTC).isoformat(),
+        "prediction_latency_ms": round((perf_counter() - started_at) * 1000.0, 3),
     }
     payload = {
         "schema_version": 1,

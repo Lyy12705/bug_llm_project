@@ -104,6 +104,7 @@ class AssigneeDeploymentTests(unittest.TestCase):
         routing = {
             "ranker_name": "ranker-v1",
             "development_gate": {"passed": True},
+            "routing_policy": {"minimum_candidate_source_count": 2},
         }
         holdout = {
             "protocol": {
@@ -116,6 +117,9 @@ class AssigneeDeploymentTests(unittest.TestCase):
                 "passed": True,
                 "score_drift_check": True,
                 "checks": {name: True for name in REQUIRED_HOLDOUT_CHECKS},
+            },
+            "routing_before_drift_gate": {
+                "unseen_auto_assignment_rate_ci95": {"lower": 0.0, "upper": 0.04}
             },
         }
 

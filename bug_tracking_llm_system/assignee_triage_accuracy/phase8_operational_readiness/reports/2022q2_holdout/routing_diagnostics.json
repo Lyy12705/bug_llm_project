@@ -1,0 +1,689 @@
+{
+  "schema_version": 1,
+  "method": "posthoc_assignee_holdout_diagnostics_v1",
+  "generated_at": "2026-07-22T06:59:26.864336+00:00",
+  "intended_use": "diagnosis_only_not_model_or_policy_selection",
+  "rows": 2803,
+  "known_owner_rows": 2603,
+  "unseen_owner_rows": 200,
+  "candidate_recall": {
+    "candidate_recall_at_10": 0.763468,
+    "known_owner_candidate_recall_at_10": 0.822128,
+    "candidate_recall_at_30": 0.829468,
+    "known_owner_candidate_recall_at_30": 0.8932,
+    "candidate_recall_at_50": 0.843739,
+    "known_owner_candidate_recall_at_50": 0.908567
+  },
+  "error_taxonomy": {
+    "candidate_miss": 238,
+    "correct_top1": 1209,
+    "ranking_miss": 1156,
+    "unseen_owner_auto_error": 8,
+    "unseen_owner_manual_protected": 192
+  },
+  "routing_outcomes": {
+    "auto_correct": 633,
+    "auto_error": 88,
+    "manual_fallback_on_incorrect_top1": 1506,
+    "policy_abstain_on_correct_top1": 576
+  },
+  "component_metrics_top30_by_volume": {
+    "dom: core & html": {
+      "rows": 251,
+      "auto_rows": 173,
+      "auto_coverage": 0.689243,
+      "auto_accuracy": 0.988439,
+      "auto_accuracy_ci95": {
+        "lower": 0.958834,
+        "upper": 0.996824
+      },
+      "top1_accuracy": 0.792829
+    },
+    "layout": {
+      "rows": 135,
+      "auto_rows": 92,
+      "auto_coverage": 0.681481,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.959919,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.718519
+    },
+    "messaging system": {
+      "rows": 116,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.155172
+    },
+    "javascript engine": {
+      "rows": 114,
+      "auto_rows": 4,
+      "auto_coverage": 0.035088,
+      "auto_accuracy": 0.75,
+      "auto_accuracy_ci95": {
+        "lower": 0.300642,
+        "upper": 0.954413
+      },
+      "top1_accuracy": 0.254386
+    },
+    "css parsing and computation": {
+      "rows": 106,
+      "auto_rows": 55,
+      "auto_coverage": 0.518868,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.934715,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.584906
+    },
+    "graphics: webrender": {
+      "rows": 103,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.368932
+    },
+    "disability access apis": {
+      "rows": 92,
+      "auto_rows": 22,
+      "auto_coverage": 0.23913,
+      "auto_accuracy": 0.318182,
+      "auto_accuracy_ci95": {
+        "lower": 0.163606,
+        "upper": 0.526814
+      },
+      "top1_accuracy": 0.434783
+    },
+    "graphics": {
+      "rows": 76,
+      "auto_rows": 1,
+      "auto_coverage": 0.013158,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.206549,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.355263
+    },
+    "general": {
+      "rows": 72,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.152778
+    },
+    "audio/video: playback": {
+      "rows": 71,
+      "auto_rows": 9,
+      "auto_coverage": 0.126761,
+      "auto_accuracy": 0.555556,
+      "auto_accuracy_ci95": {
+        "lower": 0.266651,
+        "upper": 0.811221
+      },
+      "top1_accuracy": 0.253521
+    },
+    "javascript engine: jit": {
+      "rows": 65,
+      "auto_rows": 3,
+      "auto_coverage": 0.046154,
+      "auto_accuracy": 0.666667,
+      "auto_accuracy_ci95": {
+        "lower": 0.20766,
+        "upper": 0.938508
+      },
+      "top1_accuracy": 0.492308
+    },
+    "widget: gtk": {
+      "rows": 58,
+      "auto_rows": 27,
+      "auto_coverage": 0.465517,
+      "auto_accuracy": 0.481481,
+      "auto_accuracy_ci95": {
+        "lower": 0.307432,
+        "upper": 0.660144
+      },
+      "top1_accuracy": 0.362069
+    },
+    "dom: security": {
+      "rows": 54,
+      "auto_rows": 23,
+      "auto_coverage": 0.425926,
+      "auto_accuracy": 0.956522,
+      "auto_accuracy_ci95": {
+        "lower": 0.790088,
+        "upper": 0.992283
+      },
+      "top1_accuracy": 0.574074
+    },
+    "theme": {
+      "rows": 47,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.170213
+    },
+    "privacy: anti-tracking": {
+      "rows": 46,
+      "auto_rows": 1,
+      "auto_coverage": 0.021739,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.206549,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.282609
+    },
+    "xpcom": {
+      "rows": 38,
+      "auto_rows": 3,
+      "auto_coverage": 0.078947,
+      "auto_accuracy": 0.333333,
+      "auto_accuracy_ci95": {
+        "lower": 0.061492,
+        "upper": 0.79234
+      },
+      "top1_accuracy": 0.210526
+    },
+    "panning and zooming": {
+      "rows": 37,
+      "auto_rows": 5,
+      "auto_coverage": 0.135135,
+      "auto_accuracy": 0.4,
+      "auto_accuracy_ci95": {
+        "lower": 0.117621,
+        "upper": 0.769276
+      },
+      "top1_accuracy": 0.351351
+    },
+    "javascript: webassembly": {
+      "rows": 36,
+      "auto_rows": 6,
+      "auto_coverage": 0.166667,
+      "auto_accuracy": 0.333333,
+      "auto_accuracy_ci95": {
+        "lower": 0.096771,
+        "upper": 0.700007
+      },
+      "top1_accuracy": 0.305556
+    },
+    "xpconnect": {
+      "rows": 32,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.03125
+    },
+    "address bar": {
+      "rows": 31,
+      "auto_rows": 13,
+      "auto_coverage": 0.419355,
+      "auto_accuracy": 0.769231,
+      "auto_accuracy_ci95": {
+        "lower": 0.497436,
+        "upper": 0.918205
+      },
+      "top1_accuracy": 0.451613
+    },
+    "graphics: canvas2d": {
+      "rows": 31,
+      "auto_rows": 2,
+      "auto_coverage": 0.064516,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.34238,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.419355
+    },
+    "webrtc": {
+      "rows": 31,
+      "auto_rows": 8,
+      "auto_coverage": 0.258065,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.675592,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.483871
+    },
+    "dom: editor": {
+      "rows": 30,
+      "auto_rows": 28,
+      "auto_coverage": 0.933333,
+      "auto_accuracy": 0.928571,
+      "auto_accuracy_ci95": {
+        "lower": 0.773546,
+        "upper": 0.980188
+      },
+      "top1_accuracy": 0.9
+    },
+    "layout: columns": {
+      "rows": 30,
+      "auto_rows": 28,
+      "auto_coverage": 0.933333,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.879357,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.933333
+    },
+    "ipc": {
+      "rows": 29,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.448276
+    },
+    "networking": {
+      "rows": 28,
+      "auto_rows": 4,
+      "auto_coverage": 0.142857,
+      "auto_accuracy": 0.25,
+      "auto_accuracy_ci95": {
+        "lower": 0.045587,
+        "upper": 0.699358
+      },
+      "top1_accuracy": 0.178571
+    },
+    "security: psm": {
+      "rows": 27,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.444444
+    },
+    "security: process sandboxing": {
+      "rows": 25,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.64
+    },
+    "dom: networking": {
+      "rows": 24,
+      "auto_rows": 15,
+      "auto_coverage": 0.625,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.796117,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.666667
+    },
+    "css transitions and animations": {
+      "rows": 23,
+      "auto_rows": 9,
+      "auto_coverage": 0.391304,
+      "auto_accuracy": 1.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.700855,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.565217
+    }
+  },
+  "candidate_source_count_metrics": {
+    "0": {
+      "rows": 112,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.0
+    },
+    "1": {
+      "rows": 78,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.038462
+    },
+    "2": {
+      "rows": 170,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.158824
+    },
+    "3": {
+      "rows": 221,
+      "auto_rows": 0,
+      "auto_coverage": 0.0,
+      "auto_accuracy": 0.0,
+      "auto_accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "top1_accuracy": 0.158371
+    },
+    "4": {
+      "rows": 658,
+      "auto_rows": 16,
+      "auto_coverage": 0.024316,
+      "auto_accuracy": 0.4375,
+      "auto_accuracy_ci95": {
+        "lower": 0.230987,
+        "upper": 0.668214
+      },
+      "top1_accuracy": 0.270517
+    },
+    "5": {
+      "rows": 960,
+      "auto_rows": 179,
+      "auto_coverage": 0.186458,
+      "auto_accuracy": 0.614525,
+      "auto_accuracy_ci95": {
+        "lower": 0.541531,
+        "upper": 0.682707
+      },
+      "top1_accuracy": 0.429167
+    },
+    "6": {
+      "rows": 129,
+      "auto_rows": 63,
+      "auto_coverage": 0.488372,
+      "auto_accuracy": 0.857143,
+      "auto_accuracy_ci95": {
+        "lower": 0.750254,
+        "upper": 0.922981
+      },
+      "top1_accuracy": 0.705426
+    },
+    "7": {
+      "rows": 475,
+      "auto_rows": 463,
+      "auto_coverage": 0.974737,
+      "auto_accuracy": 0.99784,
+      "auto_accuracy_ci95": {
+        "lower": 0.987869,
+        "upper": 0.999619
+      },
+      "top1_accuracy": 0.974737
+    }
+  },
+  "risk_coverage_curve": [
+    {
+      "confidence_threshold": 0.0,
+      "auto_rows": 1431,
+      "coverage": 0.510524,
+      "accuracy": 0.628931,
+      "accuracy_ci95": {
+        "lower": 0.603587,
+        "upper": 0.653584
+      },
+      "unseen_auto_rate": 0.31
+    },
+    {
+      "confidence_threshold": 0.05,
+      "auto_rows": 1408,
+      "coverage": 0.502319,
+      "accuracy": 0.638494,
+      "accuracy_ci95": {
+        "lower": 0.613054,
+        "upper": 0.663181
+      },
+      "unseen_auto_rate": 0.295
+    },
+    {
+      "confidence_threshold": 0.1,
+      "auto_rows": 1374,
+      "coverage": 0.490189,
+      "accuracy": 0.652838,
+      "accuracy_ci95": {
+        "lower": 0.627271,
+        "upper": 0.677553
+      },
+      "unseen_auto_rate": 0.275
+    },
+    {
+      "confidence_threshold": 0.15,
+      "auto_rows": 1320,
+      "coverage": 0.470924,
+      "accuracy": 0.67197,
+      "accuracy_ci95": {
+        "lower": 0.646175,
+        "upper": 0.696766
+      },
+      "unseen_auto_rate": 0.245
+    },
+    {
+      "confidence_threshold": 0.2,
+      "auto_rows": 1268,
+      "coverage": 0.452372,
+      "accuracy": 0.692429,
+      "accuracy_ci95": {
+        "lower": 0.666479,
+        "upper": 0.717217
+      },
+      "unseen_auto_rate": 0.215
+    },
+    {
+      "confidence_threshold": 0.25,
+      "auto_rows": 1210,
+      "coverage": 0.43168,
+      "accuracy": 0.704132,
+      "accuracy_ci95": {
+        "lower": 0.677801,
+        "upper": 0.729171
+      },
+      "unseen_auto_rate": 0.195
+    },
+    {
+      "confidence_threshold": 0.3,
+      "auto_rows": 1153,
+      "coverage": 0.411345,
+      "accuracy": 0.719861,
+      "accuracy_ci95": {
+        "lower": 0.693243,
+        "upper": 0.745019
+      },
+      "unseen_auto_rate": 0.185
+    },
+    {
+      "confidence_threshold": 0.35,
+      "auto_rows": 1094,
+      "coverage": 0.390296,
+      "accuracy": 0.736746,
+      "accuracy_ci95": {
+        "lower": 0.709853,
+        "upper": 0.761982
+      },
+      "unseen_auto_rate": 0.155
+    },
+    {
+      "confidence_threshold": 0.4,
+      "auto_rows": 1036,
+      "coverage": 0.369604,
+      "accuracy": 0.751931,
+      "accuracy_ci95": {
+        "lower": 0.724733,
+        "upper": 0.777267
+      },
+      "unseen_auto_rate": 0.145
+    },
+    {
+      "confidence_threshold": 0.45,
+      "auto_rows": 970,
+      "coverage": 0.346058,
+      "accuracy": 0.778351,
+      "accuracy_ci95": {
+        "lower": 0.751142,
+        "upper": 0.803363
+      },
+      "unseen_auto_rate": 0.115
+    },
+    {
+      "confidence_threshold": 0.5,
+      "auto_rows": 924,
+      "coverage": 0.329647,
+      "accuracy": 0.791126,
+      "accuracy_ci95": {
+        "lower": 0.763736,
+        "upper": 0.816104
+      },
+      "unseen_auto_rate": 0.105
+    },
+    {
+      "confidence_threshold": 0.55,
+      "auto_rows": 858,
+      "coverage": 0.306101,
+      "accuracy": 0.814685,
+      "accuracy_ci95": {
+        "lower": 0.787304,
+        "upper": 0.839261
+      },
+      "unseen_auto_rate": 0.09
+    },
+    {
+      "confidence_threshold": 0.6,
+      "auto_rows": 804,
+      "coverage": 0.286836,
+      "accuracy": 0.835821,
+      "accuracy_ci95": {
+        "lower": 0.808629,
+        "upper": 0.859819
+      },
+      "unseen_auto_rate": 0.075
+    },
+    {
+      "confidence_threshold": 0.65,
+      "auto_rows": 746,
+      "coverage": 0.266143,
+      "accuracy": 0.86059,
+      "accuracy_ci95": {
+        "lower": 0.833882,
+        "upper": 0.883603
+      },
+      "unseen_auto_rate": 0.045
+    },
+    {
+      "confidence_threshold": 0.7,
+      "auto_rows": 682,
+      "coverage": 0.243311,
+      "accuracy": 0.904692,
+      "accuracy_ci95": {
+        "lower": 0.880333,
+        "upper": 0.924518
+      },
+      "unseen_auto_rate": 0.025
+    },
+    {
+      "confidence_threshold": 0.75,
+      "auto_rows": 639,
+      "coverage": 0.22797,
+      "accuracy": 0.931142,
+      "accuracy_ci95": {
+        "lower": 0.908823,
+        "upper": 0.948309
+      },
+      "unseen_auto_rate": 0.02
+    },
+    {
+      "confidence_threshold": 0.8,
+      "auto_rows": 593,
+      "coverage": 0.211559,
+      "accuracy": 0.959528,
+      "accuracy_ci95": {
+        "lower": 0.940486,
+        "upper": 0.972654
+      },
+      "unseen_auto_rate": 0.015
+    },
+    {
+      "confidence_threshold": 0.85,
+      "auto_rows": 530,
+      "coverage": 0.189083,
+      "accuracy": 0.977358,
+      "accuracy_ci95": {
+        "lower": 0.960845,
+        "upper": 0.987002
+      },
+      "unseen_auto_rate": 0.01
+    },
+    {
+      "confidence_threshold": 0.9,
+      "auto_rows": 380,
+      "coverage": 0.135569,
+      "accuracy": 0.986842,
+      "accuracy_ci95": {
+        "lower": 0.969573,
+        "upper": 0.994367
+      },
+      "unseen_auto_rate": 0.005
+    },
+    {
+      "confidence_threshold": 0.95,
+      "auto_rows": 286,
+      "coverage": 0.102034,
+      "accuracy": 0.996503,
+      "accuracy_ci95": {
+        "lower": 0.980464,
+        "upper": 0.999383
+      },
+      "unseen_auto_rate": 0.0
+    },
+    {
+      "confidence_threshold": 1.0,
+      "auto_rows": 0,
+      "coverage": 0.0,
+      "accuracy": 0.0,
+      "accuracy_ci95": {
+        "lower": 0.0,
+        "upper": 1.0
+      },
+      "unseen_auto_rate": 0.0
+    }
+  ],
+  "limitations": [
+    "This report is post-holdout diagnosis and must not tune the frozen model or v2 policy.",
+    "Offline predictions contain no service latency; latency is enforced by the live shadow gate."
+  ]
+}

@@ -3,13 +3,14 @@
   "artifact_type": "assignee_rolling_deployment_bundle",
   "deployment_status": "research_only",
   "approval_gate_passed": false,
-  "created_at": "2026-07-20T10:05:24.200287+00:00",
-  "expires_at": "2026-08-19T10:05:24.200287+00:00",
+  "created_at": "2026-07-22T07:09:11.912485+00:00",
+  "expires_at": "2026-08-21T07:09:11.912485+00:00",
   "approval_gates": {
     "frozen_development_gate_passed": true,
     "ranker_artifact_matches": true,
     "new_holdout_gate_passed": true,
-    "all_required_holdout_checks_passed": true,
+    "all_required_holdout_checks_passed": false,
+    "holdout_unseen_confidence_upper_bound": false,
     "holdout_manifest_verified": true,
     "holdout_not_used_for_fitting": true,
     "holdout_not_used_for_threshold_selection": true,
@@ -17,6 +18,9 @@
     "holdout_matches_routing_artifact": true,
     "history_snapshot_available": true,
     "history_snapshot_not_used_for_refit": true,
+    "ranker_model_size_budget": true,
+    "history_snapshot_size_budget": true,
+    "routing_minimum_candidate_sources": false,
     "active_roster_schema_valid": true,
     "active_roster_review_confirmed": false,
     "active_roster_not_expired": false,
@@ -24,14 +28,24 @@
     "shadow_gate_passed": false,
     "shadow_live_provenance_complete": false,
     "shadow_unseen_labels_complete": false,
+    "shadow_consecutive_weeks_passed": false,
+    "shadow_unseen_confidence_upper_bound": false,
+    "shadow_latency_slo_passed": false,
+    "shadow_invalid_event_rate_passed": true,
     "explicit_operator_approval": false
   },
   "blocked_by": [
+    "all_required_holdout_checks_passed",
+    "holdout_unseen_confidence_upper_bound",
+    "routing_minimum_candidate_sources",
     "active_roster_review_confirmed",
     "active_roster_not_expired",
     "shadow_gate_passed",
     "shadow_live_provenance_complete",
     "shadow_unseen_labels_complete",
+    "shadow_consecutive_weeks_passed",
+    "shadow_unseen_confidence_upper_bound",
+    "shadow_latency_slo_passed",
     "explicit_operator_approval"
   ],
   "pipeline_config": {
@@ -92,6 +106,17 @@
     "labels_include_availability_timestamp": true,
     "used_to_refit_ranker_or_policy": false
   },
+  "operational_limits": {
+    "maximum_ranker_model_bytes": 52428800,
+    "maximum_history_snapshot_bytes": 104857600,
+    "maximum_prediction_latency_p95_ms": 5000.0
+  },
+  "runtime_contract": {
+    "assignee_open_set_common": "c8768bc562060520ba8e71d75614603cd40c097e4932ccf73a93c60fb76f047b",
+    "assignee_operational_guard": "414de0c0d68255ecd28b19283f6cfafde5599f530f7e667699221a69936502d1",
+    "assignee_rolling_deployment": "90e5bb96278500e9d362993b8398398794f19a616b58a200aa858e9d5a88a2e1",
+    "recommend_assignee_rolling": "d862254c91cdd9c944f61dfbc26746092a76e7f4455235323e224890af13e9f1"
+  },
   "artifact_manifest": {
     "assignee_dataset_path": {
       "path": "history_snapshot.jsonl",
@@ -125,8 +150,8 @@
     },
     "assignee_shadow_report_path": {
       "path": "shadow_report.json",
-      "sha256": "3bba9a0b33ecffc4a57ae79efdb882cbcde7b3896aec870485aaf59af30bff51",
-      "size_bytes": 2136
+      "sha256": "68938db8d793c972b131c31e0a87eef2283811f1e2779573396842ed65f4a625",
+      "size_bytes": 2983
     }
   }
 }

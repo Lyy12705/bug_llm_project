@@ -420,8 +420,9 @@ python3 assignee_triage_accuracy/scripts/record_assignee_feedback.py \
 
 Evaluate shadow operation without changing real assignments. The gate requires
 at least 500 reviewed tickets or 28 observation days, complete known/unseen
-labels, 85% auto accuracy, 10% auto coverage, unseen-owner auto rate below 5%,
-and an 80% Wilson lower confidence bound. Repeated feedback for one ticket uses
+labels, 85% auto accuracy, 10% auto coverage, unseen-owner auto rate and its
+Wilson 95% upper bound below 5%, an 80% auto-accuracy Wilson lower bound, two
+consecutive passing weeks, complete latency, and a p95 latency budget. Repeated feedback for one ticket uses
 the latest reviewed event.
 
 Run the frozen rolling LTR/open-set policy for one new ticket in shadow mode.
@@ -468,13 +469,24 @@ python3 assignee_triage_accuracy/scripts/prepare_assignee_rolling_deployment.py 
 ```
 
 Only an approved, unexpired, integrity-checked rolling bundle is accepted by
-the production entry point. A research-only, expired, modified, mismatched, or
-invalid-roster bundle writes an explicit `manual_triage` result and returns a
-failure status; it never authorizes automatic assignment.
+the production entry point. Production also requires a short-lived operational
+state bound to the bundle hash. A research-only, expired, modified, mismatched,
+invalid-roster, stale-state, or unhealthy bundle writes `manual_triage`; it
+never authorizes automatic assignment.
+
+```bash
+python3 assignee_triage_accuracy/scripts/evaluate_assignee_operational_guard.py \
+  --bundle models/assignee_rolling_deployment/deployment_bundle.json \
+  --shadow-report reports/assignee_shadow_report.json \
+  --active-roster data/active_assignees.reviewed.json \
+  --requested-rollout-percentage 5 \
+  --output models/assignee_rolling_deployment/operational_state.json
+```
 
 ```bash
 python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling.py \
   --bundle models/assignee_rolling_deployment/deployment_bundle.json \
+  --operational-state models/assignee_rolling_deployment/operational_state.json \
   --ticket data/new_ticket.json \
   --output reports/assignee_rolling_decision.json
 ```

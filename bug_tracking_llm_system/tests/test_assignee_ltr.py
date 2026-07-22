@@ -278,6 +278,7 @@ class AssigneeLtrTests(unittest.TestCase):
                         "is_top3_correct": known and index < 15,
                         "calibrated_probability": 0.95 - index * 0.025,
                         "open_set_probability": 0.1 if known else 0.9,
+                        "candidate_source_count": 2 if index < 14 else 1,
                     }
                 )
             windows[name] = rows
@@ -288,9 +289,11 @@ class AssigneeLtrTests(unittest.TestCase):
             minimum_auto_coverage=0.2,
             maximum_unseen_auto_rate=0.05,
             target_review_accuracy=0.7,
+            minimum_candidate_source_count=2,
         )
 
         self.assertTrue(policy["found"])
+        self.assertEqual(policy["minimum_candidate_source_count"], 2)
         self.assertEqual(set(policy["selection_window_metrics"]), {"q1", "q2"})
         self.assertTrue(
             all(row["auto_assignment_coverage"] >= 0.2 for row in policy["selection_window_metrics"].values())
@@ -385,6 +388,7 @@ class AssigneeLtrTests(unittest.TestCase):
                     "is_top3_correct": known and index < 15,
                     "calibrated_probability": 0.95 - index * 0.025,
                     "open_set_probability": 0.1 if known else 0.9,
+                    "candidate_source_count": 2 if index < 14 else 1,
                 }
             )
 
@@ -394,11 +398,13 @@ class AssigneeLtrTests(unittest.TestCase):
             minimum_auto_coverage=0.2,
             maximum_unseen_auto_rate=0.05,
             target_review_accuracy=0.7,
+            minimum_candidate_source_count=2,
         )
         route_open_set_predictions(rows, policy)
         auto = [row for row in rows if row["routing_status"] == "auto_assign"]
 
         self.assertTrue(policy["found"])
+        self.assertEqual(policy["minimum_candidate_source_count"], 2)
         self.assertGreaterEqual(len(auto) / len(rows), 0.2)
         self.assertGreaterEqual(sum(row["is_top1_correct"] for row in auto) / len(auto), 0.85)
         self.assertFalse(any(not row["known_owner"] for row in auto))
@@ -453,6 +459,32 @@ class AssigneeLtrTests(unittest.TestCase):
         self.assertEqual(diagnostics["rows_below_open_set_gate"], 2)
         self.assertEqual(diagnostics["rows_passing_both_auto_assignment_gates"], 0)
         self.assertEqual(diagnostics["maximum_calibrated_probability_below_open_set_gate"], 0.45)
+
+    def test_deployment_gate_rejects_unsafe_unseen_rate_confidence_bound(self) -> None:
+        metrics = {
+            "auto_assignment_accuracy": 0.90,
+            "auto_assignment_coverage": 0.20,
+            "unseen_auto_assignment_rate": 0.04,
+            "unseen_auto_assignment_rate_ci95": {"lower": 0.01, "upper": 0.0769},
+            "rows": 1000,
+            "auto_assignment_rows": 200,
+            "auto_assignment_accuracy_ci95": {"lower": 0.85, "upper": 0.93},
+            "component_metrics": {},
+        }
+
+        gate = deployment_gate(
+            metrics,
+            target_auto_accuracy=0.85,
+            minimum_auto_coverage=0.10,
+            maximum_unseen_auto_rate=0.05,
+            maximum_unseen_rate_upper_bound=0.05,
+        )
+
+        self.assertFalse(gate["passed"])
+        self.assertTrue(gate["checks"]["unseen_auto_assignment_rate"])
+        self.assertFalse(
+            gate["checks"]["unseen_auto_assignment_rate_confidence_upper_bound"]
+        )
 
     def test_dual_open_set_threshold_preserves_top3_confirmation_band(self) -> None:
         rows = [

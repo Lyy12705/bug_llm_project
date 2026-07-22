@@ -158,9 +158,11 @@ ranker, policy, roster, holdout, and shadow bundle. The loader verifies all
 seven SHA-256 entries, path containment, expiry, cross-artifact versions, and
 every approval gate. `recommend_assignee_rolling.py` accepts approved bundles
 only. A research-only or invalid bundle returns a fail-closed manual-triage
-decision and never authorizes automatic assignment. The current candidate is
-correctly `research_only` because the roster and shadow gates below are not yet
-available.
+decision and never authorizes automatic assignment. The production entry point
+also requires a short-lived bundle-bound operational state, so stale monitoring
+or an active kill switch cannot authorize auto. The current candidate is
+correctly `research_only` because the stricter unseen confidence bound, frozen
+candidate-source constraint, roster, and shadow gates are not yet available.
 
 ## Remaining blockers
 

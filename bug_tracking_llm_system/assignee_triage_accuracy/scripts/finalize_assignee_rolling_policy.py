@@ -33,6 +33,7 @@ def main() -> None:
     parser.add_argument("--maximum-drift-psi", type=float, default=0.25)
     parser.add_argument("--minimum-auto-rows-per-window", type=int, default=30)
     parser.add_argument("--minimum-auto-accuracy-lower-bound", type=float, default=0.75)
+    parser.add_argument("--minimum-candidate-source-count", type=int, default=2)
     args = parser.parse_args()
 
     report_path = args.output_dir / "rolling_open_set_report.json"
@@ -56,6 +57,7 @@ def main() -> None:
         minimum_review_confidence=args.minimum_review_confidence,
         minimum_auto_rows_per_window=max(1, args.minimum_auto_rows_per_window),
         minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
+        minimum_candidate_source_count=max(0, args.minimum_candidate_source_count),
     )
     for rows in windows.values():
         route_predictions(rows, policy)

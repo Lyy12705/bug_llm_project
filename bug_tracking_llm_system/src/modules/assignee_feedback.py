@@ -73,6 +73,7 @@ def build_assignee_feedback_record(
         "feedback_origin": str(feedback_origin or "unspecified").strip().lower(),
         "source_system": str(source_system or "").strip(),
         "source_event_id": str(source_event_id or "").strip(),
+        "prediction_latency_ms": prediction.get("prediction_latency_ms"),
         "notes": notes,
     }
 
@@ -86,21 +87,38 @@ def append_assignee_feedback(path: Path, record: dict[str, Any]) -> None:
 
 
 def read_assignee_feedback(path: Path) -> list[dict[str, Any]]:
+    rows, _ = read_assignee_feedback_with_audit(path)
+    return rows
+
+
+def read_assignee_feedback_with_audit(
+    path: Path,
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
     path = Path(path)
     if not path.exists():
-        return []
+        return [], {"nonblank_lines": 0, "valid_feedback_events": 0, "invalid_input_events": 0}
     rows: list[dict[str, Any]] = []
+    nonblank_lines = 0
+    invalid_input_events = 0
     with path.open("r", encoding="utf-8") as handle:
         for line in handle:
             if not line.strip():
                 continue
+            nonblank_lines += 1
             try:
                 row = json.loads(line)
             except json.JSONDecodeError:
+                invalid_input_events += 1
                 continue
             if isinstance(row, dict) and row.get("event_type") == "assignee_feedback":
                 rows.append(row)
-    return rows
+            else:
+                invalid_input_events += 1
+    return rows, {
+        "nonblank_lines": nonblank_lines,
+        "valid_feedback_events": len(rows),
+        "invalid_input_events": invalid_input_events,
+    }
 
 
 def feedback_rows_to_history_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:

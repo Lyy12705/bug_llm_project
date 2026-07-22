@@ -123,6 +123,7 @@ def main() -> None:
     parser.add_argument("--minimum-holdout-rows", type=int, default=2500)
     parser.add_argument("--minimum-auto-rows", type=int, default=250)
     parser.add_argument("--minimum-auto-accuracy-lower-bound", type=float, default=0.80)
+    parser.add_argument("--maximum-unseen-rate-upper-bound", type=float, default=0.05)
     parser.add_argument("--minimum-component-auto-rows", type=int, default=30)
     parser.add_argument("--minimum-component-auto-accuracy", type=float, default=0.75)
     parser.add_argument("--minimum-component-auto-accuracy-lower-bound", type=float, default=0.60)
@@ -245,6 +246,7 @@ def main() -> None:
         minimum_component_auto_rows=max(1, args.minimum_component_auto_rows),
         minimum_component_accuracy=args.minimum_component_auto_accuracy,
         minimum_component_accuracy_lower_bound=args.minimum_component_auto_accuracy_lower_bound,
+        maximum_unseen_rate_upper_bound=args.maximum_unseen_rate_upper_bound,
     )
     gate["advisory_checks"] = {
         "top3_confirmation_accuracy": routing["top3_confirmation_accuracy"]

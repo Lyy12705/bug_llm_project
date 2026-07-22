@@ -1,9 +1,9 @@
 # 負責人自動分流模型完成與部署計劃書
 
-- 文件版本：1.2
+- 文件版本：1.3
 - 制定日期：2026-07-19
 - 專題階段：負責人推薦與自動分流
-- 文件狀態：工程與新 holdout 驗證完成；正式部署仍待組織 roster 簽核、真實 shadow 證據與操作人核准
+- 文件狀態：工程安全機制已補強；嚴格統計 gate 判定為 No-Go，正式部署仍待下一版 frozen policy、新 holdout、組織 roster、真實 shadow 與操作人核准
 
 ## 0. 2026-07-19 執行進度
 
@@ -11,12 +11,26 @@
 |---|---|---|
 | M0 時間協定 | 已完成程式補強 | train、calibration fit、policy selection、sealed test 分離；輸出時間邊界、row hash 與跨切分洩漏 audit |
 | M1 roster／身分 | 部分完成 | 支援 reviewed active roster、inactive hard block、alias chain canonicalization 與 cold-start owner；仍需專案維護者提供並簽核實際 roster |
-| M2 LTR | 程式實作已完成 | rolling LTR 可做時間安全 shadow routing；新增 self-contained bundle builder／loader、SHA-256、效期、交叉 artifact 驗證與 production entrypoint；未 approved、過期、竄改或 runtime 例外一律輸出 manual，真正啟用仍須等 roster 與 shadow gate 通過 |
+| M2 LTR | 程式實作已完成 | rolling LTR 可做時間安全 shadow routing；新增 self-contained bundle、SHA-256、效期、交叉 artifact 驗證、短效 operational state 與 production entrypoint；未 approved、過期、竄改、跳級 rollout 或 runtime 例外一律輸出 manual |
 | M3 信心校準 | 已補強 | calibration fit 與 policy selection 不再共用相同 validation rows；加入 Wilson 95% 信賴區間 |
 | M4 Open-set | 部分完成 | rolling open-set 已驗證；generic deployment 暫時固定使用與 gate 相同的 fallback score，禁止把不同公式的 candidate detector 誤標 approved |
-| M5 路由政策 | 已完成程式補強 | 85%／10%／低於 5%、最小樣本數、信賴區間、component floor 與 fail-closed reason code 已程式化 |
-| M6 Shadow | 評估器已完成 | 可讀 append-only feedback、去除同 ticket 舊事件、產出週報與 gate；仍需累積至少 500 筆或 28 天真實 feedback |
-| M7 最終驗收 | 技術 gate 已通過 | 2022 Q1 sealed holdout 第一次評估通過全部 hard gates；整體上線驗收仍缺 reviewed roster、真實 shadow gate 與人工核准 |
+| M5 路由政策 | 程式已補強、v2 artifact 待汰換 | 85%／10%／5%、樣本數、雙側統計保護、component floor、至少兩種候選來源與 fail-closed reason code 已程式化；既有 v2 artifact 沒有凍結來源數約束，不可事後改寫 |
+| M6 Shadow | 評估器 v3 已完成 | append-only provenance、去重、連續兩週、unseen Wilson 上界、p95 latency 與 invalid-event hard gates 已完成；目前仍為 0 筆真實 feedback |
+| M7 最終驗收 | 嚴格 gate 未通過 | 2022 Q2 的點估計通過舊 gate，但 unseen-owner 95% 上界為 7.69%，高於 5%；deployment candidate 維持 `research_only` |
+
+## 0.3 2026-07-22 安全補強與重新判讀
+
+本輪沒有重寫或重跑 2022 Q2 的一次性 release evidence，而是補上原 gate 遺漏的統計與營運保護。原報告的 unseen-owner auto rate 為 4.00%（8/200），點估計低於 5%；但 Wilson 95% 信賴區間上界為 7.6932%。新的正式 holdout、shadow 與 deployment bundle 都要求上界也低於 5%，因此 v2 現在必須判為 **No-Go**，不得再宣稱所有 hard gates 通過。
+
+已完成的工程補強如下：
+
+- shadow gate 要求至少兩個連續週期同時通過 primary rates，且 provenance、unseen label、unseen 95% 上界、prediction latency p95 與 invalid-event rate 都是 hard gate。
+- production runtime 必須讀取與 deployment bundle SHA-256 綁定、最長 24 小時有效的 operational state；只允許 0%→5%→10%→25%，每階段至少七天，過期、跳級、bundle／roster／shadow 異常會立即啟動 kill switch 並退回 manual。
+- 下一版 policy search 預設要求 Top-1 至少由兩種候選來源支持；既有 v2 artifact 未凍結此條件，所以 bundle 會阻擋 `routing_minimum_candidate_sources`，不能利用已看過的 Q2 事後補門檻。
+- 新增 post-holdout 診斷報告。Q2 的 known-owner candidate recall@30 為 89.32%、@50 為 90.86%；錯誤包含 238 筆 candidate miss、1,156 筆 ranking miss、8 筆 unseen-owner auto error。報告標記為診斷用途，不得拿來選 v2 門檻。
+- deployment bundle 加入模型／歷史快照大小上限；shadow prediction 會記錄端到端 latency，預設 p95 必須不超過 5 秒。
+
+目前 bundle 的必要 blocker 為：嚴格 holdout unseen 信賴上界、既有 policy 缺少候選來源約束、reviewed 且未過期 roster、真實 shadow 全套 gate，以及操作人明示核准。這些 blocker 未清除前，operational guard 的有效 rollout 固定為 0%，`kill_switch_active=true`。
 
 ## 0.2 2026-07-20 v2 執行結果
 
@@ -33,14 +47,15 @@ Top-3 v2 實驗沒有達成 90%：Q4／2022 Q1 的 known-owner Top-3 分別為 6
 | Auto accuracy | 87.79%（633/721） | ≥ 85%，通過 |
 | Auto accuracy Wilson 95% 下界 | 85.20% | ≥ 80%，通過 |
 | Auto coverage | 25.72% | ≥ 10%，通過 |
-| Unseen-owner auto rate | 4.00%（8/200） | < 5%，通過 |
+| Unseen-owner auto rate | 4.00%（8/200） | 點估計通過 |
+| Unseen-owner rate Wilson 95% 上界 | 7.69% | 必須 < 5%，不通過 |
 | Component point／confidence floor | 無達最小樣本門檻的失敗 component | 通過 |
 | Score drift | 未觸發 severe drift | 通過 |
 | Known-owner Top-3 | 66.73% | 低於 90%；confirmation 已關閉 |
 
-資料活動代理產生 165 位 active、99 位 inactive 的時間版本化 roster，技術 schema 與互斥檢查通過；但活動紀錄不能證明人員仍在職，因此 `review_confirmed=false`。Shadow evaluator 已升級為 provenance-checked v2：只有 `live_shadow`、唯一來源事件 ID、來源系統及合法預測／最終分派時間鏈的事件可通過，historical replay 與 synthetic 永遠不能作部署證據。目前真實 shadow 為 0 筆。
+資料活動代理產生 165 位 active、99 位 inactive 的時間版本化 roster，技術 schema 與互斥檢查通過；但活動紀錄不能證明人員仍在職，因此 `review_confirmed=false`。Shadow evaluator 已升級為 operationally-gated v3：只有 `live_shadow`、唯一來源事件 ID、來源系統及合法預測／最終分派時間鏈的事件可通過，historical replay 與 synthetic 永遠不能作部署證據；連續週期、統計上界與 latency 也都是 hard gate。目前真實 shadow 為 0 筆。
 
-最新 deployment candidate 因此正確保持 `research_only`。剩餘 blocker 為 `active_roster_review_confirmed`、`active_roster_not_expired`、`shadow_gate_passed`、`shadow_live_provenance_complete`、`shadow_unseen_labels_complete` 與 `explicit_operator_approval`；2022 時點的 roster 只可作 holdout 稽核，正式上線必須由維護者提供新的當期快照。這些是組織或真實運行證據，不能由離線程式偽造。
+最新 deployment candidate 正確保持 `research_only`。除 roster、shadow 與人工核准外，嚴格 gate 也新增 `holdout_unseen_confidence_upper_bound` 與 `routing_minimum_candidate_sources` blocker；2022 時點的 roster 只可作 holdout 稽核，正式上線必須由維護者提供新的當期快照。外部證據不能由離線程式偽造，模型／policy blocker 則必須以新開發窗建立下一版，再用另一份更晚且未看過的 holdout 驗證。
 
 Hardened gate 對既有 2021 Q4 holdout 的重跑結果如下。這是既有 holdout 的一致性驗證，不重新宣稱為全新 untouched holdout：
 
@@ -89,6 +104,8 @@ Hardened gate 對既有 2021 Q4 holdout 的重跑結果如下。這是既有 hol
 3. unseen-owner 樣本被錯誤自動派工的比例低於 5%。
 
 三項門檻必須同時通過；單獨通過其中一項不能視為完成。
+
+為避免小樣本的 4% 被誤讀為已充分安全，正式 release 還要求 unseen-owner auto error rate 的 Wilson 95% 信賴區間上界低於 5%。
 
 ## 2. 專題範圍
 
@@ -165,6 +182,7 @@ Hardened gate 對既有 2021 Q4 holdout 的重跑結果如下。這是既有 hol
 | G1 自動派工品質 | Auto accuracy ≥ 85% |
 | G2 自動化效益 | Auto coverage ≥ 10% |
 | G3 未知負責人安全性 | Unseen-owner auto error rate < 5% |
+| G3b 未知負責人統計保護 | Unseen-owner auto error rate 的 Wilson 95% 上界 < 5% |
 | G4 樣本數 | Holdout 至少 2,500 筆，且至少 250 筆進入 auto |
 | G5 統計穩定性 | Auto accuracy 的 Wilson 95% 信賴區間下界 ≥ 80% |
 | G6 分群安全性 | 樣本數 ≥ 30 的主要 product/component 不得有 auto accuracy < 75% |
@@ -392,7 +410,7 @@ subject to:
 
 #### 交付物
 
-- 新增 `assignee_triage_accuracy/scripts/run_assignee_shadow_evaluation.py`。
+- `recommend_assignee_rolling_shadow.py`、`record_assignee_feedback.py` 與 `evaluate_assignee_shadow.py`。
 - 產出 append-only `shadow_predictions.jsonl` 及每週報告。
 
 #### Shadow 通過條件
@@ -410,7 +428,8 @@ subject to:
 3. `evaluate_assignee_open_set_holdout.py` 自動產出 gate 結果，禁止手動修改通過狀態。
 4. 只有所有 hard gates 通過時，`prepare_assignee_deployment.py` 才可建立 deployment bundle。
 5. 部署依序開放 5%、10%、25% 流量；每一階段至少觀察一個完整監控週期。
-6. 未通過則保留 Top-3 recommendation／manual 功能，回到對應錯誤類型的階段改善，不宣稱完成自動派工。
+6. 每日重建短效 operational state；狀態過期或任一健康 gate 失敗時 runtime 強制 manual。
+7. 未通過則保留 Top-3 recommendation／manual 功能，回到對應錯誤類型的階段改善，不宣稱完成自動派工。
 
 #### 交付物
 
@@ -429,13 +448,16 @@ subject to:
 | `assignee_triage_accuracy/scripts/evaluate_assignee_open_set_holdout.py` | 一次性正式 holdout、CI、分群、drift 與 deployment gate |
 | `assignee_triage_accuracy/scripts/prepare_assignee_deployment.py` | gate 未通過禁止產出 approved bundle；加入版本、hash、expiry |
 | `src/modules/assignee_triager.py` | 只載入通過 gate 的 bundle；active owner／schema／artifact freshness 檢查；例外 fail closed |
+| `src/modules/assignee_operational_guard.py` | bundle-bound 短效狀態、0/5/10/25 漸進 rollout、kill switch 與 deterministic traffic selection |
+| `assignee_triage_accuracy/scripts/generate_assignee_routing_diagnostics.py` | candidate/ranking/open-set error taxonomy、來源分層與 risk-coverage 診斷 |
 | `tests/test_assignee_ltr.py` | 時間切分、候選召回、身分 mapping、重現性、threshold boundary 測試 |
 | `tests/test_pipeline.py` | auto／Top-3／manual 整合、inactive owner 與 artifact failure 降級測試 |
 
 建議新增：
 
 - `assignee_triage_accuracy/scripts/build_assignee_temporal_protocol.py`
-- `assignee_triage_accuracy/scripts/run_assignee_shadow_evaluation.py`
+- `assignee_triage_accuracy/scripts/evaluate_assignee_shadow.py`
+- `assignee_triage_accuracy/scripts/evaluate_assignee_operational_guard.py`
 - `assignee_triage_accuracy/schemas/assignee_roster.schema.json`
 - `assignee_triage_accuracy/schemas/deployment_bundle.schema.json`
 
@@ -463,6 +485,7 @@ subject to:
 - 模型 artifact 與 policy version 不相容時拒絕啟動 auto。
 - deployment gate 未通過時無法建立 approved bundle。
 - shadow 模式不會實際變更 assignee。
+- operational state 過期、bundle hash 不符、rollout 跳級或健康 gate 失敗時不得 auto。
 
 ### 8.4 回歸測試
 
@@ -540,7 +563,7 @@ subject to:
 - [x] 資料採時間切分，sealed holdout 未用於訓練、選模、校準或選門檻。
 - [x] Auto accuracy ≥ 85%。
 - [x] Auto coverage ≥ 10%。
-- [x] Unseen-owner auto error rate < 5%。
+- [ ] Unseen-owner auto error rate < 5%，且 Wilson 95% 上界 < 5%（目前上界 7.69%）。
 - [x] Auto 樣本至少 250 筆且統計保護條件通過。
 - [ ] Active/inactive/cold-start owner 有明確資料來源與時間版本。
 - [x] 主要 component 分群未出現不可接受的自動錯派。
@@ -553,4 +576,4 @@ subject to:
 
 本階段的 Definition of Done 不是「模型能輸出一個負責人名稱」，而是：系統能在新時間資料中辨識一小部分足夠安全的案件自動派工，對不確定、未知、失效或資料不足的案件可靠拒答，並以 sealed holdout 與 shadow data 證明 85% accuracy、10% coverage、低於 5% unseen-owner auto error 三項條件同時成立。
 
-目前 sealed holdout 已達聯合門檻，但 reviewed roster 與真實 shadow 證據尚未完成，因此成果應定義為「已通過離線技術驗收、等待營運安全驗收的選擇性自動分流 candidate」，而不是已核准上線的自動派工系統。
+目前 v2 只通過三項指標的點估計，未通過 unseen-owner 的統計上界，且既有 policy 未凍結候選來源下限；加上 reviewed roster 與真實 shadow 證據尚未完成，因此成果應定義為「可重現但仍為 No-Go 的選擇性分流研究 candidate」，不能宣稱離線或線上部署驗收完成。

@@ -17,6 +17,7 @@ if str(SRC_ROOT) not in sys.path:
 from modules.assignee_deployment import artifact_manifest_entry, sha256_file  # noqa: E402
 from modules.assignee_rolling_deployment import (  # noqa: E402
     ROLLING_PATH_KEYS,
+    current_runtime_contract,
     load_rolling_deployment_bundle,
 )
 
@@ -61,6 +62,7 @@ REQUIRED_HOLDOUT_CHECKS = {
     "auto_accuracy_confidence_lower_bound",
     "component_accuracy_floor",
     "component_accuracy_confidence_floor",
+    "unseen_auto_assignment_rate_confidence_upper_bound",
 }
 
 
@@ -85,6 +87,8 @@ def main() -> None:
     parser.add_argument("--base-raw", type=Path, default=RAW_DIR / "bmo_public_10k_raw.jsonl")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--bundle-valid-days", type=int, default=30)
+    parser.add_argument("--maximum-ranker-model-bytes", type=int, default=50 * 1024 * 1024)
+    parser.add_argument("--maximum-history-snapshot-bytes", type=int, default=100 * 1024 * 1024)
     parser.add_argument("--approve", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
@@ -143,6 +147,10 @@ def main() -> None:
         operator_approved=args.approve,
         bundled_routing_hash=sha256_file(output_paths["assignee_rolling_routing_artifact_path"]),
         history_rows=len(history),
+        ranker_model_bytes=output_paths["assignee_ranker_model_path"].stat().st_size,
+        history_snapshot_bytes=output_paths["assignee_dataset_path"].stat().st_size,
+        maximum_ranker_model_bytes=max(1, args.maximum_ranker_model_bytes),
+        maximum_history_snapshot_bytes=max(1, args.maximum_history_snapshot_bytes),
     )
     approved = all(gates.values())
     created_at = datetime.now(UTC)
@@ -163,6 +171,12 @@ def main() -> None:
         "blocked_by": [name for name, passed in gates.items() if not passed],
         "pipeline_config": pipeline_config,
         "history_snapshot_audit": history_audit,
+        "operational_limits": {
+            "maximum_ranker_model_bytes": max(1, args.maximum_ranker_model_bytes),
+            "maximum_history_snapshot_bytes": max(1, args.maximum_history_snapshot_bytes),
+            "maximum_prediction_latency_p95_ms": 5000.0,
+        },
+        "runtime_contract": current_runtime_contract(),
         "artifact_manifest": {
             key: artifact_manifest_entry(path, args.output_dir)
             for key, path in output_paths.items()
@@ -244,6 +258,10 @@ def rolling_deployment_gates(
     operator_approved: bool,
     bundled_routing_hash: str,
     history_rows: int,
+    ranker_model_bytes: int = 0,
+    history_snapshot_bytes: int = 0,
+    maximum_ranker_model_bytes: int = 50 * 1024 * 1024,
+    maximum_history_snapshot_bytes: int = 100 * 1024 * 1024,
 ) -> dict[str, bool]:
     holdout_gate = holdout.get("deployment_gate") or {}
     holdout_checks = holdout_gate.get("checks") or {}
@@ -251,6 +269,16 @@ def rolling_deployment_gates(
     roster_candidates = roster.get("candidates")
     roster_assignees = roster.get("assignees")
     shadow_gate = shadow.get("deployment_gate") or {}
+    shadow_checks = shadow_gate.get("checks") or {}
+    holdout_routing = holdout.get("routing_before_drift_gate") or holdout.get(
+        "routing_metrics"
+    ) or {}
+    unseen_upper = (holdout_routing.get("unseen_auto_assignment_rate_ci95") or {}).get(
+        "upper"
+    )
+    minimum_sources = int(
+        (routing.get("routing_policy") or {}).get("minimum_candidate_source_count") or 0
+    )
     return {
         "frozen_development_gate_passed": routing.get("development_gate", {}).get("passed")
         is True,
@@ -258,6 +286,8 @@ def rolling_deployment_gates(
         "new_holdout_gate_passed": holdout_gate.get("passed") is True,
         "all_required_holdout_checks_passed": REQUIRED_HOLDOUT_CHECKS.issubset(holdout_checks)
         and all(holdout_checks.get(name) is True for name in REQUIRED_HOLDOUT_CHECKS),
+        "holdout_unseen_confidence_upper_bound": isinstance(unseen_upper, (int, float))
+        and unseen_upper < 0.05,
         "holdout_manifest_verified": protocol.get("holdout_provenance", {}).get(
             "manifest_verified"
         )
@@ -272,6 +302,11 @@ def rolling_deployment_gates(
         == bundled_routing_hash,
         "history_snapshot_available": history_rows > 0,
         "history_snapshot_not_used_for_refit": True,
+        "ranker_model_size_budget": 0 <= ranker_model_bytes <= maximum_ranker_model_bytes,
+        "history_snapshot_size_budget": 0
+        <= history_snapshot_bytes
+        <= maximum_history_snapshot_bytes,
+        "routing_minimum_candidate_sources": minimum_sources >= 2,
         "active_roster_schema_valid": valid_roster_shape(roster),
         "active_roster_review_confirmed": roster.get("review_confirmed") is True,
         "active_roster_not_expired": roster_not_expired(roster),
@@ -280,14 +315,20 @@ def rolling_deployment_gates(
         and isinstance(roster_assignees, list)
         and bool(roster_assignees),
         "shadow_gate_passed": shadow_gate.get("passed") is True,
-        "shadow_live_provenance_complete": shadow_gate.get("checks", {}).get(
-            "live_shadow_provenance_complete"
+        "shadow_live_provenance_complete": shadow_checks.get("live_shadow_provenance_complete")
+        is True,
+        "shadow_unseen_labels_complete": shadow_checks.get("unseen_labels_available") is True,
+        "shadow_consecutive_weeks_passed": shadow_checks.get(
+            "consecutive_weeks_pass_primary_rates"
         )
         is True,
-        "shadow_unseen_labels_complete": shadow_gate.get("checks", {}).get(
-            "unseen_labels_available"
+        "shadow_unseen_confidence_upper_bound": shadow_checks.get(
+            "unseen_auto_assignment_rate_confidence_upper_bound"
         )
         is True,
+        "shadow_latency_slo_passed": shadow_checks.get("prediction_latency_complete") is True
+        and shadow_checks.get("prediction_latency_p95") is True,
+        "shadow_invalid_event_rate_passed": shadow_checks.get("invalid_event_rate") is True,
         "explicit_operator_approval": operator_approved,
     }
 
@@ -347,8 +388,26 @@ def unavailable_shadow_report() -> dict[str, Any]:
         "metrics": {"rows": 0, "observation_days": 0},
         "deployment_gate": {
             "passed": False,
-            "checks": {"minimum_observation": False, "unseen_labels_available": False},
-            "failed_checks": ["minimum_observation", "unseen_labels_available"],
+            "checks": {
+                "minimum_observation": False,
+                "unseen_labels_available": False,
+                "live_shadow_provenance_complete": False,
+                "consecutive_weeks_pass_primary_rates": False,
+                "unseen_auto_assignment_rate_confidence_upper_bound": False,
+                "prediction_latency_complete": False,
+                "prediction_latency_p95": False,
+                "invalid_event_rate": False,
+            },
+            "failed_checks": [
+                "minimum_observation",
+                "unseen_labels_available",
+                "live_shadow_provenance_complete",
+                "consecutive_weeks_pass_primary_rates",
+                "unseen_auto_assignment_rate_confidence_upper_bound",
+                "prediction_latency_complete",
+                "prediction_latency_p95",
+                "invalid_event_rate",
+            ],
         },
     }
 

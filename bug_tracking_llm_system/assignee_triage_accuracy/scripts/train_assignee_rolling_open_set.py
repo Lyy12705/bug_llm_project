@@ -128,6 +128,7 @@ def main() -> None:
     parser.add_argument("--minimum-review-confidence", type=float, default=0.20)
     parser.add_argument("--minimum-review-rows-per-window", type=int, default=1)
     parser.add_argument("--minimum-review-coverage", type=float, default=0.0)
+    parser.add_argument("--minimum-candidate-source-count", type=int, default=2)
     parser.add_argument(
         "--require-review-policy",
         action="store_true",
@@ -254,6 +255,7 @@ def main() -> None:
         minimum_review_confidence=args.minimum_review_confidence,
         minimum_review_rows_per_window=max(1, args.minimum_review_rows_per_window),
         minimum_review_coverage=max(0.0, args.minimum_review_coverage),
+        minimum_candidate_source_count=max(0, args.minimum_candidate_source_count),
     )
     for predictions in selection_predictions.values():
         route_predictions(predictions, policy)
