@@ -22,6 +22,7 @@
 
 ## 主要證據
 
+- `docs/reports/assignee_auto_routing_current_results_and_improvement_plan.md`：目前結果的完整判讀與後續改善步驟。
 - `reports/2022q2_holdout/rolling_holdout_report.json`：一次性正式 holdout 結果。
 - `reports/2022q2_holdout/routing_diagnostics.json`：只供錯誤定位、禁止調參的 post-holdout 診斷。
 - `reports/rolling_primary_v2/rolling_open_set_artifact.json`：Top-3 關閉後的 frozen primary policy。
