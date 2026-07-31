@@ -1069,6 +1069,65 @@ class PipelineIntegrationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "ticket_id is required"):
                 append_assignee_feedback(feedback_path, record)
 
+    def test_assignee_feedback_records_user_selection_from_top5(self) -> None:
+        record = build_assignee_feedback_record(
+            ticket_json={"ticket_id": "TOP5-1", "component": "core"},
+            prediction={
+                "assignee": "manual_triage",
+                "suggested_assignee": "dev-a@example.com",
+                "ranked_candidates": [
+                    "dev-a@example.com",
+                    "dev-b@example.com",
+                    "dev-c@example.com",
+                    "dev-d@example.com",
+                    "dev-e@example.com",
+                ],
+                "top5_assist_available": True,
+                "selection_mode": "top5_user_confirmation",
+                "requires_user_selection": True,
+                "routing_status": "top5_user_confirmation",
+            },
+            final_assignee="dev-c@example.com",
+        )
+
+        self.assertEqual(record["schema_version"], 4)
+        self.assertEqual(record["selection_mode"], "top5_user_confirmation")
+        self.assertEqual(record["selected_candidate_rank"], 3)
+        self.assertTrue(record["selected_from_top5"])
+
+    def test_assignee_feedback_distinguishes_user_authorized_top1_from_autonomous_assignment(self) -> None:
+        record = build_assignee_feedback_record(
+            ticket_json={"ticket_id": "TOP1-AUTO-1", "component": "core"},
+            prediction={
+                "assignee": "dev-a@example.com",
+                "suggested_assignee": "dev-a@example.com",
+                "ranked_candidates": [
+                    "dev-a@example.com",
+                    "dev-b@example.com",
+                    "dev-c@example.com",
+                    "dev-d@example.com",
+                    "dev-e@example.com",
+                ],
+                "top5_assist_available": True,
+                "selection_mode": "top1_user_authorized",
+                "user_action": "assign_top1",
+                "user_authorized_assignment": True,
+                "assignment_authorized": True,
+                "auto_top1_selected": True,
+                "autonomous_assignment": False,
+                "auto_assignment_authorized": False,
+                "routing_status": "top1_user_authorized_assignment",
+            },
+            final_assignee="dev-a@example.com",
+        )
+
+        self.assertEqual(record["schema_version"], 4)
+        self.assertEqual(record["selection_mode"], "top1_user_authorized")
+        self.assertEqual(record["user_action"], "assign_top1")
+        self.assertTrue(record["accepted_user_authorized_top1"])
+        self.assertFalse(record["accepted_auto_assignment"])
+        self.assertFalse(record["autonomous_assignment"])
+
     def test_assignee_feedback_latest_event_uses_absolute_timestamp(self) -> None:
         earlier = build_assignee_feedback_record(
             ticket_json={"ticket_id": "RAW-TZ", "component": "mobile"},

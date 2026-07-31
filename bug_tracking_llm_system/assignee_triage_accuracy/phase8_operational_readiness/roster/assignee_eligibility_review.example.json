@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "source": "maintainer_and_access_control_review",
+  "review_confirmed": true,
+  "reviewer": "engineering-lead@example.com",
+  "valid_from": "2026-07-01T00:00:00Z",
+  "expires_at": "2026-08-01T00:00:00Z",
+  "assignees": [
+    {
+      "assignee": "dom-owner@example.com",
+      "eligible": true,
+      "permissions_confirmed": true,
+      "eligible_product_components": [
+        {
+          "product": "firefox",
+          "component": "dom"
+        }
+      ]
+    },
+    {
+      "assignee": "firefox-generalist@example.com",
+      "eligible": true,
+      "permissions_confirmed": true,
+      "eligible_products": [
+        "firefox"
+      ]
+    }
+  ]
+}

@@ -67,8 +67,15 @@ def finalize_primary_only(
     window_metrics = report.get("routing_by_selection_window") or {}
     if len(window_metrics) < 2:
         raise ValueError("at least two policy-selection windows are required")
-    checks = {
-        name: (
+    strict_v3 = "maximum_unseen_rate_upper_bound" in targets
+    minimum_sources = int(targets.get("minimum_candidate_source_count", 0))
+    if strict_v3 and int(policy.get("minimum_candidate_source_count", 0)) < max(
+        2, minimum_sources
+    ):
+        raise ValueError("strict primary policy did not freeze two candidate source families")
+    checks = {}
+    for name, metrics in window_metrics.items():
+        passed = bool(
             float(metrics.get("auto_assignment_accuracy", 0.0))
             >= float(targets["target_auto_accuracy"])
             and float(metrics.get("auto_assignment_coverage", 0.0))
@@ -76,8 +83,32 @@ def finalize_primary_only(
             and float(metrics.get("unseen_auto_assignment_rate", 1.0))
             < float(targets["maximum_unseen_auto_rate"])
         )
-        for name, metrics in window_metrics.items()
-    }
+        if strict_v3:
+            passed = bool(
+                passed
+                and int(metrics.get("auto_assignment_rows", 0))
+                >= int(targets.get("minimum_auto_rows_per_window", 250))
+                and float(
+                    metrics.get("auto_assignment_accuracy_ci95", {"lower": 0.0}).get(
+                        "lower", 0.0
+                    )
+                )
+                >= float(targets.get("minimum_auto_accuracy_lower_bound", 0.80))
+                and float(
+                    metrics.get(
+                        "unseen_auto_assignment_rate_ci95", {"upper": 1.0}
+                    ).get("upper", 1.0)
+                )
+                < float(targets["maximum_unseen_rate_upper_bound"])
+                and bool(
+                    artifact.get("routing_policy", {})
+                    .get("selection_window_metrics", {})
+                    .get(name, {})
+                    .get("component_safety", {})
+                    .get("passed", False)
+                )
+            )
+        checks[name] = passed
     if not all(checks.values()):
         raise ValueError("primary auto-assignment metrics did not pass every selection window")
 

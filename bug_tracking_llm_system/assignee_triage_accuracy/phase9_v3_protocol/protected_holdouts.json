@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "protected_holdouts": [
+    {
+      "name": "bmo_public_2022_q2",
+      "status": "diagnosis_only_not_model_or_policy_selection",
+      "manifest_path": "assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_manifest.json",
+      "manifest_sha256": "fb0052bfed9d6e54519a231111d8a3193c6f7e3544e652cb75acc57d7cedd774",
+      "data_sha256": "38ea3b996b214edc7dc38eb29f02449311501b168b1ee16027000677c5e7bb10",
+      "formal_evaluation_completed": true,
+      "permitted_use": [
+        "post_holdout_diagnosis",
+        "frozen_v2_reproducibility_replay"
+      ],
+      "forbidden_use": [
+        "ranker_fit",
+        "ranker_selection",
+        "calibrator_fit",
+        "open_set_fit",
+        "policy_selection",
+        "v3_release_evidence"
+      ]
+    }
+  ]
+}

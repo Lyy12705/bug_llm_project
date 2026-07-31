@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any
 
 
-ASSIGNEE_FEEDBACK_SCHEMA_VERSION = 2
-SUPPORTED_ASSIGNEE_FEEDBACK_SCHEMA_VERSIONS = {1, 2}
+ASSIGNEE_FEEDBACK_SCHEMA_VERSION = 4
+SUPPORTED_ASSIGNEE_FEEDBACK_SCHEMA_VERSIONS = {1, 2, 3, 4}
 MANUAL_TRIAGE = "manual_triage"
 FEEDBACK_ORIGINS = {"live_shadow", "historical_replay", "synthetic", "unspecified"}
 
@@ -30,6 +30,46 @@ def build_assignee_feedback_record(
 ) -> dict[str, Any]:
     final_owner = _normalize_assignee(final_assignee)
     predicted_owner = _normalize_assignee(prediction.get("assignee"))
+    ranked_candidates = [
+        _normalize_assignee(owner)
+        for owner in prediction.get("ranked_candidates", [])
+        if _normalize_assignee(owner)
+    ]
+    try:
+        selected_candidate_rank = ranked_candidates.index(final_owner) + 1
+    except ValueError:
+        selected_candidate_rank = None
+    top5_available = prediction.get("top5_assist_available") is True
+    selection_mode = str(prediction.get("selection_mode") or "").strip()
+    if not selection_mode:
+        selection_mode = (
+            "top5_user_confirmation"
+            if top5_available
+            else "auto_assignment"
+            if prediction.get("auto_assignment_authorized") is True
+            else "manual_triage"
+        )
+    user_action = str(prediction.get("user_action") or "").strip()
+    if not user_action:
+        user_action = (
+            "assign_top1"
+            if selection_mode == "top1_user_authorized"
+            else "select_top5_candidate"
+            if selection_mode == "top5_candidate_selection"
+            else ""
+        )
+    auto_top1_selected = bool(
+        prediction.get("auto_top1_selected") is True
+        or selection_mode == "top1_user_authorized"
+        or user_action == "assign_top1"
+    )
+    autonomous_assignment = bool(
+        prediction.get("autonomous_assignment") is True
+        or (
+            selection_mode == "auto_assignment"
+            and prediction.get("auto_assignment_authorized") is True
+        )
+    )
     return {
         "schema_version": ASSIGNEE_FEEDBACK_SCHEMA_VERSION,
         "event_type": "assignee_feedback",
@@ -47,7 +87,38 @@ def build_assignee_feedback_record(
         "description": str(ticket_json.get("description") or ticket_json.get("body") or ""),
         "predicted_assignee": predicted_owner,
         "suggested_assignee": _normalize_assignee(prediction.get("suggested_assignee")),
-        "ranked_candidates": [_normalize_assignee(owner) for owner in prediction.get("ranked_candidates", [])],
+        "ranked_candidates": ranked_candidates,
+        "top5_assist_available": top5_available,
+        "selection_mode": selection_mode,
+        "user_action": user_action,
+        "requires_user_selection": prediction.get("requires_user_selection") is True,
+        "user_authorized_assignment": prediction.get("user_authorized_assignment") is True,
+        "assignment_authorized": prediction.get("assignment_authorized") is True,
+        "auto_top1_selected": auto_top1_selected,
+        "autonomous_assignment": autonomous_assignment,
+        "selected_candidate_rank": selected_candidate_rank,
+        "selected_from_top5": bool(
+            top5_available
+            and selected_candidate_rank is not None
+            and selected_candidate_rank <= 5
+        ),
+        "correctness_field": str(prediction.get("correctness_field") or ""),
+        "eligibility_required": prediction.get("eligibility_required") is True,
+        "eligibility_review_confirmed": prediction.get(
+            "eligibility_review_confirmed"
+        )
+        is True,
+        "eligibility_verified": prediction.get("eligibility_verified") is True,
+        "eligible_top5_count": prediction.get("eligible_top5_count"),
+        "eligibility_definition": str(
+            prediction.get("eligibility_definition") or ""
+        ),
+        "selected_assignee_eligibility_verified": bool(
+            prediction.get("eligibility_verified") is True
+            and top5_available
+            and selected_candidate_rank is not None
+            and selected_candidate_rank <= 5
+        ),
         "confidence": prediction.get("confidence"),
         "routing_status": str(prediction.get("routing_status") or ""),
         "fallback_reason": str(prediction.get("fallback_reason") or ""),
@@ -67,7 +138,18 @@ def build_assignee_feedback_record(
             prediction.get("policy_version") or prediction.get("routing_policy") or ""
         ),
         "final_assignee": final_owner,
-        "accepted_auto_assignment": bool(final_owner and final_owner == predicted_owner and final_owner != MANUAL_TRIAGE),
+        "accepted_auto_assignment": bool(
+            autonomous_assignment
+            and final_owner
+            and final_owner == predicted_owner
+            and final_owner != MANUAL_TRIAGE
+        ),
+        "accepted_user_authorized_top1": bool(
+            auto_top1_selected
+            and final_owner
+            and selected_candidate_rank == 1
+            and final_owner != MANUAL_TRIAGE
+        ),
         "reviewer": reviewer,
         "source": source,
         "feedback_origin": str(feedback_origin or "unspecified").strip().lower(),

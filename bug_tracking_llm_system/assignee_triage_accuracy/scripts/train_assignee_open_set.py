@@ -102,13 +102,18 @@ def main() -> None:
     half_life_days = float(parameters.get("half_life_days", 90.0))
     smoothing_alpha = float(parameters.get("smoothing_alpha", 5.0))
     embedding_backend = str(parameters.get("embedding_backend") or "none")
+    candidate_generator_version = str(
+        parameters.get("candidate_generator_version") or "v2"
+    )
 
     label_map = read_label_map(args.assignee_label_map)
     train_rows = load_rows(args.train, label_map)
     validation_rows = load_rows(args.validation, label_map)
     development_rows = load_rows(args.development, label_map)
     development_rows, overlap_rows_excluded = exclude_cross_split_overlap(
-        development_rows, [*train_rows, *validation_rows]
+        development_rows,
+        [*train_rows, *validation_rows],
+        strict_duplicate_families=candidate_generator_version == "v3",
     )
     split_at = max(20, min(len(validation_rows) - 20, int(len(validation_rows) * args.calibration_fraction)))
     calibration_rows = validation_rows[:split_at]
@@ -122,6 +127,7 @@ def main() -> None:
         half_life_days=half_life_days,
         smoothing_alpha=smoothing_alpha,
         semantic=semantic,
+        candidate_generator_version=candidate_generator_version,
     )
 
     calibration_predictions = scored_predictions(calibration_rows, full_index, ranker, pool_size)
@@ -148,6 +154,7 @@ def main() -> None:
             half_life_days=half_life_days,
             smoothing_alpha=smoothing_alpha,
             semantic=semantic,
+            candidate_generator_version=candidate_generator_version,
         )
         predictions = scored_predictions(fold.query_rows, fold_index, ranker, pool_size)
         attach_calibrated_probability(predictions, calibrator)
@@ -231,6 +238,7 @@ def main() -> None:
             "half_life_days": half_life_days,
             "smoothing_alpha": smoothing_alpha,
             "embedding_backend": embedding_backend,
+            "candidate_generator_version": candidate_generator_version,
             "sbert_model": args.sbert_model if embedding_backend == "sbert" else "",
         },
         "calibrator": calibrator.to_artifact(),

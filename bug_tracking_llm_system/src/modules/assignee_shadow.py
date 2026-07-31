@@ -10,6 +10,11 @@ from modules.assignee_deployment import wilson_interval
 
 AUTO_STATUSES = {"auto_assign", "assigned"}
 TOP3_STATUSES = {"top3_confirmation", "needs_confirmation"}
+TOP5_STATUSES = {
+    "top5_user_confirmation",
+    "top5_candidate_selected",
+    "top1_user_authorized_assignment",
+}
 MANUAL_ASSIGNEE = "manual_triage"
 
 
@@ -23,6 +28,10 @@ def evaluate_shadow_feedback(
     minimum_observation_days: int = 28,
     minimum_auto_accuracy_lower_bound: float = 0.80,
     target_top3_accuracy: float = 0.90,
+    target_top5_assist_accuracy: float = 0.85,
+    minimum_top5_assist_coverage: float = 0.10,
+    minimum_top5_assist_rows: int = 100,
+    minimum_top5_assist_accuracy_lower_bound: float = 0.80,
     required_consecutive_weeks: int = 2,
     maximum_prediction_latency_p95_ms: float = 5000.0,
     maximum_invalid_event_rate: float = 0.01,
@@ -39,6 +48,40 @@ def evaluate_shadow_feedback(
     unseen_auto = [row for row in unseen if _is_auto(row)]
     review = [row for row in latest if str(row.get("routing_status") or "") in TOP3_STATUSES]
     correct_review = sum(_final_owner(row) in _ranked_candidates(row)[:3] for row in review)
+    top5_review = [
+        row
+        for row in latest
+        if row.get("top5_assist_available") is True
+        or str(row.get("routing_status") or "") in TOP5_STATUSES
+    ]
+    correct_top5 = sum(
+        _final_owner(row) in _ranked_candidates(row)[:5] for row in top5_review
+    )
+    user_authorized_top1 = [
+        row
+        for row in top5_review
+        if row.get("auto_top1_selected") is True
+        or str(row.get("selection_mode") or "") == "top1_user_authorized"
+    ]
+    user_selected_top5 = [
+        row
+        for row in top5_review
+        if str(row.get("selection_mode") or "") == "top5_candidate_selection"
+    ]
+    eligible_top5_review = [
+        row for row in top5_review if row.get("eligibility_required") is True
+    ]
+    eligibility_verified_rows = [
+        row
+        for row in eligible_top5_review
+        if row.get("eligibility_review_confirmed") is True
+        and row.get("eligibility_verified") is True
+    ]
+    selected_eligibility_verified_rows = [
+        row
+        for row in eligible_top5_review
+        if row.get("selected_assignee_eligibility_verified") is True
+    ]
     observation_days = _observation_days(latest)
     provenance = _shadow_provenance(latest)
     latencies = [
@@ -76,6 +119,26 @@ def evaluate_shadow_feedback(
         "unseen_auto_assignment_rate_ci95": wilson_interval(len(unseen_auto), len(unseen)),
         "top3_confirmation_rows": len(review),
         "top3_confirmation_accuracy": _ratio(correct_review, len(review)),
+        "top5_assist_rows": len(top5_review),
+        "top5_assist_correct_rows": correct_top5,
+        "top5_assist_coverage": _ratio(len(top5_review), len(latest)),
+        "top5_assist_accuracy": _ratio(correct_top5, len(top5_review)),
+        "top5_assist_accuracy_ci95": wilson_interval(
+            correct_top5, len(top5_review)
+        ),
+        "user_authorized_top1_rows": len(user_authorized_top1),
+        "user_selected_top5_candidate_rows": len(user_selected_top5),
+        "eligible_policy_top5_rows": len(eligible_top5_review),
+        "eligibility_verified_top5_rows": len(eligibility_verified_rows),
+        "eligibility_verified_top5_rate": _ratio(
+            len(eligibility_verified_rows), len(eligible_top5_review)
+        ),
+        "selected_assignee_eligibility_verified_rows": len(
+            selected_eligibility_verified_rows
+        ),
+        "selected_assignee_eligibility_verified_rate": _ratio(
+            len(selected_eligibility_verified_rows), len(eligible_top5_review)
+        ),
         "routing_status_breakdown": dict(
             sorted(Counter(str(row.get("routing_status") or "missing") for row in latest).items())
         ),
@@ -119,6 +182,38 @@ def evaluate_shadow_feedback(
     advisory = {
         "top3_confirmation_accuracy": metrics["top3_confirmation_accuracy"] >= target_top3_accuracy,
     }
+    top5_checks = {
+        "live_shadow_provenance_complete": provenance["complete"],
+        "top5_assist_accuracy": metrics["top5_assist_accuracy"]
+        >= target_top5_assist_accuracy,
+        "top5_assist_coverage": metrics["top5_assist_coverage"]
+        >= minimum_top5_assist_coverage,
+        "minimum_top5_assist_rows": metrics["top5_assist_rows"]
+        >= minimum_top5_assist_rows,
+        "top5_accuracy_confidence_lower_bound": metrics[
+            "top5_assist_accuracy_ci95"
+        ]["lower"]
+        >= minimum_top5_assist_accuracy_lower_bound,
+        "prediction_latency_complete": latency["missing_rows"] == 0 and bool(latest),
+        "prediction_latency_p95": latency["p95"] is not None
+        and latency["p95"] <= maximum_prediction_latency_p95_ms,
+        "invalid_event_rate": invalid_event_rate <= maximum_invalid_event_rate,
+        "never_auto_assigns": not any(_is_auto(row) for row in top5_review),
+        "never_autonomously_assigns": not any(_is_auto(row) for row in top5_review),
+    }
+    if eligible_top5_review:
+        top5_checks.update(
+            {
+                "eligible_policy_review_confirmed": len(
+                    eligibility_verified_rows
+                )
+                == len(eligible_top5_review),
+                "selected_assignee_eligibility_verified": len(
+                    selected_eligibility_verified_rows
+                )
+                == len(eligible_top5_review),
+            }
+        )
     return {
         "schema_version": 3,
         "method": "operationally_gated_append_only_assignee_shadow_evaluation_v3",
@@ -140,6 +235,24 @@ def evaluate_shadow_feedback(
             },
             "advisory_checks": advisory,
             "advisory_targets": {"target_top3_accuracy": target_top3_accuracy},
+        },
+        "top5_assist_gate": {
+            "passed": all(top5_checks.values()),
+            "checks": top5_checks,
+            "failed_checks": [
+                name for name, passed in top5_checks.items() if not passed
+            ],
+            "targets": {
+                "target_top5_assist_accuracy": target_top5_assist_accuracy,
+                "minimum_top5_assist_coverage": minimum_top5_assist_coverage,
+                "minimum_top5_assist_rows": minimum_top5_assist_rows,
+                "minimum_top5_assist_accuracy_lower_bound": (
+                    minimum_top5_assist_accuracy_lower_bound
+                ),
+            },
+            "requires_user_selection": True,
+            "auto_assignment_authorized": False,
+            "user_authorized_top1_supported": True,
         },
     }
 

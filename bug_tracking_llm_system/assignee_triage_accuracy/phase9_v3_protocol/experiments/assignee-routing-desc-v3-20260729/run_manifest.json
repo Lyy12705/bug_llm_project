@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "experiment_id": "assignee-routing-desc-v3-20260729",
+  "created_at": "2026-07-29T01:38:29+08:00",
+  "purpose": "Description-enriched, time-ordered, traceable Top-5 semi-automatic assignee recommendation development evaluation",
+  "deployment_status": "research_only",
+  "git": {
+    "commit": "116242bf7ff7922fc903332c970ec2f488c3e452",
+    "worktree_clean": false
+  },
+  "description": {
+    "source": "first_public_bugzilla_comment",
+    "report_time_safe": true,
+    "fetch_tls_verification": false,
+    "fetch_tls_note": "The local runtime could not validate the Mozilla certificate chain. The public HTTPS endpoint was fetched with the existing --insecure option and this setting is recorded here.",
+    "base_raw_rows": 10000,
+    "base_raw_nonempty": 9138,
+    "rolling_raw_rows": 15000,
+    "rolling_raw_nonempty": 13539,
+    "combined_raw_rows": 25000,
+    "combined_raw_nonempty": 22677,
+    "combined_nonempty_ratio": 0.90708,
+    "rolling_fetch_error_rows": 21
+  },
+  "partitions": [
+    {
+      "name": "base-raw",
+      "role": "label_availability_and_base_provenance",
+      "path": "assignee_triage_accuracy/phase2_temporal_description/data/bmo_public_10k_description_enriched_raw.jsonl",
+      "rows": 10000,
+      "sha256": "95f9075748f066f063251efe701a226567804c8c1993d3cd1d2fde1dc96801d5"
+    },
+    {
+      "name": "ranker-fit",
+      "role": "ranker_fit",
+      "path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_history_train.jsonl",
+      "rows": 6524,
+      "description_nonempty": 5929,
+      "sha256": "1dc57e13ec6cb3d85d39f9d5cbeddacef628acbf0c286c027e664c1a895e313b"
+    },
+    {
+      "name": "ranker-selection",
+      "role": "ranker_selection",
+      "path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_validation_set.jsonl",
+      "rows": 794,
+      "description_nonempty": 721,
+      "sha256": "d7354ab4d7e1fee6ed8fdcd3cf3a35d65dd13703ea68edc97f13d4a8d165b137"
+    },
+    {
+      "name": "ranker-later-development",
+      "role": "later_development_only",
+      "path": "assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_test_set.jsonl",
+      "rows": 779,
+      "description_nonempty": 700,
+      "sha256": "96b16613cfce1b83076b2de337da8acd310e645949d91da87509fec81344a50a"
+    },
+    {
+      "name": "calibrator-fit",
+      "role": "calibrator_fit",
+      "path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2020q3_description_enriched_raw.jsonl",
+      "rows": 3000,
+      "description_nonempty": 2706,
+      "sha256": "4eb0bee6487a26ca35ebcdc950f932ec16a514925af62c09e8050c031db393b2"
+    },
+    {
+      "name": "open-set-fit",
+      "role": "open_set_fit",
+      "path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2020q4_description_enriched_raw.jsonl",
+      "rows": 3000,
+      "description_nonempty": 2728,
+      "sha256": "92053f0281d5e8cc2e900175c999a5a057fc55213491efbc0ce4a30b8128cdfd"
+    },
+    {
+      "name": "policy-q1",
+      "role": "policy_selection",
+      "path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2021q1_description_enriched_raw.jsonl",
+      "rows": 3000,
+      "description_nonempty": 2726,
+      "sha256": "52a7a4f40e9691d681d7ad5642213012f7bde92b8409eaed0c977faf3f8e23e8"
+    },
+    {
+      "name": "policy-q2",
+      "role": "policy_selection",
+      "path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2021q2_description_enriched_raw.jsonl",
+      "rows": 3000,
+      "description_nonempty": 2696,
+      "fetch_error_rows": 11,
+      "sha256": "d11180fa70e909acc45e50652b2d0c69eef128f254a546de896d176e9ce5b954"
+    },
+    {
+      "name": "policy-q3",
+      "role": "policy_selection",
+      "path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2021q3_description_enriched_raw.jsonl",
+      "rows": 3000,
+      "description_nonempty": 2683,
+      "fetch_error_rows": 10,
+      "sha256": "ff3100086382365e97b9304144efd6377f24357645885a7f255ca7aa65063ed5"
+    }
+  ],
+  "ranker": {
+    "name": "candidate_hist_gradient_boosting_shallow_desc_v3_20260729",
+    "model": "hist_gradient_boosting_shallow",
+    "selection_rule": "fixed_by_cli_before_policy_selection",
+    "candidate_generator_version": "v3",
+    "candidate_pool_size": 30,
+    "output_k": 5,
+    "embedding_backend": "sbert",
+    "sbert_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "artifact_path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/model_frozen/candidate_ltr_artifact.json",
+    "artifact_sha256": "5e78d4b4e13752ad4d21dc19733e9c02ac1636851973057b16a95342f2c0344c",
+    "model_sha256": "3e4d9dd8a531fd95e0e0e2689beddc1b5db6b595ab9cadb000ce3220662e3ffd",
+    "report_sha256": "a42b9f7bb5deb46653c611fdca721b7378549d1d571a4e02ecffa88dabe2d234"
+  },
+  "rolling_policy": {
+    "name": "rolling_desc_v3_20260729",
+    "fit_windows": [
+      "validation",
+      "2020_q3",
+      "2020_q4"
+    ],
+    "policy_selection_windows": [
+      "2021_q1",
+      "2021_q2",
+      "2021_q3"
+    ],
+    "artifact_path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/rolling/rolling_open_set_artifact.json",
+    "artifact_sha256": "db267747ceee2438c854c186d02a430daec12e2509bfb287d7f8f5471028149e",
+    "report_sha256": "d0768d0d6b5154138c7b12c1a3e32175e26e1f8dfab25c6f17649d3d73de6bf9",
+    "top5_target_accuracy": 0.85,
+    "minimum_coverage": 0.1,
+    "minimum_rows_per_window": 100,
+    "minimum_wilson_lower_bound": 0.8,
+    "minimum_candidate_source_count": 2,
+    "auto_assignment_authorized": false
+  },
+  "same_population_results": {
+    "evaluation_rows": 3481,
+    "product_component_domains": 137,
+    "domain_experience_minimum_prior_assignments": 3,
+    "exact_owner_top1": {
+      "hits": 2371,
+      "accuracy": 0.681126
+    },
+    "exact_owner_top5": {
+      "hits": 3049,
+      "accuracy": 0.875898
+    },
+    "historical_domain_experience_proxy_top1": {
+      "hits": 3353,
+      "accuracy": 0.963229
+    },
+    "historical_domain_experience_proxy_top5": {
+      "hits": 3450,
+      "accuracy": 0.991095
+    },
+    "tiered_top5_success": {
+      "hits": 3107,
+      "accuracy": 0.89256
+    },
+    "candidate_eligibility_precision_proxy": {
+      "eligible_slots": 11140,
+      "candidate_slots": 17405,
+      "precision": 0.640046
+    },
+    "report_path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/domain_experience_proxy_report.json",
+    "report_sha256": "011212a4b758b3f69776deec96c7484ae9e97a20b7617a14f77824cebabc44dd"
+  },
+  "protocol": {
+    "manifest_path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/protocol_manifest.json",
+    "manifest_file_sha256": "2a71c7c66705c7343772c99dc927997088f4493e4a32ac40e71e197ce092ef70",
+    "manifest_declared_sha256": "75dbbed3c6bcad0093c19392dc0acec04085b507db11e1ecd79ad3eceeb84abd",
+    "gate_passed": false,
+    "blocked_by": [
+      "cross_split_leakage_free",
+      "assignment_label_timestamps_explicit",
+      "git_worktree_clean"
+    ],
+    "cross_split_near_duplicate_text_pairs": 21128,
+    "assignment_label_timestamp_source": "last_change_time_proxy",
+    "formal_sealed_holdout_evaluated": false
+  },
+  "evidence_boundaries": {
+    "formal_eligible_owner_result": false,
+    "domain_experience_is_proxy": true,
+    "reviewed_active_roster_available": false,
+    "file_history_available": false,
+    "reporter_history_complete": false,
+    "release_claim_allowed": false
+  }
+}

@@ -2,12 +2,26 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC_ROOT = PROJECT_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from modules.assignee_eligibility import (  # noqa: E402
+    annotate_eligible_owner_labels_from_snapshots,
+    read_assignee_eligibility_index,
+)
+
 from assignee_open_set_common import (
     OPEN_SET_FEATURES,
+    apply_top5_assist_policy,
     attach_calibrated_probability,
     attach_open_set_probability,
     build_drift_reference,
@@ -19,6 +33,8 @@ from assignee_open_set_common import (
     routing_metrics,
     routing_score_diagnostics,
     select_multi_window_routing_policy,
+    select_multi_window_top5_assist_policy,
+    top5_assist_metrics,
     write_json,
     write_jsonl,
 )
@@ -39,7 +55,6 @@ from train_assignee_ltr import (
 from train_assignee_open_set import EXPECTED_RANKER_NAME, load_ranker
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = PROJECT_ROOT / "assignee_triage_accuracy" / "paper_grade" / "data" / "raw"
 DEFAULT_MODEL_DIR = (
     PROJECT_ROOT
@@ -63,6 +78,10 @@ ROLLING_CALIBRATION_FEATURES = (
     "product_component_owner_share",
     "owner_recency",
     "strong_source_agreement",
+    "candidate_source_count",
+    "component_token_owner_share",
+    "reporter_owner_share",
+    "file_owner_share",
 )
 DRIFT_FEATURES = (
     "calibrated_probability",
@@ -122,6 +141,29 @@ def main() -> None:
     parser.add_argument("--minimum-owner-history", type=int, default=3)
     parser.add_argument("--target-auto-accuracy", type=float, default=0.85)
     parser.add_argument("--target-review-accuracy", type=float, default=0.90)
+    parser.add_argument("--target-top5-assist-accuracy", type=float, default=0.85)
+    parser.add_argument(
+        "--top5-correctness-field",
+        choices=("is_top5_correct", "is_top5_eligible_correct"),
+        default="is_top5_correct",
+        help=(
+            "Freeze Top-5 quality against the historical exact owner or a reviewed "
+            "eligible-owner set. Eligible mode requires complete time-versioned snapshots."
+        ),
+    )
+    parser.add_argument(
+        "--eligibility-roster",
+        type=Path,
+        action="append",
+        default=[],
+        help="Repeat for non-overlapping reviewed eligibility snapshots.",
+    )
+    parser.add_argument("--minimum-top5-assist-coverage", type=float, default=0.10)
+    parser.add_argument("--minimum-top5-assist-rows-per-window", type=int, default=100)
+    parser.add_argument(
+        "--minimum-top5-assist-accuracy-lower-bound", type=float, default=0.80
+    )
+    parser.add_argument("--minimum-top5-assist-confidence", type=float, default=0.0)
     parser.add_argument("--minimum-auto-coverage", type=float, default=0.10)
     parser.add_argument("--maximum-unseen-auto-rate", type=float, default=0.05)
     parser.add_argument("--minimum-high-confidence", type=float, default=0.50)
@@ -129,6 +171,18 @@ def main() -> None:
     parser.add_argument("--minimum-review-rows-per-window", type=int, default=1)
     parser.add_argument("--minimum-review-coverage", type=float, default=0.0)
     parser.add_argument("--minimum-candidate-source-count", type=int, default=2)
+    parser.add_argument("--minimum-auto-rows-per-window", type=int, default=250)
+    parser.add_argument(
+        "--minimum-auto-accuracy-lower-bound", type=float, default=0.80
+    )
+    parser.add_argument(
+        "--maximum-unseen-rate-upper-bound", type=float, default=0.05
+    )
+    parser.add_argument("--minimum-component-auto-rows", type=int, default=30)
+    parser.add_argument("--minimum-component-auto-accuracy", type=float, default=0.75)
+    parser.add_argument(
+        "--minimum-component-auto-accuracy-lower-bound", type=float, default=0.60
+    )
     parser.add_argument(
         "--require-review-policy",
         action="store_true",
@@ -137,8 +191,40 @@ def main() -> None:
     parser.add_argument("--maximum-drift-psi", type=float, default=0.25)
     parser.add_argument("--sbert-model", default="sentence-transformers/all-MiniLM-L6-v2")
     parser.add_argument("--seed", type=int, default=3407)
-    parser.add_argument("--artifact-name", default="assignee_rolling_open_set_logistic_v1")
+    parser.add_argument("--artifact-name", default="assignee_rolling_open_set_logistic_v3")
     args = parser.parse_args()
+
+    probability_arguments = {
+        "target auto accuracy": args.target_auto_accuracy,
+        "target review accuracy": args.target_review_accuracy,
+        "target Top-5 assist accuracy": args.target_top5_assist_accuracy,
+        "minimum Top-5 assist coverage": args.minimum_top5_assist_coverage,
+        "minimum Top-5 assist accuracy lower bound": (
+            args.minimum_top5_assist_accuracy_lower_bound
+        ),
+        "minimum Top-5 assist confidence": args.minimum_top5_assist_confidence,
+        "minimum auto coverage": args.minimum_auto_coverage,
+        "maximum unseen auto rate": args.maximum_unseen_auto_rate,
+        "minimum auto accuracy lower bound": args.minimum_auto_accuracy_lower_bound,
+        "maximum unseen rate upper bound": args.maximum_unseen_rate_upper_bound,
+        "minimum component auto accuracy": args.minimum_component_auto_accuracy,
+        "minimum component auto accuracy lower bound": (
+            args.minimum_component_auto_accuracy_lower_bound
+        ),
+    }
+    if any(not 0.0 <= value <= 1.0 for value in probability_arguments.values()):
+        raise SystemExit(
+            "routing probability thresholds must be between zero and one"
+        )
+    if (
+        args.minimum_candidate_source_count < 2
+        or args.minimum_auto_rows_per_window < 1
+        or args.minimum_component_auto_rows < 1
+        or args.minimum_top5_assist_rows_per_window < 1
+    ):
+        raise SystemExit(
+            "v3 requires at least two candidate sources and positive sample floors"
+        )
 
     ranker, ranker_artifact = load_ranker(args.model_dir, args.expected_ranker_name)
     requirements = ranker_artifact.get("parameters", {})
@@ -146,6 +232,9 @@ def main() -> None:
     half_life_days = float(requirements.get("half_life_days", 90.0))
     smoothing_alpha = float(requirements.get("smoothing_alpha", 5.0))
     embedding_backend = str(requirements.get("embedding_backend") or "none")
+    candidate_generator_version = str(
+        requirements.get("candidate_generator_version") or "v2"
+    )
     semantic = build_semantic_backend(embedding_backend, args.sbert_model)
     if embedding_backend == "sbert" and not semantic.status.startswith("sbert_local:"):
         raise SystemExit(f"The fixed ranker requires a local SBERT model: {semantic.status}")
@@ -175,6 +264,7 @@ def main() -> None:
         window_specs,
         label_map,
         availability,
+        strict_duplicate_families=candidate_generator_version == "v3",
     )
     fit_windows = windows[: args.fit_window_count]
     selection_windows = windows[args.fit_window_count :]
@@ -184,7 +274,13 @@ def main() -> None:
     for window in fit_windows:
         print(f"[rolling] scoring calibration window: {window.name}", flush=True)
         predictions = score_window(
-            window, ranker, pool_size, half_life_days, smoothing_alpha, semantic
+            window,
+            ranker,
+            pool_size,
+            half_life_days,
+            smoothing_alpha,
+            semantic,
+            candidate_generator_version,
         )
         normal_fit_by_window[window.name] = predictions
         calibration_predictions.extend(predictions)
@@ -218,7 +314,13 @@ def main() -> None:
             audit=window.audit,
         )
         predictions = score_window(
-            reduced_window, ranker, pool_size, half_life_days, smoothing_alpha, semantic
+            reduced_window,
+            ranker,
+            pool_size,
+            half_life_days,
+            smoothing_alpha,
+            semantic,
+            candidate_generator_version,
         )
         attach_calibrated_probability(predictions, calibrator)
         for row in predictions:
@@ -240,11 +342,40 @@ def main() -> None:
     for window in selection_windows:
         print(f"[rolling] scoring policy-selection window: {window.name}", flush=True)
         predictions = score_window(
-            window, ranker, pool_size, half_life_days, smoothing_alpha, semantic
+            window,
+            ranker,
+            pool_size,
+            half_life_days,
+            smoothing_alpha,
+            semantic,
+            candidate_generator_version,
         )
         attach_calibrated_probability(predictions, calibrator)
         attach_open_set_probability(predictions, detector)
         selection_predictions[window.name] = predictions
+    if args.top5_correctness_field == "is_top5_eligible_correct":
+        if not args.eligibility_roster:
+            raise SystemExit(
+                "eligible-owner Top-5 policy requires --eligibility-roster"
+            )
+        eligibility_indexes = [
+            read_assignee_eligibility_index(path)
+            for path in args.eligibility_roster
+        ]
+        for predictions in selection_predictions.values():
+            annotate_eligible_owner_labels_from_snapshots(
+                predictions, eligibility_indexes
+            )
+        unlabeled = sum(
+            row.get("eligibility_label_available") is not True
+            for rows in selection_predictions.values()
+            for row in rows
+        )
+        if unlabeled:
+            raise SystemExit(
+                "eligible-owner Top-5 policy cannot be frozen: "
+                f"{unlabeled} selection rows lack a time-valid reviewed snapshot"
+            )
     policy = select_multi_window_routing_policy(
         selection_predictions,
         target_auto_accuracy=args.target_auto_accuracy,
@@ -256,9 +387,30 @@ def main() -> None:
         minimum_review_rows_per_window=max(1, args.minimum_review_rows_per_window),
         minimum_review_coverage=max(0.0, args.minimum_review_coverage),
         minimum_candidate_source_count=max(0, args.minimum_candidate_source_count),
+        minimum_auto_rows_per_window=max(1, args.minimum_auto_rows_per_window),
+        minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
+        maximum_unseen_rate_upper_bound=args.maximum_unseen_rate_upper_bound,
+        minimum_component_auto_rows=max(1, args.minimum_component_auto_rows),
+        minimum_component_accuracy=args.minimum_component_auto_accuracy,
+        minimum_component_accuracy_lower_bound=(
+            args.minimum_component_auto_accuracy_lower_bound
+        ),
+    )
+    top5_policy = select_multi_window_top5_assist_policy(
+        selection_predictions,
+        target_accuracy=args.target_top5_assist_accuracy,
+        minimum_coverage=args.minimum_top5_assist_coverage,
+        minimum_rows_per_window=max(1, args.minimum_top5_assist_rows_per_window),
+        minimum_accuracy_lower_bound=(
+            args.minimum_top5_assist_accuracy_lower_bound
+        ),
+        minimum_candidate_source_count=max(0, args.minimum_candidate_source_count),
+        minimum_confidence=args.minimum_top5_assist_confidence,
+        correctness_field=args.top5_correctness_field,
     )
     for predictions in selection_predictions.values():
         route_predictions(predictions, policy)
+        apply_top5_assist_policy(predictions, top5_policy)
 
     pooled_selection = [row for rows in selection_predictions.values() for row in rows]
     drift_reference = build_drift_reference(
@@ -269,28 +421,105 @@ def main() -> None:
     selection_routing = {
         name: routing_metrics(predictions) for name, predictions in selection_predictions.items()
     }
+    selection_top5_assist = {
+        name: top5_assist_metrics(
+            predictions, correctness_field=args.top5_correctness_field
+        )
+        for name, predictions in selection_predictions.items()
+    }
+    label_availability = label_availability_audit(
+        [
+            row
+            for window in windows
+            for row in [*window.history_before, *window.query_rows]
+        ]
+    )
+    global_development_checks = {
+        "candidate_generator_version_v3": candidate_generator_version == "v3",
+        "assignment_label_timestamps_explicit": label_availability[
+            "all_rows_explicit"
+        ],
+    }
+    selection_window_checks = {
+        name: {
+            "auto_accuracy": metrics["auto_assignment_accuracy"]
+            >= args.target_auto_accuracy,
+            "auto_coverage": metrics["auto_assignment_coverage"]
+            >= args.minimum_auto_coverage,
+            "unseen_point_rate": metrics["unseen_auto_assignment_rate"]
+            < args.maximum_unseen_auto_rate,
+            "unseen_confidence_upper_bound": metrics[
+                "unseen_auto_assignment_rate_ci95"
+            ]["upper"]
+            < args.maximum_unseen_rate_upper_bound,
+            "minimum_auto_rows": metrics["auto_assignment_rows"]
+            >= args.minimum_auto_rows_per_window,
+            "auto_accuracy_confidence_lower_bound": metrics[
+                "auto_assignment_accuracy_ci95"
+            ]["lower"]
+            >= args.minimum_auto_accuracy_lower_bound,
+            "candidate_source_support_frozen": int(
+                policy.get("minimum_candidate_source_count", 0)
+            )
+            >= args.minimum_candidate_source_count,
+            "component_safety": bool(
+                policy.get("selection_window_metrics", {})
+                .get(name, {})
+                .get("component_safety", {})
+                .get("passed", False)
+            ),
+        }
+        for name, metrics in selection_routing.items()
+    }
     selection_passed = bool(
         policy.get("found")
+        and all(global_development_checks.values())
         and all(
-            metrics["auto_assignment_accuracy"] >= args.target_auto_accuracy
-            and metrics["auto_assignment_coverage"] >= args.minimum_auto_coverage
-            and metrics["unseen_auto_assignment_rate"] <= args.maximum_unseen_auto_rate
-            for metrics in selection_routing.values()
+            all(checks.values()) for checks in selection_window_checks.values()
         )
         and (not args.require_review_policy or policy.get("review_policy_found") is True)
+    )
+    top5_selection_window_checks = {
+        name: {
+            "top5_accuracy": metrics["top5_assist_accuracy"]
+            >= args.target_top5_assist_accuracy,
+            "top5_coverage": metrics["top5_assist_coverage"]
+            >= args.minimum_top5_assist_coverage,
+            "minimum_top5_rows": metrics["top5_assist_rows"]
+            >= args.minimum_top5_assist_rows_per_window,
+            "top5_accuracy_confidence_lower_bound": metrics[
+                "top5_assist_accuracy_ci95"
+            ]["lower"]
+            >= args.minimum_top5_assist_accuracy_lower_bound,
+            "never_auto_assigns": metrics["auto_assignment_rows"] == 0,
+        }
+        for name, metrics in selection_top5_assist.items()
+    }
+    top5_selection_passed = bool(
+        top5_policy.get("found")
+        and all(global_development_checks.values())
+        and all(
+            all(checks.values())
+            for checks in top5_selection_window_checks.values()
+        )
     )
 
     report = {
         "schema_version": 1,
-        "method": "rolling_history_multi_window_open_set_v1",
+        "method": "rolling_history_multi_window_open_set_v3",
         "deployment_status": "research_only",
         "ranker": ranker_artifact.get("name"),
         "protocol": {
             "fit_windows": [window.name for window in fit_windows],
             "policy_selection_windows": [window.name for window in selection_windows],
             "window_audits": [window.audit for window in windows],
-            "label_availability_policy": "last_change_time_at_or_before_query_start",
-            "assignment_time_history_available": False,
+            "label_availability_policy": (
+                "explicit_assignment_event_time_at_or_before_each_history_cutoff"
+            ),
+            "label_availability_audit": label_availability,
+            "assignment_time_history_available": label_availability[
+                "all_rows_explicit"
+            ],
             "leave_assignee_out_audits": leave_owner_audits,
             "all_temporal_checks_passed": all(window.audit["temporal_order_valid"] for window in windows),
             "all_leave_owner_checks_passed": all(row["leakage_free"] for row in leave_owner_audits),
@@ -322,12 +551,35 @@ def main() -> None:
         },
         "routing_policy": policy,
         "routing_by_selection_window": selection_routing,
+        "top5_assist_policy": top5_policy,
+        "top5_assist_by_selection_window": selection_top5_assist,
+        "top5_assist_development_gate": {
+            "passed": top5_selection_passed,
+            "requires_every_selection_window": True,
+            "global_checks": global_development_checks,
+            "selection_window_checks": top5_selection_window_checks,
+            "requires_user_selection": True,
+            "auto_assignment_authorized": False,
+            "blocker": (
+                "new_untouched_holdout_required"
+                if top5_selection_passed
+                else "protocol_provenance_gate_failed"
+                if top5_policy.get("found")
+                and all(
+                    all(checks.values())
+                    for checks in top5_selection_window_checks.values()
+                )
+                else "multi_window_top5_quality_gate_failed"
+            ),
+        },
         "routing_diagnostics_by_selection_window": {
             name: routing_score_diagnostics(rows, policy) for name, rows in selection_predictions.items()
         },
         "development_gate": {
             "passed": selection_passed,
             "requires_every_selection_window": True,
+            "global_checks": global_development_checks,
+            "selection_window_checks": selection_window_checks,
             "requires_review_policy": args.require_review_policy,
             "review_policy_found": policy.get("review_policy_found") is True,
             "blocker": (
@@ -347,13 +599,21 @@ def main() -> None:
             "half_life_days": half_life_days,
             "smoothing_alpha": smoothing_alpha,
             "embedding_backend": embedding_backend,
+            "candidate_generator_version": candidate_generator_version,
             "sbert_model": args.sbert_model if embedding_backend == "sbert" else "",
         },
         "history_windows": [window.name for window in windows],
-        "label_availability_policy": "last_change_time_at_or_before_query_start",
+        "label_availability_policy": (
+            "explicit_assignment_event_time_at_or_before_each_history_cutoff"
+        ),
+        "label_availability_audit": label_availability,
         "calibrator": calibrator.to_artifact(),
         "open_set_detector": detector.to_artifact(),
         "routing_policy": policy,
+        "top5_assist_policy": top5_policy,
+        "top5_assist_development_gate": report[
+            "top5_assist_development_gate"
+        ],
         "drift_reference": drift_reference,
         "development_gate": report["development_gate"],
         "targets": {
@@ -361,8 +621,37 @@ def main() -> None:
             "minimum_auto_coverage": args.minimum_auto_coverage,
             "maximum_unseen_auto_rate": args.maximum_unseen_auto_rate,
             "target_review_accuracy": args.target_review_accuracy,
+            "target_top5_assist_accuracy": args.target_top5_assist_accuracy,
+            "minimum_top5_assist_coverage": args.minimum_top5_assist_coverage,
+            "minimum_top5_assist_rows_per_window": max(
+                1, args.minimum_top5_assist_rows_per_window
+            ),
+            "minimum_top5_assist_accuracy_lower_bound": (
+                args.minimum_top5_assist_accuracy_lower_bound
+            ),
             "minimum_review_rows_per_window": max(1, args.minimum_review_rows_per_window),
             "minimum_review_coverage": max(0.0, args.minimum_review_coverage),
+            "minimum_candidate_source_count": max(
+                0, args.minimum_candidate_source_count
+            ),
+            "minimum_auto_rows_per_window": max(
+                1, args.minimum_auto_rows_per_window
+            ),
+            "minimum_auto_accuracy_lower_bound": (
+                args.minimum_auto_accuracy_lower_bound
+            ),
+            "maximum_unseen_rate_upper_bound": (
+                args.maximum_unseen_rate_upper_bound
+            ),
+            "minimum_component_auto_rows": max(
+                1, args.minimum_component_auto_rows
+            ),
+            "minimum_component_auto_accuracy": (
+                args.minimum_component_auto_accuracy
+            ),
+            "minimum_component_auto_accuracy_lower_bound": (
+                args.minimum_component_auto_accuracy_lower_bound
+            ),
         },
         "approval_note": (
             f"Frozen after {windows[-1].name} development. Requires one new untouched temporal holdout, "
@@ -384,13 +673,19 @@ def prepare_rolling_windows(
     window_specs: list[tuple[str, Path]],
     label_map: dict[str, str],
     availability: dict[str, str] | None = None,
+    *,
+    strict_duplicate_families: bool = False,
 ) -> list[RollingWindow]:
     history = sorted((dict(row) for row in base_history), key=row_sort_key)
     availability = availability or {}
     output = []
     for name, path in window_specs:
         loaded = apply_label_availability(load_rows(path, label_map), availability)
-        rows, overlap_rows_excluded = exclude_cross_split_overlap(loaded, history)
+        rows, overlap_rows_excluded = exclude_cross_split_overlap(
+            loaded,
+            history,
+            strict_duplicate_families=strict_duplicate_families,
+        )
         if not rows:
             raise ValueError(f"rolling window {name} is empty after cross-split overlap exclusion")
         query_start_epoch = parse_timestamp(str(rows[0].get("created_at") or ""))
@@ -451,12 +746,14 @@ def score_window(
     half_life_days: float,
     smoothing_alpha: float,
     semantic: Any,
+    candidate_generator_version: str = "v2",
 ) -> list[dict[str, Any]]:
     index = CandidateIndex(
         window.history_before,
         half_life_days=half_life_days,
         smoothing_alpha=smoothing_alpha,
         semantic=semantic,
+        candidate_generator_version=candidate_generator_version,
     )
     predictions = scored_predictions(window.query_rows, index, ranker, pool_size)
     for row in predictions:
@@ -490,14 +787,73 @@ def apply_label_availability(
     output = []
     for source in rows:
         row = dict(source)
+        explicit = str(
+            row.get("assignment_label_available_at")
+            or row.get("assignment_changed_at")
+            or row.get("assigned_at")
+            or ""
+        ).strip()
+        existing_source = str(row.get("label_availability_source") or "").strip()
         value = str(
-            row.get("label_available_at")
+            explicit
+            or row.get("label_available_at")
             or row.get("last_change_time")
             or availability.get(str(row.get("ticket_id") or ""), "")
         ).strip()
         row["label_available_at"] = value
+        if explicit:
+            row["label_availability_source"] = "explicit_assignment_event_time"
+        elif existing_source:
+            row["label_availability_source"] = existing_source
+        elif row.get("last_change_time") or availability.get(
+            str(row.get("ticket_id") or ""), ""
+        ):
+            row["label_availability_source"] = "last_change_time_proxy"
+        elif value:
+            row["label_availability_source"] = "explicit_assignment_event_time"
+        else:
+            row["label_availability_source"] = "missing"
         output.append(row)
     return output
+
+
+def label_availability_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Summarize label-time provenance once per ticket for fail-closed v3 gates."""
+
+    priority = {
+        "explicit_assignment_event_time": 0,
+        "last_change_time_proxy": 1,
+        "missing": 2,
+    }
+    provenance_by_row: dict[str, str] = {}
+    for index, row in enumerate(rows):
+        ticket_id = str(row.get("ticket_id") or "").strip()
+        key = ticket_id or f"__anonymous_{index}"
+        source = str(
+            row.get("label_availability_source") or "missing"
+        ).strip()
+        if source not in priority:
+            source = "missing"
+        current = provenance_by_row.get(key)
+        if current is None or priority[source] > priority[current]:
+            provenance_by_row[key] = source
+    sources = Counter(provenance_by_row.values())
+    audited_rows = len(provenance_by_row)
+    explicit = sources["explicit_assignment_event_time"]
+    proxy = sources["last_change_time_proxy"]
+    missing = audited_rows - explicit - proxy
+    return {
+        "rows": audited_rows,
+        "explicit_assignment_event_rows": explicit,
+        "last_change_time_proxy_rows": proxy,
+        "missing_or_unknown_provenance_rows": missing,
+        "explicit_assignment_event_coverage": round(
+            explicit / audited_rows, 6
+        )
+        if audited_rows
+        else 0.0,
+        "all_rows_explicit": bool(audited_rows and explicit == audited_rows),
+    }
 
 
 if __name__ == "__main__":

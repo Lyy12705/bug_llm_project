@@ -1,0 +1,1412 @@
+{
+  "schema_version": 1,
+  "method": "candidate_evidence_support_ablation_v1",
+  "intended_use": "development_only_not_sealed_holdout_selection",
+  "interpretation": "Conservative evidence-support ablation. It removes one source or source family from the observed candidate evidence without filling the freed quota, so it does not overstate replacement-source gains.",
+  "windows": {
+    "validation": {
+      "overall": {
+        "rows": 794,
+        "cutoffs": {
+          "10": {
+            "baseline_recall": 0.911839,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 666,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 665,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 414,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 618,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.88539,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "sbert": {
+                "supported_hit_rows": 592,
+                "unique_support_hit_rows": 7,
+                "recall_without_source_lower_bound": 0.903023,
+                "recall_loss_upper_bound": 0.008816
+              },
+              "recent_component": {
+                "supported_hit_rows": 495,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 181,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 669,
+                "unique_support_hit_rows": 30,
+                "recall_without_family_lower_bound": 0.874055,
+                "recall_loss_upper_bound": 0.037783
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 618,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.88539,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "product_history": {
+                "supported_hit_rows": 181,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 495,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 592,
+                "unique_support_hit_rows": 7,
+                "recall_without_family_lower_bound": 0.903023,
+                "recall_loss_upper_bound": 0.008816
+              }
+            }
+          },
+          "30": {
+            "baseline_recall": 0.960957,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 671,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 670,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 414,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "sbert": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_source_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              },
+              "recent_component": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "product": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 674,
+                "unique_support_hit_rows": 34,
+                "recall_without_family_lower_bound": 0.918136,
+                "recall_loss_upper_bound": 0.042821
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "product_history": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "recent_activity": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_family_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              }
+            }
+          },
+          "50": {
+            "baseline_recall": 0.960957,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 671,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 670,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 414,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "sbert": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_source_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              },
+              "recent_component": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "product": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 674,
+                "unique_support_hit_rows": 34,
+                "recall_without_family_lower_bound": 0.918136,
+                "recall_loss_upper_bound": 0.042821
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "product_history": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "recent_activity": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_family_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              }
+            }
+          }
+        }
+      },
+      "known_owner": {
+        "rows": 794,
+        "cutoffs": {
+          "10": {
+            "baseline_recall": 0.911839,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 666,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 665,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 414,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 618,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.88539,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "sbert": {
+                "supported_hit_rows": 592,
+                "unique_support_hit_rows": 7,
+                "recall_without_source_lower_bound": 0.903023,
+                "recall_loss_upper_bound": 0.008816
+              },
+              "recent_component": {
+                "supported_hit_rows": 495,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 181,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 669,
+                "unique_support_hit_rows": 30,
+                "recall_without_family_lower_bound": 0.874055,
+                "recall_loss_upper_bound": 0.037783
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 618,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.88539,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "product_history": {
+                "supported_hit_rows": 181,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 495,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.911839,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 592,
+                "unique_support_hit_rows": 7,
+                "recall_without_family_lower_bound": 0.903023,
+                "recall_loss_upper_bound": 0.008816
+              }
+            }
+          },
+          "30": {
+            "baseline_recall": 0.960957,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 671,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 670,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 414,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "sbert": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_source_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              },
+              "recent_component": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "product": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 674,
+                "unique_support_hit_rows": 34,
+                "recall_without_family_lower_bound": 0.918136,
+                "recall_loss_upper_bound": 0.042821
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "product_history": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "recent_activity": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_family_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              }
+            }
+          },
+          "50": {
+            "baseline_recall": 0.960957,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 671,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 670,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 414,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "sbert": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_source_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              },
+              "recent_component": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "product": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_source_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 674,
+                "unique_support_hit_rows": 34,
+                "recall_without_family_lower_bound": 0.918136,
+                "recall_loss_upper_bound": 0.042821
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 160,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.934509,
+                "recall_loss_upper_bound": 0.026448
+              },
+              "product_history": {
+                "supported_hit_rows": 182,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "recent_activity": {
+                "supported_hit_rows": 496,
+                "unique_support_hit_rows": 1,
+                "recall_without_family_lower_bound": 0.959698,
+                "recall_loss_upper_bound": 0.001259
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.960957,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 603,
+                "unique_support_hit_rows": 16,
+                "recall_without_family_lower_bound": 0.940806,
+                "recall_loss_upper_bound": 0.020151
+              }
+            }
+          }
+        }
+      }
+    },
+    "later_development": {
+      "overall": {
+        "rows": 779,
+        "cutoffs": {
+          "10": {
+            "baseline_recall": 0.8819,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 617,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 617,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 381,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_source_lower_bound": 0.863928,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "sbert": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 9,
+                "recall_without_source_lower_bound": 0.870347,
+                "recall_loss_upper_bound": 0.011553
+              },
+              "recent_component": {
+                "supported_hit_rows": 450,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 31,
+                "recall_without_family_lower_bound": 0.842105,
+                "recall_loss_upper_bound": 0.039795
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_family_lower_bound": 0.863928,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "product_history": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 450,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 9,
+                "recall_without_family_lower_bound": 0.870347,
+                "recall_loss_upper_bound": 0.011553
+              }
+            }
+          },
+          "30": {
+            "baseline_recall": 0.953787,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 381,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_source_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "sbert": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              },
+              "recent_component": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 632,
+                "unique_support_hit_rows": 43,
+                "recall_without_family_lower_bound": 0.898588,
+                "recall_loss_upper_bound": 0.055199
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_family_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "product_history": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              }
+            }
+          },
+          "50": {
+            "baseline_recall": 0.953787,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 381,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_source_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "sbert": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              },
+              "recent_component": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 632,
+                "unique_support_hit_rows": 43,
+                "recall_without_family_lower_bound": 0.898588,
+                "recall_loss_upper_bound": 0.055199
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_family_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "product_history": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              }
+            }
+          }
+        }
+      },
+      "known_owner": {
+        "rows": 779,
+        "cutoffs": {
+          "10": {
+            "baseline_recall": 0.8819,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 617,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 617,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 381,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_source_lower_bound": 0.863928,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "sbert": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 9,
+                "recall_without_source_lower_bound": 0.870347,
+                "recall_loss_upper_bound": 0.011553
+              },
+              "recent_component": {
+                "supported_hit_rows": 450,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 619,
+                "unique_support_hit_rows": 31,
+                "recall_without_family_lower_bound": 0.842105,
+                "recall_loss_upper_bound": 0.039795
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_family_lower_bound": 0.863928,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "product_history": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 450,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.8819,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 9,
+                "recall_without_family_lower_bound": 0.870347,
+                "recall_loss_upper_bound": 0.011553
+              }
+            }
+          },
+          "30": {
+            "baseline_recall": 0.953787,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 381,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_source_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "sbert": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              },
+              "recent_component": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 632,
+                "unique_support_hit_rows": 43,
+                "recall_without_family_lower_bound": 0.898588,
+                "recall_loss_upper_bound": 0.055199
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_family_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "product_history": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              }
+            }
+          },
+          "50": {
+            "baseline_recall": 0.953787,
+            "by_source": {
+              "product_component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component": {
+                "supported_hit_rows": 630,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "component_token": {
+                "supported_hit_rows": 381,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "file_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "bm25": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_source_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "sbert": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_source_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              },
+              "recent_component": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "product": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_source_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              }
+            },
+            "by_source_family": {
+              "component_history": {
+                "supported_hit_rows": 632,
+                "unique_support_hit_rows": 43,
+                "recall_without_family_lower_bound": 0.898588,
+                "recall_loss_upper_bound": 0.055199
+              },
+              "file_ownership": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "global_prior": {
+                "supported_hit_rows": 134,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "lexical_retrieval": {
+                "supported_hit_rows": 557,
+                "unique_support_hit_rows": 14,
+                "recall_without_family_lower_bound": 0.935815,
+                "recall_loss_upper_bound": 0.017972
+              },
+              "product_history": {
+                "supported_hit_rows": 145,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "recent_activity": {
+                "supported_hit_rows": 451,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "reporter_history": {
+                "supported_hit_rows": 0,
+                "unique_support_hit_rows": 0,
+                "recall_without_family_lower_bound": 0.953787,
+                "recall_loss_upper_bound": 0.0
+              },
+              "semantic_retrieval": {
+                "supported_hit_rows": 569,
+                "unique_support_hit_rows": 21,
+                "recall_without_family_lower_bound": 0.926829,
+                "recall_loss_upper_bound": 0.026958
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

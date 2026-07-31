@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_rolling_open_set_routing_bundle",
+  "name": "rolling_desc_v3_20260729",
+  "deployment_status": "research_only",
+  "ranker_name": "candidate_hist_gradient_boosting_shallow_desc_v3_20260729",
+  "ranker_requirements": {
+    "candidate_pool_size": 30,
+    "half_life_days": 90.0,
+    "smoothing_alpha": 5.0,
+    "embedding_backend": "sbert",
+    "candidate_generator_version": "v3",
+    "sbert_model": "sentence-transformers/all-MiniLM-L6-v2"
+  },
+  "history_windows": [
+    "validation",
+    "2020_q3",
+    "2020_q4",
+    "2021_q1",
+    "2021_q2",
+    "2021_q3"
+  ],
+  "label_availability_policy": "explicit_assignment_event_time_at_or_before_each_history_cutoff",
+  "label_availability_audit": {
+    "rows": 20291,
+    "explicit_assignment_event_rows": 0,
+    "last_change_time_proxy_rows": 20291,
+    "missing_or_unknown_provenance_rows": 0,
+    "explicit_assignment_event_coverage": 0.0,
+    "all_rows_explicit": false
+  },
+  "calibrator": {
+    "model_type": "standardized_logistic_regression",
+    "feature_names": [
+      "top_probability",
+      "probability_margin",
+      "one_minus_entropy",
+      "component_owner_share",
+      "product_component_owner_share",
+      "owner_recency",
+      "strong_source_agreement",
+      "candidate_source_count",
+      "component_token_owner_share",
+      "reporter_owner_share",
+      "file_owner_share"
+    ],
+    "scaler_mean": [
+      0.45328340685168506,
+      0.29215439578373187,
+      0.4537264543523858,
+      0.26153601381728175,
+      0.26192871230911174,
+      0.6382585243186568,
+      2.4136443521329287,
+      3.131650423390318,
+      0.19840611051620774,
+      0.08052275684294846,
+      0.0
+    ],
+    "scaler_scale": [
+      0.30302666053180677,
+      0.2802160938356805,
+      0.17578504691357816,
+      0.24307553134234458,
+      0.2429495893676724,
+      0.13730001323498134,
+      1.0012035234352343,
+      1.5361397084532156,
+      0.2399851103475655,
+      0.25376364564775017,
+      1.0
+    ],
+    "coefficients": [
+      -0.23524508774242997,
+      0.40828125743687554,
+      0.13029413444741508,
+      0.2655759941275779,
+      0.287759344771249,
+      0.5720979051541656,
+      1.0516122852944463,
+      -0.7361138801170933,
+      -0.21409587059470336,
+      0.891771271085644,
+      0.0
+    ],
+    "intercept": -1.1880949277239226
+  },
+  "open_set_detector": {
+    "model_type": "standardized_logistic_regression",
+    "feature_names": [
+      "calibrated_probability",
+      "probability_margin",
+      "one_minus_entropy",
+      "component_support_log",
+      "product_component_support_log",
+      "predicted_owner_global_log_count",
+      "predicted_owner_component_log_count",
+      "predicted_owner_pair_log_count",
+      "component_owner_share",
+      "product_component_owner_share",
+      "recent_component_owner_share",
+      "component_token_owner_share",
+      "reporter_owner_share",
+      "file_owner_share",
+      "owner_recency",
+      "bm25_owner_score",
+      "bm25_best_issue_score",
+      "sbert_owner_score",
+      "candidate_source_count",
+      "strong_source_agreement",
+      "component_recency_drift",
+      "candidate_count"
+    ],
+    "scaler_mean": [
+      0.30181333600894683,
+      0.30597635251409,
+      0.477536170206593,
+      4.2401303041975495,
+      4.234063431907361,
+      4.165539411452208,
+      2.806919534148009,
+      2.8066792278056574,
+      0.30759097340640057,
+      0.3079044738294957,
+      0.29366999427290325,
+      0.236709131039712,
+      0.08462723144847646,
+      0.0,
+      0.6346877863407204,
+      4.447612527480565,
+      55.8363683510421,
+      0.946141315031564,
+      3.4390477712094585,
+      2.5684614155615915,
+      0.17454543219717514,
+      30.0
+    ],
+    "scaler_scale": [
+      0.24778806202936768,
+      0.28762749472657057,
+      0.18461552532309003,
+      1.382951671813617,
+      1.3865557689072288,
+      1.6619420623021264,
+      1.4681983408792536,
+      1.4685524999762412,
+      0.24486841026786652,
+      0.24475185921742457,
+      0.3393261548244653,
+      0.24677166957957966,
+      0.26293209944364354,
+      1.0,
+      0.14318300282706656,
+      3.693166845418214,
+      45.90450647133121,
+      0.9415830799444752,
+      1.471543828966081,
+      0.9270753208301723,
+      0.19712283325496266,
+      1.0
+    ],
+    "coefficients": [
+      -0.3449162654916107,
+      -0.08123272344123399,
+      -0.20393901435380546,
+      -0.0003813771918149305,
+      -0.0760732448136612,
+      -0.08127353290402058,
+      -0.14617236042902992,
+      -0.16618599831310538,
+      0.11475398300049174,
+      0.14687920145952046,
+      0.15568862090609542,
+      -0.06091063644505931,
+      -0.20859580587234,
+      0.0,
+      0.14754899209831296,
+      -0.2610916911567355,
+      -0.1052622291411485,
+      -0.305017145014531,
+      -0.5303071636368302,
+      0.7090869562819769,
+      0.09398900746155961,
+      0.0
+    ],
+    "intercept": -0.3217410332358022
+  },
+  "routing_policy": {
+    "found": false,
+    "open_set_threshold": 0.0,
+    "t_high": 1.000001,
+    "t_low": 1.000001,
+    "blocker": "no_single_policy_passed_every_development_window"
+  },
+  "top5_assist_policy": {
+    "found": true,
+    "mode": "top5_user_confirmation_only",
+    "top_k": 5,
+    "open_set_threshold": 0.47225512,
+    "minimum_confidence": 0.02067237,
+    "target_accuracy": 0.85,
+    "correctness_field": "is_top5_correct",
+    "correctness_definition": "historical_exact_assignee_in_top5",
+    "candidate_eligibility_requirement": "active_roster_only",
+    "minimum_coverage": 0.1,
+    "minimum_rows_per_window": 100,
+    "minimum_accuracy_lower_bound": 0.8,
+    "minimum_candidate_source_count": 2,
+    "selection_window_metrics": {
+      "2021_q1": {
+        "rows": 2691,
+        "top5_assist_rows": 984,
+        "top5_assist_correct_rows": 837,
+        "top5_assist_coverage": 0.365663,
+        "top5_assist_accuracy": 0.85061,
+        "top5_assist_accuracy_ci95": {
+          "lower": 0.826975,
+          "upper": 0.871518
+        }
+      },
+      "2021_q2": {
+        "rows": 2683,
+        "top5_assist_rows": 1201,
+        "top5_assist_correct_rows": 1037,
+        "top5_assist_coverage": 0.447633,
+        "top5_assist_accuracy": 0.863447,
+        "top5_assist_accuracy_ci95": {
+          "lower": 0.842865,
+          "upper": 0.881712
+        }
+      },
+      "2021_q3": {
+        "rows": 2707,
+        "top5_assist_rows": 1296,
+        "top5_assist_correct_rows": 1175,
+        "top5_assist_coverage": 0.478759,
+        "top5_assist_accuracy": 0.906636,
+        "top5_assist_accuracy_ci95": {
+          "lower": 0.889572,
+          "upper": 0.921296
+        }
+      }
+    },
+    "minimum_window_coverage": 0.365663,
+    "mean_window_coverage": 0.430685,
+    "minimum_window_accuracy": 0.85061,
+    "mean_window_accuracy": 0.873564,
+    "requires_user_selection": true,
+    "auto_assignment_authorized": false
+  },
+  "top5_assist_development_gate": {
+    "passed": false,
+    "requires_every_selection_window": true,
+    "global_checks": {
+      "candidate_generator_version_v3": true,
+      "assignment_label_timestamps_explicit": false
+    },
+    "selection_window_checks": {
+      "2021_q1": {
+        "top5_accuracy": true,
+        "top5_coverage": true,
+        "minimum_top5_rows": true,
+        "top5_accuracy_confidence_lower_bound": true,
+        "never_auto_assigns": true
+      },
+      "2021_q2": {
+        "top5_accuracy": true,
+        "top5_coverage": true,
+        "minimum_top5_rows": true,
+        "top5_accuracy_confidence_lower_bound": true,
+        "never_auto_assigns": true
+      },
+      "2021_q3": {
+        "top5_accuracy": true,
+        "top5_coverage": true,
+        "minimum_top5_rows": true,
+        "top5_accuracy_confidence_lower_bound": true,
+        "never_auto_assigns": true
+      }
+    },
+    "requires_user_selection": true,
+    "auto_assignment_authorized": false,
+    "blocker": "protocol_provenance_gate_failed"
+  },
+  "drift_reference": {
+    "method": "population_stability_index_v1",
+    "maximum_psi": 0.25,
+    "reference_rows": 8081,
+    "features": {
+      "calibrated_probability": {
+        "boundaries": [
+          0.01581602,
+          0.03189014,
+          0.05597741,
+          0.09665269,
+          0.15516631,
+          0.25149074,
+          0.5387170400000003,
+          0.88363761,
+          0.94019865
+        ],
+        "expected_proportions": [
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.10011130348750928,
+          0.09986396240415533,
+          0.09998763294583231,
+          0.10011130348750928
+        ],
+        "reference_distribution": {
+          "minimum": 0.00132238,
+          "p25": 0.04268763,
+          "median": 0.15516631,
+          "p75": 0.82026763,
+          "maximum": 0.99602753
+        }
+      },
+      "open_set_probability": {
+        "boundaries": [
+          0.0879993,
+          0.17361887,
+          0.2885447700000001,
+          0.40433973,
+          0.48432041,
+          0.5379385,
+          0.58094152,
+          0.6166107,
+          0.6550423
+        ],
+        "expected_proportions": [
+          0.09998763294583231,
+          0.09998763294583231,
+          0.10011130348750928,
+          0.09986396240415533,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.10011130348750928
+        ],
+        "reference_distribution": {
+          "minimum": 0.01104592,
+          "p25": 0.22947546,
+          "median": 0.48432041,
+          "p75": 0.59860928,
+          "maximum": 0.86541467
+        }
+      },
+      "top_probability": {
+        "boundaries": [
+          0.07395842359796861,
+          0.1139644364367484,
+          0.16099884530684175,
+          0.23602878300427663,
+          0.32095661327488556,
+          0.42382474502382994,
+          0.5526026854118781,
+          0.6396709137475182,
+          0.7620557030887467
+        ],
+        "expected_proportions": [
+          0.09998763294583231,
+          0.09998763294583231,
+          0.10011130348750928,
+          0.09986396240415533,
+          0.09998763294583231,
+          0.10011130348750928,
+          0.09998763294583231,
+          0.09887459807073955,
+          0.10060598565421716,
+          0.10048231511254019
+        ],
+        "reference_distribution": {
+          "minimum": 0.01046428,
+          "p25": 0.13499499,
+          "median": 0.32095661,
+          "p75": 0.59423447,
+          "maximum": 0.99809951
+        }
+      },
+      "probability_margin": {
+        "boundaries": [
+          0.008706794653579888,
+          0.023995534425650555,
+          0.049030919877179,
+          0.08578666091277401,
+          0.1327070342031913,
+          0.20169256668321445,
+          0.31144307011832767,
+          0.4308563042415591,
+          0.5741038437541823
+        ],
+        "expected_proportions": [
+          0.09986396240415533,
+          0.10011130348750928,
+          0.10011130348750928,
+          0.09986396240415533,
+          0.09998763294583231,
+          0.09998763294583231,
+          0.10011130348750928,
+          0.09986396240415533,
+          0.09998763294583231,
+          0.10011130348750928
+        ],
+        "reference_distribution": {
+          "minimum": 0.0,
+          "p25": 0.03549077,
+          "median": 0.13270703,
+          "p75": 0.3704543,
+          "maximum": 0.93631487
+        }
+      }
+    }
+  },
+  "development_gate": {
+    "passed": false,
+    "requires_every_selection_window": true,
+    "global_checks": {
+      "candidate_generator_version_v3": true,
+      "assignment_label_timestamps_explicit": false
+    },
+    "selection_window_checks": {
+      "2021_q1": {
+        "auto_accuracy": false,
+        "auto_coverage": false,
+        "unseen_point_rate": true,
+        "unseen_confidence_upper_bound": true,
+        "minimum_auto_rows": false,
+        "auto_accuracy_confidence_lower_bound": false,
+        "candidate_source_support_frozen": false,
+        "component_safety": false
+      },
+      "2021_q2": {
+        "auto_accuracy": false,
+        "auto_coverage": false,
+        "unseen_point_rate": true,
+        "unseen_confidence_upper_bound": true,
+        "minimum_auto_rows": false,
+        "auto_accuracy_confidence_lower_bound": false,
+        "candidate_source_support_frozen": false,
+        "component_safety": false
+      },
+      "2021_q3": {
+        "auto_accuracy": false,
+        "auto_coverage": false,
+        "unseen_point_rate": true,
+        "unseen_confidence_upper_bound": true,
+        "minimum_auto_rows": false,
+        "auto_accuracy_confidence_lower_bound": false,
+        "candidate_source_support_frozen": false,
+        "component_safety": false
+      }
+    },
+    "requires_review_policy": false,
+    "review_policy_found": false,
+    "blocker": "multi_window_routing_safety_gate_failed"
+  },
+  "targets": {
+    "target_auto_accuracy": 0.85,
+    "minimum_auto_coverage": 0.1,
+    "maximum_unseen_auto_rate": 0.05,
+    "target_review_accuracy": 0.9,
+    "target_top5_assist_accuracy": 0.85,
+    "minimum_top5_assist_coverage": 0.1,
+    "minimum_top5_assist_rows_per_window": 100,
+    "minimum_top5_assist_accuracy_lower_bound": 0.8,
+    "minimum_review_rows_per_window": 1,
+    "minimum_review_coverage": 0.0,
+    "minimum_candidate_source_count": 2,
+    "minimum_auto_rows_per_window": 250,
+    "minimum_auto_accuracy_lower_bound": 0.8,
+    "maximum_unseen_rate_upper_bound": 0.05,
+    "minimum_component_auto_rows": 30,
+    "minimum_component_auto_accuracy": 0.75,
+    "minimum_component_auto_accuracy_lower_bound": 0.6
+  },
+  "approval_note": "Frozen after 2021_q3 development. Requires one new untouched temporal holdout, reviewed active roster, and explicit operator approval."
+}

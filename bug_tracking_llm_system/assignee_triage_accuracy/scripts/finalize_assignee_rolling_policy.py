@@ -31,8 +31,14 @@ def main() -> None:
     parser.add_argument("--minimum-high-confidence", type=float, default=0.50)
     parser.add_argument("--minimum-review-confidence", type=float, default=0.20)
     parser.add_argument("--maximum-drift-psi", type=float, default=0.25)
-    parser.add_argument("--minimum-auto-rows-per-window", type=int, default=30)
-    parser.add_argument("--minimum-auto-accuracy-lower-bound", type=float, default=0.75)
+    parser.add_argument("--minimum-auto-rows-per-window", type=int, default=250)
+    parser.add_argument("--minimum-auto-accuracy-lower-bound", type=float, default=0.80)
+    parser.add_argument("--maximum-unseen-rate-upper-bound", type=float, default=0.05)
+    parser.add_argument("--minimum-component-auto-rows", type=int, default=30)
+    parser.add_argument("--minimum-component-auto-accuracy", type=float, default=0.75)
+    parser.add_argument(
+        "--minimum-component-auto-accuracy-lower-bound", type=float, default=0.60
+    )
     parser.add_argument("--minimum-candidate-source-count", type=int, default=2)
     args = parser.parse_args()
 
@@ -58,6 +64,12 @@ def main() -> None:
         minimum_auto_rows_per_window=max(1, args.minimum_auto_rows_per_window),
         minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
         minimum_candidate_source_count=max(0, args.minimum_candidate_source_count),
+        maximum_unseen_rate_upper_bound=args.maximum_unseen_rate_upper_bound,
+        minimum_component_auto_rows=max(1, args.minimum_component_auto_rows),
+        minimum_component_accuracy=args.minimum_component_auto_accuracy,
+        minimum_component_accuracy_lower_bound=(
+            args.minimum_component_auto_accuracy_lower_bound
+        ),
     )
     for rows in windows.values():
         route_predictions(rows, policy)
@@ -76,6 +88,12 @@ def main() -> None:
             maximum_unseen_auto_rate=args.maximum_unseen_auto_rate,
             minimum_auto_rows=max(1, args.minimum_auto_rows_per_window),
             minimum_accuracy_lower_bound=args.minimum_auto_accuracy_lower_bound,
+            maximum_unseen_rate_upper_bound=args.maximum_unseen_rate_upper_bound,
+            minimum_component_auto_rows=max(1, args.minimum_component_auto_rows),
+            minimum_component_accuracy=args.minimum_component_auto_accuracy,
+            minimum_component_accuracy_lower_bound=(
+                args.minimum_component_auto_accuracy_lower_bound
+            ),
         )
         for name, metrics in routing.items()
     }
@@ -107,6 +125,19 @@ def main() -> None:
                 "minimum_review_confidence": args.minimum_review_confidence,
                 "minimum_auto_rows_per_window": args.minimum_auto_rows_per_window,
                 "minimum_auto_accuracy_lower_bound": args.minimum_auto_accuracy_lower_bound,
+                "maximum_unseen_rate_upper_bound": args.maximum_unseen_rate_upper_bound,
+                "minimum_candidate_source_count": max(
+                    0, args.minimum_candidate_source_count
+                ),
+                "minimum_component_auto_rows": max(
+                    1, args.minimum_component_auto_rows
+                ),
+                "minimum_component_auto_accuracy": (
+                    args.minimum_component_auto_accuracy
+                ),
+                "minimum_component_auto_accuracy_lower_bound": (
+                    args.minimum_component_auto_accuracy_lower_bound
+                ),
             },
         }
     )
@@ -119,6 +150,27 @@ def main() -> None:
                 "target_auto_accuracy": args.target_auto_accuracy,
                 "minimum_auto_coverage": args.minimum_auto_coverage,
                 "maximum_unseen_auto_rate": args.maximum_unseen_auto_rate,
+                "maximum_unseen_rate_upper_bound": (
+                    args.maximum_unseen_rate_upper_bound
+                ),
+                "minimum_candidate_source_count": max(
+                    0, args.minimum_candidate_source_count
+                ),
+                "minimum_auto_rows_per_window": max(
+                    1, args.minimum_auto_rows_per_window
+                ),
+                "minimum_auto_accuracy_lower_bound": (
+                    args.minimum_auto_accuracy_lower_bound
+                ),
+                "minimum_component_auto_rows": max(
+                    1, args.minimum_component_auto_rows
+                ),
+                "minimum_component_auto_accuracy": (
+                    args.minimum_component_auto_accuracy
+                ),
+                "minimum_component_auto_accuracy_lower_bound": (
+                    args.minimum_component_auto_accuracy_lower_bound
+                ),
             },
         }
     )

@@ -7,6 +7,62 @@
 - 目前部署狀態：`research_only`
 - 目前 rollout：0%，`manual_only`
 
+## 0. 2026-07-22 工程實施更新
+
+本輪已依本計劃落地可由程式完成的安全與模型開發補強；沒有重跑、改寫或重新解讀 2022 Q2 release evidence，部署狀態仍為 `research_only`。
+
+- 新增 v3 experiment protocol／append-only registry builder，強制分離 ranker fit、ranker selection、calibrator fit、open-set fit 與至少兩個 policy-selection windows，並記錄 commit、dirty state、seed、輸入 SHA-256、row hash 與 artifact registry。
+- 2022 Q2 已登記為 `diagnosis_only_not_model_or_policy_selection`；ranker 訓練入口不再接受 `--new-holdout`，正式封存資料只能交由一次性 holdout evaluator。
+- 跨切分 audit 已從 ticket ID／完全相同文字擴充至 duplicate family、SimHash／token-Jaccard 近重複文字與 owner event ID。
+- roster builder 已加入 alias chain canonicalization、reviewed roster canonicalization、assignment label timestamp provenance、owner frequency、component coverage 與資料缺失報告；`last_change_time` 僅能標記為 proxy，不能通過 v3 protocol gate。
+- v3 candidate generator 新增 component-family 與 reporter-history 來源；相關 component 訊號會合併成同一 evidence family，不能重複計數冒充雙來源支持。舊 artifact 未宣告版本時仍固定走 v2 generator，保持 replay 相容。
+- LTR 自動選模改為依最差時間窗，再看平均 MRR／Macro-F1；輸出 recall@10/30/50、各來源 recall、candidate/ranking miss 分群與每窗 95% recall／10% ranking-miss-reduction gate。
+- rolling policy search 現在預設在每個開發窗同時強制 auto accuracy／coverage、最小 auto rows、accuracy Wilson 下界、unseen point／Wilson 上界、component point／confidence floor 與 `candidate_source_count >= 2`。
+- 新增與正式 gate 相同的雙側 Wilson 95% holdout 樣本規劃工具。若預期 unseen 錯派率為 4%，最低約需 1,825 筆 unseen-owner；若為 2%，最低約需 203 筆。依目前約 7.135% unseen 比例換算，總 holdout 規模分別約為 25,579 與 2,846 筆。
+- 第二輪補強加入具 report-time provenance 的 file ownership 候選與特徵；缺少 provenance 或修復後才知道的 file path 會被忽略。duplicate family 只用於 v3 split exclusion，不作路由訊號，並以版本開關保持 v2 replay 不變。
+- LTR 新增每張 ticket 最多十個 hard negatives 的 pairwise logistic 比較器及 pairwise audit；自動選模仍依最差時間窗，因此 pairwise 若不穩定會被拒絕。另輸出 `candidate_source_ablation_report.json`，分開計算 source／source-family 的保守移除下界。
+
+最新不含 SBERT、只使用既有已看過開發資料的 smoke run 顯示：pool 30 時 validation／later-development candidate recall@30 仍為 94.54%／93.51%；最差窗選模保留 HistGradientBoosting，其 Top-1 為 61.55%／53.25%，ranking miss 相對降低 14.19%／2.82%。新增 pairwise logistic 的 Top-1 僅 48.60%／38.18%，因此被穩健選模正確拒絕，沒有因新增模型就強制採用。目前資料也沒有具合格 provenance 的 reporter／file path 訊號，相關來源 ablation 為零。新 gate 繼續維持失敗：候選召回尚未在每窗達 95%，且較晚視窗的 ranking miss 降幅未達 10%。先前 pool 50 診斷可把 recall@50 提升至 95.81%／95.58%，但 recall@30 仍只有 94.80%／93.77%。這些數字只用於開發診斷，不是新 holdout 或 release 結論。
+
+仍需外部或新資料才能完成的項目：晚於所有 v3 開發窗的新 sealed holdout、真實 assignment-event label timestamp、維護者簽核的當期 roster、live shadow 證據與有權限操作人核准。
+
+### 0.1 Top-5 半自動候選版
+
+已新增 `semi_auto_top5` 模式，把產品定位改為「系統提供五名候選，使用者可以指定其中一人，或明確按下自動後採用 Top-1」：
+
+- 初始推薦固定為 `assignee=manual_triage`、`assignment_authorized=false`，不會在使用者操作前修改真實 assignee；回應會宣告 `select_top5_candidate`、`assign_top1` 與 `manual_triage` 三種操作。
+- `select_top5_candidate` 允許使用者選第 1～5 名；`assign_top1` 只會採用原始第 1 名，而且兩者都必須由使用者明確確認。解析後會輸出 `assignment_authorized=true` 給 issue-tracker adapter 執行。
+- `assign_top1` 會標記為 `top1_user_authorized`、`auto_top1_selected=true`、`autonomous_assignment=false`，不會被誤算成無人確認的全自動派工。
+- 只有同一組凍結門檻在每個 policy-selection window 都達 Top-5 ≥ 85%，且通過最低 coverage、最低 100 筆、Wilson 95% 下界 ≥ 80%、open-set risk、至少兩個 candidate source family 與五名有效 roster 成員時，才顯示候選。
+- 未達門檻、候選不足、來源不足、分布飄移、roster 含停用成員或 artifact gate 不完整時，`top5_candidates=[]` 並回到一般人工分流。
+- feedback schema 已升級為 v4，除了 `selection_mode`、`selected_candidate_rank` 與 `selected_from_top5`，也記錄 `user_action`、`auto_top1_selected`、`user_authorized_assignment` 與 `autonomous_assignment`；shadow report 不會把使用者按下 Top-1 自動選項誤算成無人確認的自動派工。
+- Eligible-owner feedback 另保存 `eligibility_required`、review／candidate-set 驗證結果與最終所選人資格驗證；shadow gate 若發現任何 Eligible-policy 顯示或選擇未通過資格檢查就失敗。
+
+重要指標邊界：85% 是「正確 owner 位於五人清單內」的 Top-5 目標，不是第 1 名的準確率。三個開發窗合併後，顯示子集的 Top-1 為 71.54%、Top-5 為 86.95%。因此 `assign_top1` 是使用者選擇的便利操作，不具 85% 品質保證；若產品要把它升級為預設或無人確認的自動派工，必須另建 Top-1 policy、sealed holdout 與正式安全 gate。
+
+#### Exact-owner 與 Eligible-owner 雙重判讀
+
+為符合「同領域且確實有資格的人都可處理」的產品目標，系統已新增第二套集合式正確標籤，但不會改寫既有的 86.95%：
+
+- `Exact-owner Top-5`：歷史資料中實際記錄的單一 assignee 是否位於前五名；目前 86.95% 屬於這個定義。
+- `Eligible-owner Top-5`：前五名是否至少一人位於該工單當時有效的資格集合。集合定義為 active roster、人工審核的 product/component 能力、權限確認與有效期間的交集。
+- `Top-5 candidate eligibility precision`：五個候選槽位中有多少比例確實合格。此指標防止「只有一人合格仍宣稱整份五人清單正確」。線上 Eligible-owner 模式採更嚴格規則：五人必須全部合格才顯示。
+- 歷史 `components` 只代表曾經處理過的觀察紀錄，不能自動取得資格；缺 reviewer、權限確認、能力範圍、有效期間，或資格 snapshot 與預測時間不相符時，一律 fail closed。
+
+目前尚不能提供新的 Eligible-owner 百分比，因為公共歷史資料沒有經維護者簽核且按時間版本化的能力／權限真值。系統已完成 schema、roster 合併、雙標籤評估、政策選擇、sealed holdout 要求、線上推薦與決策時二次檢查；待維護者建立涵蓋 Q1、Q2、Q3 與新 sealed holdout 的非重疊資格快照後，才能重算並判斷 Eligible-owner 是否達 85%。在此之前只能引用 Exact-owner 86.95%，不得把「同領域」推定為新準確率。
+
+由於正式顯示條件要求五人全部合格，顯示子集的 Eligible-owner hit rate 理論上會是 100%；此時真正需要觀察的是 coverage、每張工單是否湊足五名合格人員、資格資料覆蓋率，以及同一顯示子集的 Exact-owner 命中率。換言之，85% Eligible hit 只能作最低檢查，不能單獨證明模型排序良好。
+
+用本輪 v3 HistGradientBoosting 與三個後段開發窗重新執行選擇性政策後，數值 gate 可找到共同門檻：
+
+| 開發窗 | 顯示 Top-5 筆數 | Coverage | Top-5 命中率 | Wilson 95% 下界 |
+|---|---:|---:|---:|---:|
+| 2021 Q1 | 1,276 / 2,671 | 47.77% | 85.11% | 83.05% |
+| 2021 Q2 | 1,302 / 2,664 | 48.87% | 85.02% | 82.98% |
+| 2021 Q3 | 1,291 / 2,696 | 47.89% | 90.70% | 89.00% |
+
+這表示「約 48% 案件顯示 Top-5、其餘維持人工」在目前開發資料上可達使用者設定的 85% 目標，比對全部案件無條件顯示候選更合理。後端已能解析指定名次或使用者授權 Top-1，但實際寫入 Jira／Bugzilla 等 issue tracker 仍由外部 adapter 負責。不過這仍不是 release 結論：公共資料只有 `last_change_time` proxy，缺少真實 assignment-event timestamp，因此完整 development gate 仍為 false；而且還沒有供這個新政策使用的更晚 sealed holdout 與 live shadow 證據。現階段功能完整度可定位為「推薦、使用者決策與 feedback 契約已完成；tracker adapter、正式資料與營運驗收尚未完成」。
+
 ## 1. 執行摘要
 
 目前模型在「通過高信心政策、準備自動派工的子集」上，準確率為 **87.79%（633/721）**，自動派工涵蓋率為 **25.72%**。這表示模型能篩出約四分之一的案件，並在離線 holdout 上達到 85% 的主要準確率目標。
@@ -128,7 +184,7 @@ Post-holdout 診斷將 2,803 筆結果分為：
 
 ### 階段 0：凍結 v2 與建立 v3 實驗登錄
 
-狀態：v2 已凍結；v3 尚待建立。
+狀態：v2 已凍結；v3 protocol 與開發工具已建立，正式實驗仍待具備真實 assignment-event timestamp 的新資料後登錄。
 
 工作內容：
 
@@ -220,7 +276,7 @@ Post-holdout 診斷將 2,803 筆結果分為：
 3. 除總樣本至少 2,500 與 auto 至少 250 外，先依預期 unseen error 做統計 power analysis。
 4. 只執行一次正式 release evaluation；失敗後該資料轉為 diagnosis-only，不得繼續調門檻。
 
-樣本數注意事項：若 unseen 錯派率仍接近 4%，Wilson 上界要低於 5% 約需 1,736 筆 unseen-owner 樣本；若能把錯派率降低到約 2%，約 173 筆 unseen-owner 即可能達標。這是規劃近似值，正式封存前應按預期事件率重新計算。
+樣本數注意事項：依與正式 gate 一致的雙側 Wilson 95% 精確連續期望值計算，若 unseen 錯派率仍接近 4%，Wilson 上界要低於 5% 最低約需 1,825 筆 unseen-owner 樣本；若能把錯派率降低到約 2%，最低約需 203 筆。正式封存前仍須按預期事件率與 unseen 比例重新執行規劃工具。
 
 完成條件：新 holdout 的全部 hard gates 由程式自動判定通過，且 report、manifest 與 evaluation registry 完整。
 
@@ -284,6 +340,8 @@ Post-holdout 診斷將 2,803 筆結果分為：
 - [ ] Auto 至少 250 筆，且每筆至少兩種候選來源支持。
 - [ ] Known-owner candidate recall@30 ≥ 95%。
 - [ ] Active/inactive/cold-start roster 已簽核且未過期。
+- [ ] Eligible-owner 模式的 product/component 能力、權限與有效期間已由具名維護者簽核，且 policy-selection／holdout 每筆都有當時有效 snapshot。
+- [ ] Exact-owner 與 Eligible-owner 分開呈現；Eligible Top-5 hit rate 與候選資格 precision 均通過門檻。
 - [ ] 真實 shadow 至少 500 筆或 28 天，並連續兩週通過。
 - [ ] Shadow latency、invalid-event、provenance 與 unseen label 完整通過。
 - [ ] Bundle、runtime source、model、data、policy hash 全部一致。

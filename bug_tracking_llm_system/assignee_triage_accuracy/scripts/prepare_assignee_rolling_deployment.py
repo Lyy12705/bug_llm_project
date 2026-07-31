@@ -129,6 +129,12 @@ def main() -> None:
         args.history,
         label_map_path=args.assignee_label_map,
         base_raw=args.base_raw,
+        strict_duplicate_families=str(
+            ranker_artifact.get("parameters", {}).get(
+                "candidate_generator_version", "v2"
+            )
+        )
+        == "v3",
     )
     write_jsonl(output_paths["assignee_dataset_path"], history)
     write_json(output_paths["assignee_active_roster_path"], roster)
@@ -209,6 +215,7 @@ def build_history_snapshot(
     *,
     label_map_path: Path,
     base_raw: Path,
+    strict_duplicate_families: bool = False,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     if not history_paths:
         raise ValueError("at least one history source is required")
@@ -219,7 +226,11 @@ def build_history_snapshot(
     overlap_rows = 0
     for path in history_paths:
         loaded = apply_label_availability(load_rows(path, label_map), availability)
-        unique, excluded = exclude_cross_split_overlap(loaded, history)
+        unique, excluded = exclude_cross_split_overlap(
+            loaded,
+            history,
+            strict_duplicate_families=strict_duplicate_families,
+        )
         history.extend(unique)
         overlap_rows += excluded
         sources.append(

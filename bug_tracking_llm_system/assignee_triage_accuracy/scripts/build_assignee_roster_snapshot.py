@@ -16,9 +16,17 @@ if str(SRC_ROOT) not in sys.path:
 
 from modules.assignee_deployment import (  # noqa: E402
     GENERIC_ASSIGNEE_RE,
+    apply_assignee_aliases,
+    canonicalize_assignee_set,
     load_active_assignee_set,
+    load_assignee_alias_map,
     load_assignee_set,
     sha256_file,
+)
+from modules.assignee_eligibility import (  # noqa: E402
+    AssigneeEligibilityIndex,
+    eligibility_record_fields,
+    parse_assignee_eligibility_payload,
 )
 
 from assignee_open_set_common import write_json  # noqa: E402
@@ -52,6 +60,19 @@ def main() -> None:
     parser.add_argument("--roster-valid-days", type=int, default=30)
     parser.add_argument("--reviewed-active", type=Path)
     parser.add_argument("--reviewed-inactive", type=Path)
+    parser.add_argument(
+        "--reviewed-eligibility",
+        type=Path,
+        help=(
+            "Maintainer-reviewed product/component capability and permission "
+            "attestation. Historical components are never used as a substitute."
+        ),
+    )
+    parser.add_argument(
+        "--assignee-alias-map",
+        type=Path,
+        help="Reviewed historical alias-to-canonical owner identity mapping.",
+    )
     parser.add_argument("--reviewer", default="")
     parser.add_argument("--confirm-organizational-review", action="store_true")
     parser.add_argument(
@@ -79,12 +100,29 @@ def main() -> None:
         label_map_path=args.assignee_label_map,
         base_raw=args.base_raw,
     )
+    alias_map = load_assignee_alias_map(args.assignee_alias_map)
+    rows, alias_rows_remapped = apply_assignee_aliases(rows, alias_map)
     reviewed_active = (
         load_active_assignee_set(args.reviewed_active) if args.reviewed_active else set()
     )
     reviewed_inactive = (
         load_assignee_set(args.reviewed_inactive) if args.reviewed_inactive else set()
     )
+    reviewed_active = canonicalize_assignee_set(reviewed_active, alias_map)
+    reviewed_inactive = canonicalize_assignee_set(reviewed_inactive, alias_map)
+    eligibility_index = None
+    if args.reviewed_eligibility:
+        try:
+            payload = json.loads(args.reviewed_eligibility.read_text(encoding="utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("reviewed eligibility must contain a JSON object")
+            eligibility_index = parse_assignee_eligibility_payload(
+                payload, require_active=False
+            )
+            if not eligibility_index.is_valid_at(as_of):
+                raise ValueError("reviewed eligibility is not valid at --as-of")
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            raise SystemExit(f"Unable to use --reviewed-eligibility: {exc}") from exc
     roster, report = build_roster_snapshot(
         rows,
         as_of=as_of,
@@ -96,8 +134,20 @@ def main() -> None:
         reviewed_inactive=reviewed_inactive,
         reviewer=args.reviewer.strip(),
         organizational_review_confirmed=args.confirm_organizational_review,
+        eligibility_index=eligibility_index,
     )
-    report["source_audit"] = source_audit
+    report["source_audit"] = {
+        **source_audit,
+        "canonical_identity_mapping": {
+            "configured": bool(alias_map),
+            "aliases": len(alias_map),
+            "history_rows_remapped": alias_rows_remapped,
+            "reviewed_rosters_canonicalized": True,
+        },
+    }
+    roster["canonical_identity_mapping"] = report["source_audit"][
+        "canonical_identity_mapping"
+    ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     write_json(args.output, roster)
@@ -109,7 +159,11 @@ def main() -> None:
                 "inactive": len(roster["inactive"]),
                 "cold_start": len(roster["cold_start"]),
                 "review_confirmed": roster["review_confirmed"],
+                "eligibility_review_confirmed": roster[
+                    "eligibility_review_confirmed"
+                ],
                 "blocked_by": report["blocked_by"],
+                "eligibility_blocked_by": report["eligibility_blocked_by"],
                 "output": str(args.output),
             },
             ensure_ascii=False,
@@ -130,6 +184,7 @@ def build_roster_snapshot(
     reviewed_inactive: set[str],
     reviewer: str,
     organizational_review_confirmed: bool,
+    eligibility_index: AssigneeEligibilityIndex | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     as_of_epoch = as_of.timestamp()
     active_start = (as_of - timedelta(days=active_lookback_days)).timestamp()
@@ -137,6 +192,9 @@ def build_roster_snapshot(
     eligible = []
     future_created = 0
     unavailable_labels = 0
+    proxy_label_times = 0
+    explicit_label_times = 0
+    missing_components = 0
     for row in rows:
         created_at = parse_timestamp(str(row.get("created_at") or ""))
         label_at = parse_timestamp(str(row.get("label_available_at") or ""))
@@ -146,6 +204,17 @@ def build_roster_snapshot(
         if label_at is None or label_at > as_of_epoch:
             unavailable_labels += 1
             continue
+        label_source = str(row.get("label_availability_source") or "").strip()
+        if label_source == "last_change_time_proxy" or (
+            not label_source and row.get("last_change_time")
+        ):
+            proxy_label_times += 1
+        else:
+            explicit_label_times += 1
+        if not str(row.get("component") or "").strip() or str(
+            row.get("component") or ""
+        ).strip().lower() == "unknown":
+            missing_components += 1
         eligible.append(row)
 
     total = Counter()
@@ -188,7 +257,12 @@ def build_roster_snapshot(
     inactive = (inferred_inactive | reviewed_inactive) - reviewed_active
     active = (inferred_active | reviewed_active) - inactive
     cold_start = {owner for owner in reviewed_active if total[owner] == 0}
-    all_owners = sorted(set(total) | reviewed_active | reviewed_inactive)
+    eligibility_owners = (
+        set(eligibility_index.assignees) if eligibility_index is not None else set()
+    )
+    all_owners = sorted(
+        set(total) | reviewed_active | reviewed_inactive | eligibility_owners
+    )
     records = []
     for owner in all_owners:
         if owner in cold_start:
@@ -219,6 +293,11 @@ def build_roster_snapshot(
                 "components": [name for name, _ in components[owner].most_common(10)],
                 "organizational_status_attested": owner in reviewed_active
                 or owner in reviewed_inactive,
+                **eligibility_record_fields(
+                    eligibility_index.assignees.get(owner)
+                    if eligibility_index is not None
+                    else None
+                ),
             }
         )
 
@@ -231,11 +310,21 @@ def build_roster_snapshot(
             active_counts[owner] >= minimum_active_assignments or owner in reviewed_active
             for owner in active
         ),
+        "assignment_label_times_explicit": proxy_label_times == 0,
     }
     technical_review_confirmed = all(technical_checks.values())
     review_confirmed = bool(
         organizational_review_confirmed and reviewer and technical_review_confirmed
     )
+    eligibility_checks = {
+        "review_file_present": eligibility_index is not None,
+        "reviewed_eligible_assignees_nonempty": bool(eligibility_owners),
+        "all_reviewed_eligible_assignees_active": bool(eligibility_owners)
+        and eligibility_owners <= active,
+        "review_interval_valid_at_snapshot": eligibility_index is not None
+        and eligibility_index.is_valid_at(as_of),
+    }
+    eligibility_review_confirmed = all(eligibility_checks.values())
     roster = {
         "schema_version": 1,
         "source": "time_safe_assignment_activity_proxy_plus_optional_maintainer_overrides",
@@ -245,6 +334,21 @@ def build_roster_snapshot(
         "technical_review_confirmed": technical_review_confirmed,
         "organizational_review_confirmed": bool(organizational_review_confirmed),
         "reviewer": reviewer,
+        "eligibility_review_confirmed": eligibility_review_confirmed,
+        "eligibility_reviewer": (
+            eligibility_index.reviewer if eligibility_index is not None else ""
+        ),
+        "eligibility_valid_from": (
+            eligibility_index.valid_from.isoformat()
+            if eligibility_index is not None
+            else None
+        ),
+        "eligibility_expires_at": (
+            eligibility_index.expires_at.isoformat()
+            if eligibility_index is not None
+            else None
+        ),
+        "eligibility_definition": "reviewed_time_valid_capability_set_v1",
         "activity_definition": {
             "active_lookback_days": active_lookback_days,
             "inactive_lookback_days": inactive_lookback_days,
@@ -265,6 +369,9 @@ def build_roster_snapshot(
         blockers.append("organizational_review_not_confirmed")
     if not reviewer:
         blockers.append("maintainer_reviewer_missing")
+    eligibility_blockers = [
+        name for name, passed in eligibility_checks.items() if not passed
+    ]
     report = {
         "schema_version": 1,
         "method": "time_versioned_assignee_roster_audit_v1",
@@ -272,15 +379,41 @@ def build_roster_snapshot(
         "eligible_rows": len(eligible),
         "future_created_rows_excluded": future_created,
         "future_label_rows_excluded": unavailable_labels,
+        "explicit_assignment_label_time_rows": explicit_label_times,
+        "last_change_time_proxy_rows": proxy_label_times,
+        "missing_component_rows": missing_components,
         "owners_with_history": len(total),
         "active_candidates": len(active),
         "inactive_candidates": len(inactive),
         "cold_start_candidates": len(cold_start),
+        "owner_frequency_buckets": {
+            "1-4": sum(1 for count in total.values() if count < 5),
+            "5-19": sum(1 for count in total.values() if 5 <= count < 20),
+            "20-99": sum(1 for count in total.values() if 20 <= count < 100),
+            "100+": sum(1 for count in total.values() if count >= 100),
+        },
+        "component_coverage": {
+            "components": len(
+                {
+                    str(row.get("component") or "unknown")
+                    for row in eligible
+                }
+            ),
+            "rows_with_known_component": len(eligible) - missing_components,
+            "coverage": round(
+                (len(eligible) - missing_components) / len(eligible), 6
+            )
+            if eligible
+            else 0.0,
+        },
         "technical_checks": technical_checks,
         "technical_review_confirmed": technical_review_confirmed,
         "organizational_review_confirmed": bool(organizational_review_confirmed),
         "review_confirmed": review_confirmed,
         "blocked_by": blockers,
+        "eligibility_checks": eligibility_checks,
+        "eligibility_review_confirmed": eligibility_review_confirmed,
+        "eligibility_blocked_by": eligibility_blockers,
     }
     return roster, report
 
@@ -294,7 +427,9 @@ def load_history(
     sources = []
     for path in paths:
         loaded = apply_label_availability(load_rows(path, label_map), availability)
-        unique, excluded = exclude_cross_split_overlap(loaded, history)
+        unique, excluded = exclude_cross_split_overlap(
+            loaded, history, strict_duplicate_families=True
+        )
         history.extend(unique)
         sources.append(
             {

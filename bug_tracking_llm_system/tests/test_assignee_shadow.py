@@ -15,6 +15,103 @@ from modules.assignee_shadow import evaluate_shadow_feedback  # noqa: E402
 
 
 class AssigneeShadowTests(unittest.TestCase):
+    def test_eligible_policy_shadow_requires_verified_candidates_and_selection(self) -> None:
+        start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        rows = []
+        for index in range(100):
+            rows.append(
+                {
+                    "ticket_id": f"ELIGIBLE-{index}",
+                    "ticket_created_at": start.isoformat(),
+                    "prediction_created_at": (
+                        start + timedelta(minutes=index)
+                    ).isoformat(),
+                    "created_at": (
+                        start + timedelta(minutes=index + 1)
+                    ).isoformat(),
+                    "feedback_origin": "live_shadow",
+                    "source_system": "production",
+                    "source_event_id": f"eligible-event-{index}",
+                    "prediction_latency_ms": 100.0,
+                    "predicted_assignee": "manual_triage",
+                    "routing_status": "top5_candidate_selected",
+                    "top5_assist_available": True,
+                    "final_assignee": "dev-a@example.com",
+                    "ranked_candidates": [
+                        "dev-a@example.com",
+                        "dev-b@example.com",
+                        "dev-c@example.com",
+                        "dev-d@example.com",
+                        "dev-e@example.com",
+                    ],
+                    "eligibility_required": True,
+                    "eligibility_review_confirmed": True,
+                    "eligibility_verified": True,
+                    "selected_assignee_eligibility_verified": True,
+                }
+            )
+
+        report = evaluate_shadow_feedback(rows)
+        self.assertTrue(
+            report["top5_assist_gate"]["checks"][
+                "eligible_policy_review_confirmed"
+            ]
+        )
+        self.assertEqual(
+            report["metrics"]["selected_assignee_eligibility_verified_rate"],
+            1.0,
+        )
+
+        rows[0]["selected_assignee_eligibility_verified"] = False
+        failed = evaluate_shadow_feedback(rows)
+        self.assertFalse(failed["top5_assist_gate"]["passed"])
+        self.assertFalse(
+            failed["top5_assist_gate"]["checks"][
+                "selected_assignee_eligibility_verified"
+            ]
+        )
+
+    def test_top5_assist_shadow_gate_measures_user_confirmed_candidate_quality(self) -> None:
+        start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        rows = []
+        for index in range(120):
+            correct = index < 108
+            rows.append(
+                {
+                    "ticket_id": f"TOP5-{index}",
+                    "ticket_created_at": start.isoformat(),
+                    "prediction_created_at": (
+                        start + timedelta(minutes=index)
+                    ).isoformat(),
+                    "created_at": (
+                        start + timedelta(minutes=index + 1)
+                    ).isoformat(),
+                    "feedback_origin": "live_shadow",
+                    "source_system": "production",
+                    "source_event_id": f"top5-event-{index}",
+                    "prediction_latency_ms": 100.0,
+                    "predicted_assignee": "manual_triage",
+                    "routing_status": "top5_user_confirmation",
+                    "top5_assist_available": True,
+                    "final_assignee": (
+                        "dev-a@example.com" if correct else "outside@example.com"
+                    ),
+                    "ranked_candidates": [
+                        "dev-a@example.com",
+                        "dev-b@example.com",
+                        "dev-c@example.com",
+                        "dev-d@example.com",
+                        "dev-e@example.com",
+                    ],
+                }
+            )
+
+        report = evaluate_shadow_feedback(rows)
+
+        self.assertEqual(report["metrics"]["top5_assist_accuracy"], 0.9)
+        self.assertTrue(report["top5_assist_gate"]["passed"])
+        self.assertFalse(report["top5_assist_gate"]["auto_assignment_authorized"])
+
     def test_shadow_gate_passes_only_with_volume_accuracy_coverage_and_unseen_labels(self) -> None:
         start = datetime(2026, 1, 1, tzinfo=timezone.utc)
         rows = []

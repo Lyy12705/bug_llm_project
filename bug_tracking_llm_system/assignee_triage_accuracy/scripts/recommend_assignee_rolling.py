@@ -99,6 +99,9 @@ def route_ticket(
         half_life_days=float(requirements["half_life_days"]),
         smoothing_alpha=float(requirements["smoothing_alpha"]),
         semantic=semantic,
+        candidate_generator_version=str(
+            requirements.get("candidate_generator_version") or "v2"
+        ),
     )
     predictions = scored_predictions(
         [query], index, ranker, int(requirements["candidate_pool_size"])

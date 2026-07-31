@@ -108,7 +108,14 @@ def main() -> None:
     validation_rows = load_rows(args.validation, label_map)
     holdout_rows = load_rows(args.holdout, label_map)
     holdout_rows, overlap_rows_excluded = exclude_cross_split_overlap(
-        holdout_rows, [*train_rows, *validation_rows]
+        holdout_rows,
+        [*train_rows, *validation_rows],
+        strict_duplicate_families=str(
+            artifact.get("ranker_requirements", {}).get(
+                "candidate_generator_version", "v2"
+            )
+        )
+        == "v3",
     )
     if holdout_rows and row_sort_key(holdout_rows[0]) < row_sort_key(validation_rows[-1]):
         raise SystemExit("Holdout is not temporally later than validation")
@@ -125,6 +132,9 @@ def main() -> None:
         half_life_days=float(requirements["half_life_days"]),
         smoothing_alpha=float(requirements["smoothing_alpha"]),
         semantic=semantic,
+        candidate_generator_version=str(
+            requirements.get("candidate_generator_version") or "v2"
+        ),
     )
     predictions = scored_predictions(
         holdout_rows, index, ranker, int(requirements["candidate_pool_size"])

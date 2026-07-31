@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "method": "candidate_source_recall_and_miss_audit_v1",
+  "intended_use": "development_only_not_sealed_holdout_selection",
+  "targets": {
+    "known_owner_candidate_recall_at_30": 0.95,
+    "overall_candidate_recall_at_30_floor": 0.8295
+  },
+  "windows": {
+    "validation": {
+      "overall": {
+        "rows": 794,
+        "candidate_recall_at_pool": 0.960957,
+        "candidate_recall_by_source": {
+          "product_component": 0.845088,
+          "component": 0.843829,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.779597,
+          "sbert": 0.759446,
+          "recent_component": 0.624685,
+          "product": 0.229219,
+          "global_prior": 0.201511
+        },
+        "candidate_recall_at_10": 0.911839,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.838791,
+          "component": 0.837531,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.778338,
+          "sbert": 0.745592,
+          "recent_component": 0.623426,
+          "product": 0.22796,
+          "global_prior": 0.201511
+        },
+        "candidate_recall_at_30": 0.960957,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.845088,
+          "component": 0.843829,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.779597,
+          "sbert": 0.759446,
+          "recent_component": 0.624685,
+          "product": 0.229219,
+          "global_prior": 0.201511
+        },
+        "candidate_recall_at_50": 0.960957,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.845088,
+          "component": 0.843829,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.779597,
+          "sbert": 0.759446,
+          "recent_component": 0.624685,
+          "product": 0.229219,
+          "global_prior": 0.201511
+        },
+        "candidate_miss_rate": 0.039043
+      },
+      "known_owner": {
+        "rows": 794,
+        "candidate_recall_at_pool": 0.960957,
+        "candidate_recall_by_source": {
+          "product_component": 0.845088,
+          "component": 0.843829,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.779597,
+          "sbert": 0.759446,
+          "recent_component": 0.624685,
+          "product": 0.229219,
+          "global_prior": 0.201511
+        },
+        "candidate_recall_at_10": 0.911839,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.838791,
+          "component": 0.837531,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.778338,
+          "sbert": 0.745592,
+          "recent_component": 0.623426,
+          "product": 0.22796,
+          "global_prior": 0.201511
+        },
+        "candidate_recall_at_30": 0.960957,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.845088,
+          "component": 0.843829,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.779597,
+          "sbert": 0.759446,
+          "recent_component": 0.624685,
+          "product": 0.229219,
+          "global_prior": 0.201511
+        },
+        "candidate_recall_at_50": 0.960957,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.845088,
+          "component": 0.843829,
+          "component_token": 0.521411,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.779597,
+          "sbert": 0.759446,
+          "recent_component": 0.624685,
+          "product": 0.229219,
+          "global_prior": 0.201511
+        },
+        "candidate_miss_rate": 0.039043
+      },
+      "candidate_miss_clusters": {
+        "component_top30": {
+          "dom: core & html": 6,
+          "xpconnect": 2,
+          "site identity": 2,
+          "security": 2,
+          "javascript: internationalization api": 1,
+          "graphics: webrender": 1,
+          "security: psm": 1,
+          "graphics: imagelib": 1,
+          "file handling": 1,
+          "dom: networking": 1,
+          "widget": 1,
+          "pdf viewer": 1,
+          "layout": 1,
+          "general": 1,
+          "graphics": 1,
+          "graphics: layers": 1,
+          "privacy: anti-tracking": 1,
+          "dom: bindings (webidl)": 1,
+          "xpcom": 1,
+          "theme": 1,
+          "page info window": 1,
+          "headless": 1,
+          "dom: navigation": 1
+        },
+        "owner_history_frequency": {
+          "20-99": 15,
+          "5-19": 16
+        },
+        "query_month": {
+          "2020-05": 7,
+          "2020-06": 24
+        },
+        "missing_data": {
+          "description_missing": 4,
+          "routing_safe_file_paths_missing": 31
+        }
+      }
+    },
+    "later_development": {
+      "overall": {
+        "rows": 779,
+        "candidate_recall_at_pool": 0.953787,
+        "candidate_recall_by_source": {
+          "product_component": 0.808729,
+          "component": 0.808729,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.730424,
+          "recent_component": 0.578947,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_recall_at_10": 0.8819,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.792041,
+          "component": 0.792041,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.715019,
+          "recent_component": 0.577664,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_recall_at_30": 0.953787,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.808729,
+          "component": 0.808729,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.730424,
+          "recent_component": 0.578947,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_recall_at_50": 0.953787,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.808729,
+          "component": 0.808729,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.730424,
+          "recent_component": 0.578947,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_miss_rate": 0.046213
+      },
+      "known_owner": {
+        "rows": 779,
+        "candidate_recall_at_pool": 0.953787,
+        "candidate_recall_by_source": {
+          "product_component": 0.808729,
+          "component": 0.808729,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.730424,
+          "recent_component": 0.578947,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_recall_at_10": 0.8819,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.792041,
+          "component": 0.792041,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.715019,
+          "recent_component": 0.577664,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_recall_at_30": 0.953787,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.808729,
+          "component": 0.808729,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.730424,
+          "recent_component": 0.578947,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_recall_at_50": 0.953787,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.808729,
+          "component": 0.808729,
+          "component_token": 0.489089,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.715019,
+          "sbert": 0.730424,
+          "recent_component": 0.578947,
+          "product": 0.186136,
+          "global_prior": 0.172015
+        },
+        "candidate_miss_rate": 0.046213
+      },
+      "candidate_miss_clusters": {
+        "component_top30": {
+          "dom: core & html": 5,
+          "xpcom": 4,
+          "dom: navigation": 3,
+          "general": 2,
+          "security": 2,
+          "graphics": 2,
+          "networking: http": 1,
+          "privacy: anti-tracking": 1,
+          "javascript: standard library": 1,
+          "audio/video: gmp": 1,
+          "graphics: layers": 1,
+          "graphics: webrender": 1,
+          "new tab page": 1,
+          "dom: workers": 1,
+          "session restore": 1,
+          "javascript engine": 1,
+          "dom: content processes": 1,
+          "site identity": 1,
+          "dom: editor": 1,
+          "dom: networking": 1,
+          "javascript engine: jit": 1,
+          "panning and zooming": 1,
+          "xul": 1,
+          "memory allocator": 1
+        },
+        "owner_history_frequency": {
+          "20-99": 14,
+          "5-19": 22
+        },
+        "query_month": {
+          "2020-06": 36
+        },
+        "missing_data": {
+          "description_missing": 6,
+          "routing_safe_file_paths_missing": 36
+        }
+      }
+    }
+  }
+}

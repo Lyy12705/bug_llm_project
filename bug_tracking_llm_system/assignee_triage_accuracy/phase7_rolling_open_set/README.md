@@ -55,6 +55,15 @@ The policy has two independent risk bands:
 - `manual_triage`: low confidence, high open-set risk, no viable candidate, or
   detected score drift.
 
+The current implementation also exports an independent
+`top5_assist_policy`. It is a semi-automatic user-choice policy, not a third
+automatic routing band. One threshold set must achieve at least 85% Top-5
+accuracy in every policy-selection window, with minimum coverage, row count,
+Wilson lower bound, two candidate evidence families, and five ranked
+candidates. Runtime roster filtering is fail-closed: if any of the measured
+Top-5 owners is inactive or unreviewed, no list is shown. The result always
+keeps the real assignee unchanged.
+
 The policy must satisfy every selection window, not just pooled averages:
 automatic accuracy at least 85%, coverage at least 10%, and unseen-owner false
 automatic assignment rate at most 5%. PSI above 0.25 disables automatic

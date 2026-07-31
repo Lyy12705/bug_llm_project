@@ -4,12 +4,25 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
 import joblib
 
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC_ROOT = PROJECT_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from modules.assignee_eligibility import (  # noqa: E402
+    annotate_eligible_owner_labels_from_snapshots,
+    read_assignee_eligibility_index,
+)
+
 from assignee_open_set_common import (
+    apply_top5_assist_policy,
     calibration_metrics,
     deployment_gate,
     evaluate_score_drift,
@@ -18,6 +31,8 @@ from assignee_open_set_common import (
     route_predictions,
     routing_metrics,
     routing_score_diagnostics,
+    top5_assist_gate,
+    top5_assist_metrics,
     write_json,
     write_jsonl,
 )
@@ -32,6 +47,7 @@ from train_assignee_rolling_open_set import (
     RAW_DIR,
     RollingWindow,
     apply_label_availability,
+    label_availability_audit,
     load_rows,
     prepare_rolling_windows,
     read_label_availability,
@@ -39,7 +55,6 @@ from train_assignee_rolling_open_set import (
 )
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ARTIFACT = (
     PROJECT_ROOT
     / "assignee_triage_accuracy"
@@ -107,6 +122,16 @@ def main() -> None:
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
+        "--eligibility-roster",
+        type=Path,
+        action="append",
+        default=[],
+        help=(
+            "Repeat for non-overlapping reviewed snapshots when the frozen "
+            "Top-5 policy uses eligible-owner correctness."
+        ),
+    )
+    parser.add_argument(
         "--evaluation-registry",
         type=Path,
         default=DEFAULT_EVALUATION_REGISTRY,
@@ -128,6 +153,10 @@ def main() -> None:
     parser.add_argument("--minimum-component-auto-accuracy", type=float, default=0.75)
     parser.add_argument("--minimum-component-auto-accuracy-lower-bound", type=float, default=0.60)
     parser.add_argument("--target-top3-confirmation-accuracy", type=float, default=0.90)
+    parser.add_argument("--minimum-top5-assist-rows", type=int, default=250)
+    parser.add_argument(
+        "--minimum-top5-assist-accuracy-lower-bound", type=float, default=0.80
+    )
     args = parser.parse_args()
 
     if not args.confirm_untouched_holdout:
@@ -139,8 +168,11 @@ def main() -> None:
         raise SystemExit("Unsupported rolling open-set artifact")
     if artifact.get("deployment_status") != "research_only":
         raise SystemExit("Holdout evaluation expects a research-only artifact")
-    if not artifact.get("development_gate", {}).get("passed"):
-        raise SystemExit("The rolling development gate did not pass")
+    if not (
+        artifact.get("development_gate", {}).get("passed")
+        or artifact.get("top5_assist_development_gate", {}).get("passed")
+    ):
+        raise SystemExit("Neither rolling development gate passed")
     ranker_artifact = json.loads(
         (args.model_dir / "candidate_ltr_artifact.json").read_text(encoding="utf-8")
     )
@@ -197,12 +229,23 @@ def main() -> None:
         [*frozen_specs, *intermediate_specs, (args.holdout_name, args.holdout)],
         label_map,
         availability,
+        strict_duplicate_families=str(
+            requirements.get("candidate_generator_version") or "v2"
+        )
+        == "v3",
     )
     frozen_windows = all_windows[: len(frozen_specs)]
     if [window.name for window in frozen_windows] != artifact.get("history_windows"):
         raise SystemExit("Rolling history windows do not match the frozen artifact")
     intermediate_windows = all_windows[len(frozen_specs) : -1]
     window = all_windows[-1]
+    label_availability = label_availability_audit(
+        [
+            row
+            for item in all_windows
+            for row in [*item.history_before, *item.query_rows]
+        ]
+    )
     predictions = score_window(
         window,
         ranker,
@@ -210,6 +253,7 @@ def main() -> None:
         float(requirements["half_life_days"]),
         float(requirements["smoothing_alpha"]),
         semantic,
+        str(requirements.get("candidate_generator_version") or "v2"),
     )
     for row, probability in zip(
         predictions,
@@ -226,14 +270,50 @@ def main() -> None:
 
     policy = artifact["routing_policy"]
     route_predictions(predictions, policy)
+    top5_policy = artifact.get("top5_assist_policy") or {"found": False}
+    top5_correctness_field = str(
+        top5_policy.get("correctness_field") or "is_top5_correct"
+    )
+    if top5_correctness_field == "is_top5_eligible_correct":
+        if not args.eligibility_roster:
+            raise SystemExit(
+                "eligible-owner holdout evaluation requires --eligibility-roster"
+            )
+        eligibility_indexes = [
+            read_assignee_eligibility_index(path)
+            for path in args.eligibility_roster
+        ]
+        annotate_eligible_owner_labels_from_snapshots(
+            predictions, eligibility_indexes
+        )
+        unlabeled = sum(
+            row.get("eligibility_label_available") is not True
+            for row in predictions
+        )
+        if unlabeled:
+            raise SystemExit(
+                "eligible-owner holdout cannot be evaluated: "
+                f"{unlabeled} rows lack a time-valid reviewed snapshot"
+            )
+    apply_top5_assist_policy(predictions, top5_policy)
     routing_before_drift_gate = routing_metrics(predictions)
+    top5_before_drift_gate = top5_assist_metrics(
+        predictions, correctness_field=top5_correctness_field
+    )
     drift = evaluate_score_drift(predictions, artifact["drift_reference"])
     if drift["severe_drift"]:
         for row in predictions:
             if row["routing_status"] == "auto_assign":
                 row["routing_status"] = "top3_confirmation"
                 row["fallback_reason"] = "score_distribution_drift"
+            if row.get("top5_assist_available") is True:
+                row["top5_assist_available"] = False
+                row["top5_assist_status"] = "manual_triage_score_drift"
+                row["top5_assist_reason"] = "score_distribution_drift"
     routing = routing_metrics(predictions)
+    top5_metrics = top5_assist_metrics(
+        predictions, correctness_field=top5_correctness_field
+    )
     targets = artifact["targets"]
     gate = deployment_gate(
         routing,
@@ -256,12 +336,81 @@ def main() -> None:
         "target_top3_confirmation_accuracy": args.target_top3_confirmation_accuracy,
     }
     gate["score_drift_check"] = not drift["severe_drift"]
-    gate["passed"] = bool(gate["passed"] and not drift["severe_drift"])
+    strict_v3 = str(requirements.get("candidate_generator_version") or "v2") == "v3"
+    protocol_checks = {
+        "assignment_label_timestamps_explicit": (
+            label_availability["all_rows_explicit"] if strict_v3 else True
+        ),
+        "candidate_source_support_frozen": (
+            int(policy.get("minimum_candidate_source_count", 0)) >= 2
+            if strict_v3
+            else True
+        ),
+        "every_auto_assignment_has_two_source_families": (
+            all(
+                int(row.get("candidate_source_count", 0)) >= 2
+                for row in predictions
+                if row.get("routing_status") == "auto_assign"
+            )
+            if strict_v3
+            else True
+        ),
+    }
+    gate["v3_protocol_checks"] = protocol_checks if strict_v3 else {}
+    gate["passed"] = bool(
+        gate["passed"]
+        and not drift["severe_drift"]
+        and all(protocol_checks.values())
+    )
     gate["production_integration_allowed"] = False
     gate["production_blocker"] = (
         "reviewed_active_roster_and_explicit_operator_approval_required"
         if gate["passed"]
         else "untouched_holdout_or_drift_safety_gate_failed"
+    )
+    top5_gate = top5_assist_gate(
+        top5_metrics,
+        target_accuracy=float(targets.get("target_top5_assist_accuracy", 0.85)),
+        minimum_coverage=float(
+            targets.get("minimum_top5_assist_coverage", 0.10)
+        ),
+        minimum_rows=max(1, args.minimum_top5_assist_rows),
+        minimum_accuracy_lower_bound=(
+            args.minimum_top5_assist_accuracy_lower_bound
+        ),
+    )
+    top5_protocol_checks = {
+        "assignment_label_timestamps_explicit": protocol_checks[
+            "assignment_label_timestamps_explicit"
+        ],
+        "candidate_source_support_frozen": (
+            int(top5_policy.get("minimum_candidate_source_count", 0)) >= 2
+            if strict_v3
+            else True
+        ),
+        "every_assisted_row_has_two_source_families": (
+            all(
+                int(row.get("candidate_source_count", 0)) >= 2
+                for row in predictions
+                if row.get("top5_assist_available") is True
+            )
+            if strict_v3
+            else True
+        ),
+    }
+    top5_gate["v3_protocol_checks"] = top5_protocol_checks if strict_v3 else {}
+    top5_gate["score_drift_check"] = not drift["severe_drift"]
+    top5_gate["passed"] = bool(
+        top5_gate["passed"]
+        and top5_policy.get("found") is True
+        and not drift["severe_drift"]
+        and all(top5_protocol_checks.values())
+    )
+    top5_gate["production_integration_allowed"] = False
+    top5_gate["production_blocker"] = (
+        "reviewed_active_roster_and_explicit_operator_approval_required"
+        if top5_gate["passed"]
+        else "untouched_holdout_top5_or_drift_gate_failed"
     )
 
     report = {
@@ -282,7 +431,10 @@ def main() -> None:
             "holdout_used_for_threshold_selection": False,
             "rolling_history_updated_only_from_prior_windows": True,
             "label_availability_policy": artifact.get("label_availability_policy"),
-            "assignment_time_history_available": False,
+            "label_availability_audit": label_availability,
+            "assignment_time_history_available": label_availability[
+                "all_rows_explicit"
+            ],
             "holdout_provenance": holdout_provenance,
             "routing_artifact_sha256": routing_artifact_hash,
             "sealed_holdout_evaluation_id": evaluation_id,
@@ -298,10 +450,13 @@ def main() -> None:
             predictions, threshold=float(policy["open_set_threshold"])
         ),
         "routing_before_drift_gate": routing_before_drift_gate,
+        "top5_assist_before_drift_gate": top5_before_drift_gate,
         "score_drift": drift,
         "routing_metrics": routing,
+        "top5_assist_metrics": top5_metrics,
         "routing_score_diagnostics": routing_score_diagnostics(predictions, policy),
         "deployment_gate": gate,
+        "top5_assist_holdout_gate": top5_gate,
     }
     args.output_dir.mkdir(parents=True, exist_ok=True)
     write_json(args.output_dir / "rolling_holdout_report.json", report)

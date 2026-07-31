@@ -27,6 +27,9 @@ OPEN_SET_FEATURES = (
     "component_owner_share",
     "product_component_owner_share",
     "recent_component_owner_share",
+    "component_token_owner_share",
+    "reporter_owner_share",
+    "file_owner_share",
     "owner_recency",
     "bm25_owner_score",
     "bm25_best_issue_score",
@@ -274,6 +277,10 @@ def select_routing_policy(
     minimum_auto_rows: int = 1,
     minimum_accuracy_lower_bound: float = 0.0,
     minimum_candidate_source_count: int = 0,
+    maximum_unseen_rate_upper_bound: float | None = None,
+    minimum_component_auto_rows: int = 30,
+    minimum_component_accuracy: float = 0.0,
+    minimum_component_accuracy_lower_bound: float = 0.0,
 ) -> dict[str, Any]:
     if not rows:
         raise ValueError("routing policy selection requires predictions")
@@ -297,15 +304,41 @@ def select_routing_policy(
             coverage = len(accepted) / len(rows)
             unseen_auto = sum(not row["known_owner"] for row in accepted)
             unseen_rate = unseen_auto / unknown_total if unknown_total else 0.0
+            unseen_interval = wilson_interval(unseen_auto, unknown_total)
             accuracy_interval = wilson_interval(
                 sum(bool(row["is_top1_correct"]) for row in accepted), len(accepted)
+            )
+            accepted_ids = {id(row) for row in accepted}
+            component_metrics = component_routing_metrics(
+                [
+                    {
+                        **row,
+                        "routing_status": (
+                            "auto_assign"
+                            if id(row) in accepted_ids
+                            else "manual_triage_policy_selection"
+                        ),
+                    }
+                    for row in rows
+                ]
+            )
+            component_checks = _component_policy_checks(
+                component_metrics,
+                minimum_auto_rows=minimum_component_auto_rows,
+                minimum_accuracy=minimum_component_accuracy,
+                minimum_accuracy_lower_bound=minimum_component_accuracy_lower_bound,
             )
             if (
                 accuracy >= target_auto_accuracy
                 and coverage >= minimum_auto_coverage
                 and unseen_rate < maximum_unseen_auto_rate
+                and (
+                    maximum_unseen_rate_upper_bound is None
+                    or unseen_interval["upper"] < maximum_unseen_rate_upper_bound
+                )
                 and len(accepted) >= minimum_auto_rows
                 and accuracy_interval["lower"] >= minimum_accuracy_lower_bound
+                and component_checks["passed"]
             ):
                 candidate = {
                     "found": True,
@@ -316,9 +349,15 @@ def select_routing_policy(
                     "auto_assignment_accuracy_ci95": accuracy_interval,
                     "auto_assignment_coverage": round(coverage, 6),
                     "unseen_auto_assignment_rate": round(unseen_rate, 6),
+                    "unseen_auto_assignment_rows": unseen_auto,
+                    "unseen_rows": unknown_total,
+                    "unseen_auto_assignment_rate_ci95": unseen_interval,
                     "minimum_auto_rows": minimum_auto_rows,
                     "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
                     "minimum_candidate_source_count": minimum_candidate_source_count,
+                    "maximum_unseen_rate_upper_bound": maximum_unseen_rate_upper_bound,
+                    "component_metrics": component_metrics,
+                    "component_safety": component_checks,
                 }
                 if best is None or (
                     candidate["auto_assignment_coverage"],
@@ -383,6 +422,10 @@ def select_multi_window_routing_policy(
     minimum_review_rows_per_window: int = 1,
     minimum_review_coverage: float = 0.0,
     minimum_candidate_source_count: int = 0,
+    maximum_unseen_rate_upper_bound: float | None = None,
+    minimum_component_auto_rows: int = 30,
+    minimum_component_accuracy: float = 0.0,
+    minimum_component_accuracy_lower_bound: float = 0.0,
 ) -> dict[str, Any]:
     if len(windows) < 2 or any(not rows for rows in windows.values()):
         raise ValueError("multi-window policy selection requires at least two non-empty windows")
@@ -410,11 +453,35 @@ def select_multi_window_routing_policy(
                 row["auto_assignment_accuracy"] >= target_auto_accuracy
                 and row["auto_assignment_coverage"] >= minimum_auto_coverage
                 and row["unseen_auto_assignment_rate"] < maximum_unseen_auto_rate
+                and (
+                    maximum_unseen_rate_upper_bound is None
+                    or row["unseen_auto_assignment_rate_ci95"]["upper"]
+                    < maximum_unseen_rate_upper_bound
+                )
                 and row["auto_assignment_rows"] >= minimum_auto_rows_per_window
                 and row["auto_assignment_accuracy_ci95"]["lower"]
                 >= minimum_accuracy_lower_bound
                 for row in metrics.values()
             ):
+                continue
+            component_checks = {}
+            for name, values in arrays.items():
+                component_metrics = _component_metrics_for_threshold(
+                    values,
+                    risk_threshold=risk_threshold,
+                    high_threshold=high_threshold,
+                    minimum_candidate_source_count=minimum_candidate_source_count,
+                )
+                check = _component_policy_checks(
+                    component_metrics,
+                    minimum_auto_rows=minimum_component_auto_rows,
+                    minimum_accuracy=minimum_component_accuracy,
+                    minimum_accuracy_lower_bound=minimum_component_accuracy_lower_bound,
+                )
+                metrics[name]["component_metrics"] = component_metrics
+                metrics[name]["component_safety"] = check
+                component_checks[name] = check
+            if not all(check["passed"] for check in component_checks.values()):
                 continue
             coverages = [row["auto_assignment_coverage"] for row in metrics.values()]
             accuracies = [row["auto_assignment_accuracy"] for row in metrics.values()]
@@ -427,11 +494,24 @@ def select_multi_window_routing_policy(
                 "minimum_auto_rows_per_window": minimum_auto_rows_per_window,
                 "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
                 "minimum_candidate_source_count": minimum_candidate_source_count,
+                "maximum_unseen_rate_upper_bound": maximum_unseen_rate_upper_bound,
+                "minimum_component_auto_rows": minimum_component_auto_rows,
+                "minimum_component_accuracy": minimum_component_accuracy,
+                "minimum_component_accuracy_lower_bound": (
+                    minimum_component_accuracy_lower_bound
+                ),
                 "selection_window_metrics": metrics,
                 "minimum_window_coverage": round(min(coverages), 6),
                 "mean_window_coverage": round(float(np.mean(coverages)), 6),
                 "mean_window_accuracy": round(float(np.mean(accuracies)), 6),
                 "maximum_window_unseen_auto_rate": round(max(unseen_rates), 6),
+                "maximum_window_unseen_auto_rate_ci95_upper": round(
+                    max(
+                        row["unseen_auto_assignment_rate_ci95"]["upper"]
+                        for row in metrics.values()
+                    ),
+                    6,
+                ),
             }
             if best is None or (
                 candidate["minimum_window_coverage"],
@@ -516,6 +596,290 @@ def select_multi_window_routing_policy(
         }
     )
     return best
+
+
+def select_multi_window_top5_assist_policy(
+    windows: dict[str, list[dict[str, Any]]],
+    *,
+    target_accuracy: float = 0.85,
+    minimum_coverage: float = 0.10,
+    minimum_rows_per_window: int = 100,
+    minimum_accuracy_lower_bound: float = 0.80,
+    minimum_candidate_source_count: int = 2,
+    minimum_confidence: float = 0.0,
+    top_k: int = 5,
+    correctness_field: str = "is_top5_correct",
+) -> dict[str, Any]:
+    """Freeze one selective Top-K policy that passes every development window.
+
+    This policy can only expose candidates for user confirmation. It never grants
+    automatic-assignment authority.
+    """
+    if top_k != 5:
+        raise ValueError("the semi-automatic policy currently supports top_k=5 only")
+    if len(windows) < 2 or any(not rows for rows in windows.values()):
+        raise ValueError("Top-5 policy selection requires at least two non-empty windows")
+    if not correctness_field.strip():
+        raise ValueError("correctness_field is required")
+    pooled = [row for rows in windows.values() for row in rows]
+    risk_values = quantile_candidates(
+        pooled, "open_set_probability", include=(0.0, 1.000001)
+    )
+    confidence_values = [
+        value
+        for value in quantile_candidates(
+            pooled, "calibrated_probability", include=(1.000001,)
+        )
+        if value >= minimum_confidence
+    ]
+    arrays = {
+        name: _routing_arrays(rows, top5_correctness_field=correctness_field)
+        for name, rows in windows.items()
+    }
+    best: dict[str, Any] | None = None
+    for risk_threshold in risk_values:
+        for confidence_threshold in confidence_values:
+            metrics = {
+                name: _top5_assist_threshold_metrics(
+                    values,
+                    risk_threshold=risk_threshold,
+                    confidence_threshold=confidence_threshold,
+                    minimum_candidate_source_count=minimum_candidate_source_count,
+                    top_k=top_k,
+                    require_all_candidates_eligible=(
+                        correctness_field == "is_top5_eligible_correct"
+                    ),
+                )
+                for name, values in arrays.items()
+            }
+            if not all(
+                row["top5_assist_accuracy"] >= target_accuracy
+                and row["top5_assist_coverage"] >= minimum_coverage
+                and row["top5_assist_rows"] >= minimum_rows_per_window
+                and row["top5_assist_accuracy_ci95"]["lower"]
+                >= minimum_accuracy_lower_bound
+                for row in metrics.values()
+            ):
+                continue
+            coverages = [row["top5_assist_coverage"] for row in metrics.values()]
+            accuracies = [row["top5_assist_accuracy"] for row in metrics.values()]
+            candidate = {
+                "found": True,
+                "mode": "top5_user_confirmation_only",
+                "top_k": top_k,
+                "open_set_threshold": round(float(risk_threshold), 8),
+                "minimum_confidence": round(float(confidence_threshold), 8),
+                "target_accuracy": target_accuracy,
+                "correctness_field": correctness_field,
+                "correctness_definition": _correctness_definition(correctness_field),
+                "candidate_eligibility_requirement": (
+                    "all_displayed_candidates"
+                    if correctness_field == "is_top5_eligible_correct"
+                    else "active_roster_only"
+                ),
+                "minimum_coverage": minimum_coverage,
+                "minimum_rows_per_window": minimum_rows_per_window,
+                "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
+                "minimum_candidate_source_count": minimum_candidate_source_count,
+                "selection_window_metrics": metrics,
+                "minimum_window_coverage": round(min(coverages), 6),
+                "mean_window_coverage": round(float(np.mean(coverages)), 6),
+                "minimum_window_accuracy": round(min(accuracies), 6),
+                "mean_window_accuracy": round(float(np.mean(accuracies)), 6),
+                "requires_user_selection": True,
+                "auto_assignment_authorized": False,
+            }
+            if best is None or (
+                candidate["minimum_window_coverage"],
+                candidate["mean_window_coverage"],
+                candidate["minimum_window_accuracy"],
+            ) > (
+                best["minimum_window_coverage"],
+                best["mean_window_coverage"],
+                best["minimum_window_accuracy"],
+            ):
+                best = candidate
+    if best is not None:
+        return best
+    return {
+        "found": False,
+        "mode": "top5_user_confirmation_only",
+        "top_k": top_k,
+        "open_set_threshold": 0.0,
+        "minimum_confidence": 1.000001,
+        "target_accuracy": target_accuracy,
+        "correctness_field": correctness_field,
+        "correctness_definition": _correctness_definition(correctness_field),
+        "candidate_eligibility_requirement": (
+            "all_displayed_candidates"
+            if correctness_field == "is_top5_eligible_correct"
+            else "active_roster_only"
+        ),
+        "minimum_coverage": minimum_coverage,
+        "minimum_rows_per_window": minimum_rows_per_window,
+        "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
+        "minimum_candidate_source_count": minimum_candidate_source_count,
+        "selection_window_metrics": {},
+        "requires_user_selection": True,
+        "auto_assignment_authorized": False,
+        "blocker": "no_single_top5_policy_passed_every_development_window",
+    }
+
+
+def apply_top5_assist_policy(
+    rows: list[dict[str, Any]], policy: dict[str, Any]
+) -> None:
+    """Annotate Top-5 availability without ever mutating the proposed assignee."""
+    for row in rows:
+        if policy.get("found") is not True:
+            available = False
+            status = "manual_triage_top5_policy_unavailable"
+            reason = "top5_quality_policy_not_available"
+        elif int(safe_float(row.get("candidate_count"))) < int(
+            policy.get("top_k", 5)
+        ):
+            available = False
+            status = "manual_triage_insufficient_candidates"
+            reason = "fewer_than_five_ranked_candidates"
+        elif (
+            policy.get("correctness_field") == "is_top5_eligible_correct"
+            and row.get("eligibility_label_available") is not True
+        ):
+            available = False
+            status = "manual_triage_eligibility_unavailable"
+            reason = "reviewed_time_valid_eligibility_unavailable"
+        elif (
+            policy.get("correctness_field") == "is_top5_eligible_correct"
+            and int(safe_float(row.get("eligible_top5_count")))
+            < int(policy.get("top_k", 5))
+        ):
+            available = False
+            status = "manual_triage_invalid_owner"
+            reason = "top5_contains_unqualified_owner"
+        elif int(safe_float(row.get("candidate_source_count"))) < int(
+            policy.get("minimum_candidate_source_count", 0)
+        ):
+            available = False
+            status = "manual_triage_insufficient_evidence"
+            reason = "insufficient_candidate_sources"
+        elif safe_float(row.get("open_set_probability")) >= float(
+            policy["open_set_threshold"]
+        ):
+            available = False
+            status = "manual_triage_open_set"
+            reason = "unseen_owner_risk"
+        elif safe_float(row.get("calibrated_probability")) < float(
+            policy["minimum_confidence"]
+        ):
+            available = False
+            status = "manual_triage_low_confidence"
+            reason = "top5_quality_gate_low_confidence"
+        else:
+            available = True
+            status = "top5_user_confirmation"
+            reason = "top5_candidates_require_user_selection"
+        row["top5_assist_available"] = available
+        row["top5_assist_status"] = status
+        row["top5_assist_reason"] = reason
+
+
+def top5_assist_metrics(
+    rows: list[dict[str, Any]], *, correctness_field: str = "is_top5_correct"
+) -> dict[str, Any]:
+    if correctness_field != "is_top5_correct" and any(
+        correctness_field not in row for row in rows
+    ):
+        raise ValueError(
+            f"Top-5 correctness field is missing from one or more rows: {correctness_field}"
+        )
+    assisted = [row for row in rows if row.get("top5_assist_available") is True]
+    correct = sum(bool(row.get(correctness_field)) for row in assisted)
+    result = {
+        "rows": len(rows),
+        "top5_assist_rows": len(assisted),
+        "top5_assist_correct_rows": correct,
+        "top5_assist_coverage": rounded_ratio(len(assisted), len(rows)),
+        "top5_assist_accuracy": rounded_ratio(correct, len(assisted)),
+        "top5_assist_accuracy_ci95": wilson_interval(correct, len(assisted)),
+        "manual_triage_rows": len(rows) - len(assisted),
+        "auto_assignment_rows": 0,
+        "correctness_field": correctness_field,
+        "correctness_definition": _correctness_definition(correctness_field),
+    }
+    if correctness_field != "is_top5_correct":
+        exact_correct = sum(bool(row.get("is_top5_correct")) for row in assisted)
+        eligible_slots = sum(int(safe_float(row.get("eligible_top5_count"))) for row in assisted)
+        candidate_slots = sum(
+            min(
+                5,
+                max(
+                    len(row.get("ranked_candidates") or []),
+                    int(safe_float(row.get("candidate_count"))),
+                ),
+            )
+            for row in assisted
+        )
+        eligible_slots = min(eligible_slots, candidate_slots)
+        result.update(
+            {
+                "secondary_exact_owner_correct_rows": exact_correct,
+                "secondary_exact_owner_accuracy": rounded_ratio(
+                    exact_correct, len(assisted)
+                ),
+                "secondary_exact_owner_accuracy_ci95": wilson_interval(
+                    exact_correct, len(assisted)
+                ),
+                "top5_candidate_eligibility_precision": rounded_ratio(
+                    eligible_slots, candidate_slots
+                ),
+                "top5_candidate_eligibility_precision_ci95": wilson_interval(
+                    eligible_slots, candidate_slots
+                ),
+            }
+        )
+    return result
+
+
+def top5_assist_gate(
+    metrics: dict[str, Any],
+    *,
+    target_accuracy: float = 0.85,
+    minimum_coverage: float = 0.10,
+    minimum_rows: int = 100,
+    minimum_accuracy_lower_bound: float = 0.80,
+) -> dict[str, Any]:
+    checks = {
+        "top5_assist_accuracy": metrics.get("top5_assist_accuracy", 0.0)
+        >= target_accuracy,
+        "top5_assist_coverage": metrics.get("top5_assist_coverage", 0.0)
+        >= minimum_coverage,
+        "minimum_top5_assist_rows": metrics.get("top5_assist_rows", 0)
+        >= minimum_rows,
+        "top5_accuracy_confidence_lower_bound": metrics.get(
+            "top5_assist_accuracy_ci95", {"lower": 0.0}
+        )["lower"]
+        >= minimum_accuracy_lower_bound,
+        "never_auto_assigns": metrics.get("auto_assignment_rows", 0) == 0,
+    }
+    if metrics.get("correctness_field") == "is_top5_eligible_correct":
+        checks["all_displayed_candidates_reviewed_eligible"] = metrics.get(
+            "top5_candidate_eligibility_precision", 0.0
+        ) == 1.0
+    return {
+        "passed": all(checks.values()),
+        "checks": checks,
+        "failed_checks": [name for name, passed in checks.items() if not passed],
+        "targets": {
+            "target_top5_assist_accuracy": target_accuracy,
+            "minimum_top5_assist_coverage": minimum_coverage,
+            "minimum_top5_assist_rows": minimum_rows,
+            "minimum_top5_assist_accuracy_lower_bound": (
+                minimum_accuracy_lower_bound
+            ),
+        },
+        "requires_user_selection": True,
+        "auto_assignment_authorized": False,
+    }
 
 
 def route_predictions(rows: list[dict[str, Any]], policy: dict[str, Any]) -> None:
@@ -680,8 +1044,16 @@ def routing_score_diagnostics(rows: list[dict[str, Any]], policy: dict[str, Any]
     open_set = np.asarray([safe_float(row.get("open_set_probability")) for row in rows])
     high = float(policy["t_high"])
     open_threshold = float(policy["open_set_threshold"])
+    minimum_sources = max(0, int(policy.get("minimum_candidate_source_count", 0)))
+    source_count = np.asarray(
+        [
+            max(0, int(safe_float(row.get("candidate_source_count"))))
+            for row in rows
+        ]
+    )
     below_open_gate = open_set < open_threshold
-    joint = below_open_gate & (calibrated >= high)
+    enough_sources = source_count >= minimum_sources
+    joint = below_open_gate & (calibrated >= high) & enough_sources
     return {
         "rows": len(rows),
         "calibrated_probability": distribution_summary(calibrated),
@@ -690,6 +1062,8 @@ def routing_score_diagnostics(rows: list[dict[str, Any]], policy: dict[str, Any]
         "frozen_open_set_threshold": open_threshold,
         "rows_above_high_confidence": int(np.sum(calibrated >= high)),
         "rows_below_open_set_gate": int(np.sum(below_open_gate)),
+        "minimum_candidate_source_count": minimum_sources,
+        "rows_with_minimum_candidate_sources": int(np.sum(enough_sources)),
         "rows_passing_both_auto_assignment_gates": int(np.sum(joint)),
         "maximum_calibrated_probability_below_open_set_gate": (
             round(float(np.max(calibrated[below_open_gate])), 8) if np.any(below_open_gate) else None
@@ -876,12 +1250,37 @@ def metric_or_none(metric: Any, labels: np.ndarray, scores: np.ndarray) -> float
     return round(float(metric(labels, scores)), 6)
 
 
-def _routing_arrays(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
+def _routing_arrays(
+    rows: list[dict[str, Any]], *, top5_correctness_field: str = "is_top5_correct"
+) -> dict[str, np.ndarray]:
+    if top5_correctness_field != "is_top5_correct" and any(
+        top5_correctness_field not in row for row in rows
+    ):
+        raise ValueError(
+            "Top-5 correctness field is missing from one or more rows: "
+            + top5_correctness_field
+        )
     return {
         "risk": np.asarray([safe_float(row.get("open_set_probability")) for row in rows]),
         "confidence": np.asarray([safe_float(row.get("calibrated_probability")) for row in rows]),
         "correct": np.asarray([bool(row["is_top1_correct"]) for row in rows]),
         "top3": np.asarray([bool(row["is_top3_correct"]) for row in rows]),
+        "top5": np.asarray(
+            [
+                bool(
+                    row.get(
+                        top5_correctness_field,
+                        row.get("is_top3_correct")
+                        if top5_correctness_field == "is_top5_correct"
+                        else False,
+                    )
+                )
+                for row in rows
+            ]
+        ),
+        "exact_top5": np.asarray(
+            [bool(row.get("is_top5_correct", row.get("is_top3_correct"))) for row in rows]
+        ),
         "unknown": np.asarray([not bool(row["known_owner"]) for row in rows]),
         "source_count": np.asarray(
             [
@@ -896,7 +1295,99 @@ def _routing_arrays(rows: list[dict[str, Any]]) -> dict[str, np.ndarray]:
                 for row in rows
             ]
         ),
+        "candidate_count": np.asarray(
+            [
+                max(
+                    0,
+                    int(
+                        safe_float(
+                            row.get(
+                                "candidate_count",
+                                len(row.get("ranked_candidates", []))
+                                if isinstance(row.get("ranked_candidates"), list)
+                                else 0,
+                            )
+                        )
+                    ),
+                )
+                for row in rows
+            ]
+        ),
+        "eligibility_label_available": np.asarray(
+            [bool(row.get("eligibility_label_available")) for row in rows]
+        ),
+        "eligible_top5_count": np.asarray(
+            [max(0, int(safe_float(row.get("eligible_top5_count")))) for row in rows]
+        ),
+        "component": np.asarray(
+            [str(row.get("component") or "unknown") for row in rows], dtype=object
+        ),
     }
+
+
+def _correctness_definition(field: str) -> str:
+    if field == "is_top5_eligible_correct":
+        return "at_least_one_candidate_in_reviewed_time_valid_capability_set"
+    if field == "is_top5_correct":
+        return "historical_exact_assignee_in_top5"
+    return f"custom_boolean_field:{field}"
+
+
+def _top5_assist_threshold_metrics(
+    values: dict[str, np.ndarray],
+    *,
+    risk_threshold: float,
+    confidence_threshold: float,
+    minimum_candidate_source_count: int,
+    top_k: int,
+    require_all_candidates_eligible: bool = False,
+) -> dict[str, Any]:
+    assisted = (
+        (values["risk"] < risk_threshold)
+        & (values["confidence"] >= confidence_threshold)
+        & (values["source_count"] >= minimum_candidate_source_count)
+        & (values["candidate_count"] >= top_k)
+    )
+    if require_all_candidates_eligible:
+        assisted &= values["eligibility_label_available"] & (
+            values["eligible_top5_count"] >= top_k
+        )
+    assisted_rows = int(np.sum(assisted))
+    correct_rows = int(np.sum(values["top5"] & assisted))
+    exact_correct_rows = int(np.sum(values["exact_top5"] & assisted))
+    eligible_candidate_slots = int(
+        np.sum(values["eligible_top5_count"][assisted])
+    )
+    candidate_slots = assisted_rows * top_k
+    eligible_candidate_slots = min(eligible_candidate_slots, candidate_slots)
+    total = len(values["risk"])
+    result = {
+        "rows": total,
+        "top5_assist_rows": assisted_rows,
+        "top5_assist_correct_rows": correct_rows,
+        "top5_assist_coverage": rounded_ratio(assisted_rows, total),
+        "top5_assist_accuracy": rounded_ratio(correct_rows, assisted_rows),
+        "top5_assist_accuracy_ci95": wilson_interval(correct_rows, assisted_rows),
+    }
+    if require_all_candidates_eligible:
+        result.update(
+            {
+                "secondary_exact_owner_correct_rows": exact_correct_rows,
+                "secondary_exact_owner_accuracy": rounded_ratio(
+                    exact_correct_rows, assisted_rows
+                ),
+                "secondary_exact_owner_accuracy_ci95": wilson_interval(
+                    exact_correct_rows, assisted_rows
+                ),
+                "top5_candidate_eligibility_precision": rounded_ratio(
+                    eligible_candidate_slots, candidate_slots
+                ),
+                "top5_candidate_eligibility_precision_ci95": wilson_interval(
+                    eligible_candidate_slots, candidate_slots
+                ),
+            }
+        )
+    return result
 
 
 def _auto_metrics(
@@ -913,6 +1404,7 @@ def _auto_metrics(
     accepted_rows = int(np.sum(accepted))
     correct_rows = int(np.sum(values["correct"] & accepted))
     unknown_rows = int(np.sum(values["unknown"]))
+    unknown_auto_rows = int(np.sum(values["unknown"] & accepted))
     return {
         "auto_assignment_rows": accepted_rows,
         "auto_assignment_correct_rows": correct_rows,
@@ -920,8 +1412,83 @@ def _auto_metrics(
         "auto_assignment_accuracy_ci95": wilson_interval(correct_rows, accepted_rows),
         "auto_assignment_coverage": ratio_int(accepted_rows, len(values["risk"])),
         "unseen_auto_assignment_rate": ratio_int(
-            np.sum(values["unknown"] & accepted), unknown_rows
+            unknown_auto_rows, unknown_rows
         ),
+        "unseen_auto_assignment_rows": unknown_auto_rows,
+        "unseen_rows": unknown_rows,
+        "unseen_auto_assignment_rate_ci95": wilson_interval(
+            unknown_auto_rows, unknown_rows
+        ),
+    }
+
+
+def _component_metrics_for_threshold(
+    values: dict[str, np.ndarray],
+    *,
+    risk_threshold: float,
+    high_threshold: float,
+    minimum_candidate_source_count: int,
+) -> dict[str, Any]:
+    accepted = (
+        (values["risk"] < risk_threshold)
+        & (values["confidence"] >= high_threshold)
+        & (values["source_count"] >= minimum_candidate_source_count)
+    )
+    result: dict[str, Any] = {}
+    for component in sorted(set(str(value) for value in values["component"])):
+        members = values["component"] == component
+        selected = members & accepted
+        selected_rows = int(np.sum(selected))
+        correct_rows = int(np.sum(values["correct"] & selected))
+        result[component] = {
+            "rows": int(np.sum(members)),
+            "auto_assignment_rows": selected_rows,
+            "auto_assignment_coverage": ratio_int(selected_rows, np.sum(members)),
+            "auto_assignment_accuracy": ratio_int(correct_rows, selected_rows),
+            "auto_assignment_accuracy_ci95": wilson_interval(
+                correct_rows, selected_rows
+            ),
+        }
+    return result
+
+
+def _component_policy_checks(
+    component_metrics: dict[str, Any],
+    *,
+    minimum_auto_rows: int,
+    minimum_accuracy: float,
+    minimum_accuracy_lower_bound: float,
+) -> dict[str, Any]:
+    eligible = {
+        name: values
+        for name, values in component_metrics.items()
+        if int(values.get("auto_assignment_rows", 0)) >= minimum_auto_rows
+    }
+    point_failures = {
+        name: values
+        for name, values in eligible.items()
+        if float(values.get("auto_assignment_accuracy", 0.0)) < minimum_accuracy
+    }
+    confidence_failures = {
+        name: values
+        for name, values in eligible.items()
+        if float(
+            values.get("auto_assignment_accuracy_ci95", {"lower": 0.0}).get(
+                "lower", 0.0
+            )
+        )
+        < minimum_accuracy_lower_bound
+    }
+    return {
+        "passed": not point_failures and not confidence_failures,
+        "eligible_components": len(eligible),
+        "point_failures": point_failures,
+        "confidence_failures": confidence_failures,
+        "targets": {
+            "minimum_auto_rows": minimum_auto_rows,
+            "minimum_accuracy": minimum_accuracy,
+            "minimum_accuracy_lower_bound": minimum_accuracy_lower_bound,
+        },
     }
 
 

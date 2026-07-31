@@ -18,6 +18,7 @@ from train_assignee_ltr import (
     CandidateIndex,
     apply_label_map,
     build_semantic_backend,
+    candidate_source_families_from_features,
     canonicalize_source_rows,
     read_jsonl,
     read_label_map,
@@ -84,6 +85,11 @@ def main() -> None:
     if ranker_artifact.get("deployment_status") != "research_only":
         raise SystemExit("Calibration expects an explicitly research-only ranker artifact.")
     ranker = joblib.load(model_path)
+    candidate_generator_version = str(
+        ranker_artifact.get("parameters", {}).get(
+            "candidate_generator_version", "v2"
+        )
+    )
     label_map = read_label_map(args.assignee_label_map)
     train_rows = sorted(
         apply_label_map(canonicalize_source_rows(read_jsonl(args.train)), label_map), key=row_sort_key
@@ -95,7 +101,9 @@ def main() -> None:
         apply_label_map(canonicalize_source_rows(read_jsonl(args.holdout)), label_map), key=row_sort_key
     )
     holdout_rows, overlap_rows_excluded = exclude_cross_split_overlap(
-        holdout_rows, [*train_rows, *validation_rows]
+        holdout_rows,
+        [*train_rows, *validation_rows],
+        strict_duplicate_families=candidate_generator_version == "v3",
     )
 
     semantic = build_semantic_backend("sbert", args.sbert_model)
@@ -106,6 +114,7 @@ def main() -> None:
         half_life_days=args.half_life_days,
         smoothing_alpha=args.smoothing_alpha,
         semantic=semantic,
+        candidate_generator_version=candidate_generator_version,
     )
     validation_predictions = scored_predictions(validation_rows, index, ranker, args.candidate_pool_size)
     split_at = max(20, min(len(validation_predictions) - 20, int(len(validation_predictions) * args.calibration_fit_fraction)))
@@ -244,6 +253,44 @@ def scored_predictions(
         entropy /= math.log(len(normalized)) if len(normalized) > 1 else 1.0
         expected = str(row.get("assignee") or "").strip().lower()
         top_features = top_candidate.features
+        if index.candidate_generator_version == "v3":
+            source_families = candidate_source_families_from_features(top_features)
+            candidate_source_count = len(source_families)
+            strong_source_agreement = len(
+                source_families
+                & {
+                    "component_history",
+                    "reporter_history",
+                    "file_ownership",
+                    "lexical_retrieval",
+                    "semantic_retrieval",
+                }
+            )
+        else:
+            legacy_sources = (
+                "product_component",
+                "component",
+                "bm25",
+                "sbert",
+                "recent_component",
+                "product",
+                "global_prior",
+            )
+            source_families = {
+                source
+                for source in legacy_sources
+                if bool(top_features.get(f"source_{source}", 0.0))
+            }
+            candidate_source_count = len(source_families)
+            strong_source_agreement = sum(
+                bool(top_features.get(f"source_{source}", 0.0))
+                for source in (
+                    "product_component",
+                    "component",
+                    "bm25",
+                    "sbert",
+                )
+            )
         prediction = {
             "ticket_id": row.get("ticket_id"),
             "product": row.get("product") or "unknown",
@@ -253,6 +300,7 @@ def scored_predictions(
             "known_owner": expected in index.global_counts,
             "is_top1_correct": top_candidate.assignee == expected,
             "is_top3_correct": expected in [candidate.assignee for candidate, _ in ranked[:3]],
+            "is_top5_correct": expected in [candidate.assignee for candidate, _ in ranked[:5]],
             "top_probability": float(top_probability),
             "probability_margin": float(top_probability) - second_probability,
             "one_minus_entropy": 1.0 - entropy,
@@ -267,25 +315,19 @@ def scored_predictions(
                 top_features.get("product_component_share_smoothed", 0.0)
             ),
             "recent_component_owner_share": float(top_features.get("recent_90d_component_share", 0.0)),
+            "component_token_owner_share": float(
+                top_features.get("component_token_share", 0.0)
+            ),
+            "reporter_owner_share": float(
+                top_features.get("reporter_owner_share", 0.0)
+            ),
+            "file_owner_share": float(top_features.get("file_owner_share", 0.0)),
             "bm25_owner_score": float(top_features.get("bm25_owner_score", 0.0)),
             "bm25_best_issue_score": float(top_features.get("bm25_best_issue_score", 0.0)),
             "sbert_owner_score": float(top_features.get("sbert_owner_score", 0.0)),
-            "candidate_source_count": sum(
-                bool(top_features.get(f"source_{source}", 0.0))
-                for source in (
-                    "product_component",
-                    "component",
-                    "bm25",
-                    "sbert",
-                    "recent_component",
-                    "product",
-                    "global_prior",
-                )
-            ),
-            "strong_source_agreement": sum(
-                bool(top_features.get(f"source_{source}", 0.0))
-                for source in ("product_component", "component", "bm25", "sbert")
-            ),
+            "candidate_source_count": candidate_source_count,
+            "candidate_source_families": sorted(source_families),
+            "strong_source_agreement": strong_source_agreement,
             "component_recency_drift": abs(
                 float(top_features.get("recent_90d_component_share", 0.0))
                 - float(top_features.get("component_share_smoothed", 0.0))

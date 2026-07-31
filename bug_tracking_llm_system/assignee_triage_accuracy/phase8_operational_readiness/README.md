@@ -2,6 +2,8 @@
 
 本目錄保存 v2 的時間安全資料 manifest、候選 roster、模型／routing 報告、2022 Q2 一次性 holdout 證據，以及保持 fail-closed 的 deployment candidate。
 
+v2 證據已凍結；後續工程實作與新實驗登錄請使用 `../phase9_v3_protocol/`。2022 Q2 已在該處明確登記為 `diagnosis_only_not_model_or_policy_selection`。
+
 ## 已完成
 
 - v2 時間協定：Ranker、calibration/open-set、policy selection、sealed holdout 完全分離。

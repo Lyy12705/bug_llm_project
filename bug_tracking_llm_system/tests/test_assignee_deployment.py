@@ -36,6 +36,7 @@ from modules.assignee_deployment import (  # noqa: E402
 from modules.assignee_rolling_deployment import (  # noqa: E402
     load_rolling_deployment_bundle,
 )
+from modules.assignee_selection import resolve_top5_assist_selection  # noqa: E402
 from prepare_assignee_deployment import prediction_metrics, selective_routing_gate  # noqa: E402
 from prepare_assignee_rolling_deployment import (  # noqa: E402
     REQUIRED_HOLDOUT_CHECKS,
@@ -45,9 +46,139 @@ from prepare_assignee_rolling_deployment import (  # noqa: E402
     unavailable_shadow_report,
 )
 from recommend_assignee_rolling import fail_closed_payload, history_available_before  # noqa: E402
+from recommend_assignee_rolling_shadow import build_top5_assist_recommendation  # noqa: E402
 
 
 class AssigneeDeploymentTests(unittest.TestCase):
+    def test_top5_assist_response_requires_user_choice_and_exact_active_roster(self) -> None:
+        prediction = {
+            "ranked_candidates": [f"dev-{index}@example.com" for index in range(6)],
+            "top5_assist_available": True,
+            "top5_assist_status": "top5_user_confirmation",
+            "top5_assist_reason": "top5_candidates_require_user_selection",
+            "candidate_source_count": 2,
+            "calibrated_probability": 0.9,
+            "top_probability": 0.8,
+            "open_set_probability": 0.1,
+        }
+        active = {f"dev-{index}@example.com" for index in range(5)}
+
+        result = build_top5_assist_recommendation(
+            prediction, active, policy_authorized=True
+        )
+
+        self.assertTrue(result["top5_assist_available"])
+        self.assertEqual(len(result["top5_candidates"]), 5)
+        self.assertEqual(result["assignee"], "manual_triage")
+        self.assertTrue(result["requires_user_selection"])
+        self.assertFalse(result["auto_assignment_authorized"])
+        self.assertTrue(result["auto_top1_available"])
+        self.assertEqual(result["top1_candidate"], "dev-0@example.com")
+        self.assertEqual(
+            result["available_actions"],
+            ["select_top5_candidate", "assign_top1", "manual_triage"],
+        )
+        self.assertFalse(result["top1_quality_guaranteed_by_top5_policy"])
+
+        selected = resolve_top5_assist_selection(
+            result,
+            action="select_top5_candidate",
+            selected_candidate_rank=4,
+            active_assignees=active,
+            reviewer="triager@example.com",
+        )
+        self.assertEqual(selected["assignee"], "dev-3@example.com")
+        self.assertEqual(selected["selection_mode"], "top5_candidate_selection")
+        self.assertEqual(selected["selected_candidate_rank"], 4)
+        self.assertTrue(selected["assignment_authorized"])
+        self.assertFalse(selected["auto_top1_selected"])
+        self.assertFalse(selected["autonomous_assignment"])
+
+        auto_top1 = resolve_top5_assist_selection(
+            result,
+            action="assign_top1",
+            active_assignees=active,
+        )
+        self.assertEqual(auto_top1["assignee"], "dev-0@example.com")
+        self.assertEqual(auto_top1["selection_mode"], "top1_user_authorized")
+        self.assertEqual(auto_top1["selected_candidate_rank"], 1)
+        self.assertTrue(auto_top1["auto_top1_selected"])
+        self.assertTrue(auto_top1["auto_top1_authorized"])
+        self.assertTrue(auto_top1["assignment_authorized"])
+        self.assertFalse(auto_top1["auto_assignment_authorized"])
+        self.assertFalse(auto_top1["autonomous_assignment"])
+
+        with self.assertRaisesRegex(ValueError, "between 1 and 5"):
+            resolve_top5_assist_selection(
+                result,
+                action="select_top5_candidate",
+                selected_candidate_rank=6,
+                active_assignees=active,
+            )
+
+        active.remove("dev-4@example.com")
+        blocked = build_top5_assist_recommendation(
+            prediction, active, policy_authorized=True
+        )
+        self.assertFalse(blocked["top5_assist_available"])
+        self.assertEqual(blocked["top5_candidates"], [])
+        self.assertFalse(blocked["auto_top1_available"])
+        self.assertEqual(blocked["available_actions"], ["manual_triage"])
+        self.assertEqual(
+            blocked["fallback_reason"],
+            "top5_contains_inactive_or_unreviewed_owner",
+        )
+        with self.assertRaisesRegex(ValueError, "Top-5 assist is not available"):
+            resolve_top5_assist_selection(blocked, action="assign_top1")
+
+    def test_eligible_top5_policy_requires_all_candidates_to_be_reviewed_qualified(self) -> None:
+        prediction = {
+            "ranked_candidates": [f"dev-{index}@example.com" for index in range(5)],
+            "top5_assist_available": True,
+            "candidate_source_count": 2,
+            "calibrated_probability": 0.9,
+            "top_probability": 0.8,
+            "open_set_probability": 0.1,
+        }
+        active = {f"dev-{index}@example.com" for index in range(5)}
+        incomplete_eligible = {f"dev-{index}@example.com" for index in range(4)}
+
+        blocked = build_top5_assist_recommendation(
+            prediction,
+            active,
+            policy_authorized=True,
+            eligible_assignees=incomplete_eligible,
+            eligibility_required=True,
+            eligibility_review_confirmed=True,
+        )
+        self.assertFalse(blocked["top5_assist_available"])
+        self.assertEqual(blocked["fallback_reason"], "top5_contains_unqualified_owner")
+
+        allowed = build_top5_assist_recommendation(
+            prediction,
+            active,
+            policy_authorized=True,
+            eligible_assignees=active,
+            eligibility_required=True,
+            eligibility_review_confirmed=True,
+        )
+        self.assertTrue(allowed["top5_assist_available"])
+        self.assertTrue(allowed["eligibility_verified"])
+        decision = resolve_top5_assist_selection(
+            allowed,
+            action="assign_top1",
+            active_assignees=active,
+            eligible_assignees=active,
+        )
+        self.assertTrue(decision["eligibility_verified"])
+        with self.assertRaisesRegex(ValueError, "outside the reviewed eligibility"):
+            resolve_top5_assist_selection(
+                allowed,
+                action="assign_top1",
+                active_assignees=active,
+                eligible_assignees=incomplete_eligible,
+            )
+
     def test_rolling_production_entrypoint_fails_closed_and_filters_future_labels(self) -> None:
         payload = fail_closed_payload(ValueError("bundle is research-only"))
         recommendation = payload["assignee_recommendation"]
