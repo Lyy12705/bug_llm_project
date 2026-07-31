@@ -1,0 +1,22 @@
+{
+  "code_or_log_presence_count": 913,
+  "code_or_log_presence_ratio": 0.304333,
+  "dataset_version": "bmo_paper_2024_3k_description_enriched",
+  "description_length_mean": 1334.94,
+  "description_length_median": 475.0,
+  "description_missing_count": 272,
+  "description_missing_ratio": 0.090667,
+  "description_nonempty_count": 2728,
+  "description_nonempty_ratio": 0.909333,
+  "description_source": "first_comment",
+  "description_token_length_mean": 187.173,
+  "description_token_length_median": 74.0,
+  "fetch_error_count": 0,
+  "fetch_finished_at": "2026-07-28T16:57:24.816861+00:00",
+  "fetch_started_at": "2026-07-28T16:52:12.740812+00:00",
+  "html_content_count": 722,
+  "html_content_ratio": 0.240667,
+  "input_raw_path": "assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl",
+  "output_raw_path": "assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2020q4_description_enriched_raw.jsonl",
+  "total_rows": 3000
+}

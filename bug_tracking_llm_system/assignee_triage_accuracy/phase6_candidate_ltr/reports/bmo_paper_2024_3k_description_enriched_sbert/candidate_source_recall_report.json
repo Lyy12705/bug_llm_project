@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "method": "candidate_source_recall_and_miss_audit_v1",
+  "intended_use": "development_only_not_sealed_holdout_selection",
+  "targets": {
+    "known_owner_candidate_recall_at_30": 0.95,
+    "overall_candidate_recall_at_30_floor": 0.8295
+  },
+  "windows": {
+    "validation": {
+      "overall": {
+        "rows": 168,
+        "candidate_recall_at_pool": 0.97619,
+        "candidate_recall_by_source": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.833333,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_recall_at_10": 0.946429,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.827381,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_recall_at_30": 0.97619,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.833333,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_recall_at_50": 0.97619,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.833333,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_miss_rate": 0.02381
+      },
+      "known_owner": {
+        "rows": 168,
+        "candidate_recall_at_pool": 0.97619,
+        "candidate_recall_by_source": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.833333,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_recall_at_10": 0.946429,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.827381,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_recall_at_30": 0.97619,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.833333,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_recall_at_50": 0.97619,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.815476,
+          "component": 0.815476,
+          "component_token": 0.702381,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.833333,
+          "sbert": 0.833333,
+          "recent_component": 0.72619,
+          "product": 0.244048,
+          "global_prior": 0.214286
+        },
+        "candidate_miss_rate": 0.02381
+      },
+      "candidate_miss_clusters": {
+        "component_top30": {
+          "dom: file": 1,
+          "javascript engine: jit": 1,
+          "widget: win32": 1,
+          "widget": 1
+        },
+        "owner_history_frequency": {
+          "5-19": 4
+        },
+        "query_month": {
+          "2024-03": 4
+        },
+        "missing_data": {
+          "routing_safe_file_paths_missing": 4
+        }
+      }
+    },
+    "later_development": {
+      "overall": {
+        "rows": 192,
+        "candidate_recall_at_pool": 0.994792,
+        "candidate_recall_by_source": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.90625,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_recall_at_10": 0.973958,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.901042,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_recall_at_30": 0.994792,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.90625,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_recall_at_50": 0.994792,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.90625,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_miss_rate": 0.005208
+      },
+      "known_owner": {
+        "rows": 192,
+        "candidate_recall_at_pool": 0.994792,
+        "candidate_recall_by_source": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.90625,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_recall_at_10": 0.973958,
+        "candidate_recall_by_source_at_10": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.901042,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_recall_at_30": 0.994792,
+        "candidate_recall_by_source_at_30": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.90625,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_recall_at_50": 0.994792,
+        "candidate_recall_by_source_at_50": {
+          "product_component": 0.911458,
+          "component": 0.911458,
+          "component_token": 0.6875,
+          "reporter_history": 0.0,
+          "file_history": 0.0,
+          "bm25": 0.895833,
+          "sbert": 0.90625,
+          "recent_component": 0.802083,
+          "product": 0.395833,
+          "global_prior": 0.385417
+        },
+        "candidate_miss_rate": 0.005208
+      },
+      "candidate_miss_clusters": {
+        "component_top30": {
+          "dom: content processes": 1
+        },
+        "owner_history_frequency": {
+          "5-19": 1
+        },
+        "query_month": {
+          "2024-03": 1
+        },
+        "missing_data": {
+          "routing_safe_file_paths_missing": 1
+        }
+      }
+    }
+  }
+}

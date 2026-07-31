@@ -109,9 +109,22 @@ authoritative project policy rather than a learned probability. The
 comparisons and should not be enabled in production.
 
 Human triage outcomes can be recorded as JSONL `assignee_feedback` events via
-`src/modules/assignee_feedback.py`. Confirmed final assignees can be converted
-back into history rows for later owner-profile refresh without introducing a
-new database dependency.
+`src/modules/assignee_feedback.py`. The Top-5 semi-automatic path exposes two
+explicit assignment actions: choose candidate rank 1–5, or opt in to assigning
+rank 1. `src/modules/assignee_selection.py` resolves both actions fail-closed;
+the rank-1 shortcut is marked as user-authorized rather than autonomous. The
+v4 feedback event preserves that distinction. Confirmed final assignees can be
+converted back into history rows for later owner-profile refresh without
+introducing a new database dependency.
+
+The semi-automatic workflow now supports two correctness definitions side by
+side. `is_top5_correct` means that the single historical recorded owner appears
+in the list. `is_top5_eligible_correct` means that at least one candidate belongs
+to a maintainer-reviewed, permission-confirmed, time-valid capability set. The
+second definition never infers qualification from historical `components`.
+Those values remain descriptive history only. Eligible-owner policy evaluation
+also reports candidate eligibility precision, because one qualified person in a
+five-person list is not the same as five safe choices.
 
 ## Reviewed Runtime Artifacts And Feedback Refresh
 
@@ -259,26 +272,59 @@ ranker and local SBERT feature from Phase 6, then adds:
 python3 assignee_triage_accuracy/scripts/train_assignee_rolling_open_set.py
 
 python3 assignee_triage_accuracy/scripts/evaluate_assignee_rolling_holdout.py \
-  --holdout assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
-  --holdout-name 2021_q4 \
-  --output-dir assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_public_2021q4_conservative_untouched_holdout \
+  --intermediate-history 2021_q4=assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
+  --holdout assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_raw.jsonl \
+  --holdout-name 2022_q1 \
+  --holdout-manifest assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2022q1_manifest.json \
+  --output-dir assignee_triage_accuracy/phase7_rolling_open_set/reports/bmo_rolling_2022q1_holdout \
   --confirm-untouched-holdout
 ```
 
-The frozen Q4 holdout has 2,779 evaluated rows. Automatic assignment reached
-`97.75%` accuracy at `24.04%` coverage, with zero false automatic assignments
-among 141 unseen-owner rows. Another `21.05%` of rows were sent to Top-3
-confirmation at `71.11%` Top-3 accuracy; `54.91%` remained manual. Maximum PSI
-was `0.052`, below the `0.25` drift limit. Known-owner Top-1 was still only
-`48.41%`, so this is a selective routing improvement rather than evidence that
-all issues can be assigned automatically.
+Q4 had already been inspected and is retained only as a consistency check. The
+new SHA-256-sealed 2022 Q1 holdout has 2,777 evaluated rows. Automatic
+assignment reached `99.17%` accuracy at `21.79%` coverage; its Wilson 95% lower
+bound was `98.08%`. None of 178 unseen-owner rows was automatically assigned
+(upper confidence bound `2.11%`). Maximum PSI was `0.0525`, below the `0.25`
+drift limit, and every hard holdout gate passed. Top-3 confirmation accuracy was
+only `67.23%`, below its 90% advisory target, so this remains selective routing
+rather than evidence that all issues can be assigned automatically.
 
-The bundle deliberately remains `research_only`. Public BMO snapshots do not
-provide a reviewed active/departed roster, verified ownership policy, or exact
-assignment-change timestamps. Runtime integration therefore still requires a
-target-project roster, operator approval, and target-project temporal
-validation. See `phase7_rolling_open_set/README.md` for the protocol and
-limitations.
+Production remains blocked. Public BMO snapshots do not provide a reviewed
+active/departed roster, verified ownership policy, exact assignment-change
+timestamps, or real shadow feedback. Runtime integration therefore still
+requires a reviewed target-project roster, 500 reviewed shadow tickets or 28
+observation days, and explicit operator approval. See
+`phase7_rolling_open_set/README.md` for the protocol and limitations.
+
+## V3 Safety And Improvement Workflow
+
+The v3 workflow is implemented under `phase9_v3_protocol/`. It permanently
+registers the inspected 2022 Q2 data as diagnosis-only, separates ranker,
+calibrator, open-set, and policy-selection windows, and audits ticket IDs,
+duplicate families, near-duplicate text, and owner events. Training commands
+do not accept a sealed holdout as a ranker-selection input.
+
+Candidate generation has an explicitly versioned v3 mode with component-family,
+reporter-history, and routing-time-safe file-ownership retrieval. File paths are
+used only when provenance says they were available at report time; paths learned
+from a later fix are ignored. Duplicate families are strict split-exclusion keys,
+not routing features. Existing frozen artifacts remain on v2 mode so registered
+replays keep the original candidate semantics.
+
+New LTR training compares pointwise logistic/gradient boosting with a bounded
+hard-negative pairwise logistic ranker. Automatic selection still uses the worst
+development window, so a pairwise model is retained only when it is actually
+more stable. Reports include recall@10/30/50, conservative source and source-
+family support ablations, pairwise-training audit, candidate/ranking miss
+taxonomy, and a worst-window gate for the 95% known-owner recall@30 and 10%
+ranking-miss reduction targets.
+
+Rolling policy selection now defaults to the full strict gate in every
+development window: at least two independent candidate-source families,
+minimum auto rows, auto-accuracy Wilson lower bound, unseen-owner Wilson upper
+bound, and component point/confidence floors. See
+`phase9_v3_protocol/README.md` for protocol registration and holdout sample
+planning commands.
 
 ## Build Assignee Responsibility Profiles
 
@@ -417,8 +463,9 @@ python3 assignee_triage_accuracy/scripts/record_assignee_feedback.py \
 
 Evaluate shadow operation without changing real assignments. The gate requires
 at least 500 reviewed tickets or 28 observation days, complete known/unseen
-labels, 85% auto accuracy, 10% auto coverage, unseen-owner auto rate below 5%,
-and an 80% Wilson lower confidence bound. Repeated feedback for one ticket uses
+labels, 85% auto accuracy, 10% auto coverage, unseen-owner auto rate and its
+Wilson 95% upper bound below 5%, an 80% auto-accuracy Wilson lower bound, two
+consecutive passing weeks, complete latency, and a p95 latency budget. Repeated feedback for one ticket uses
 the latest reviewed event.
 
 Run the frozen rolling LTR/open-set policy for one new ticket in shadow mode.
@@ -437,10 +484,137 @@ python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling_shadow.py \
   --output reports/assignee_shadow_prediction.json
 ```
 
+The same entry point also supports a fail-closed semi-automatic Top-5 mode.
+The initial response leaves `assignee=manual_triage`; it exposes exactly five
+ranked, active-roster candidates only when the frozen multi-window Top-5 policy
+passes its 85% accuracy, coverage, sample-size, confidence-bound, open-set, and
+candidate-source checks. A passing response offers `select_top5_candidate` and
+`assign_top1`; both require an explicit user action. Otherwise `top5_candidates`
+is empty and normal manual triage continues.
+
+```bash
+python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling_shadow.py \
+  --mode semi_auto_top5 \
+  --routing-artifact reports/top5_assist/rolling_open_set_artifact.json \
+  --model-dir models/assignee_ltr_v3 \
+  --history data/assignee_history.jsonl \
+  --active-roster data/active_assignees.reviewed.json \
+  --ticket data/new_ticket.json \
+  --output reports/assignee_top5_suggestion.json
+```
+
+Resolve the user's choice against the active roster again at decision time.
+Choose rank 1–5 with `select_top5_candidate --selected-candidate-rank N`, or use
+`assign_top1` for the explicit Top-1 shortcut. The command emits an authorized
+decision for the issue-tracker adapter; it does not modify the external tracker
+itself.
+
+For an Eligible-owner policy, build the roster with a separate reviewed
+capability attestation. Each eligible entry must have an explicit product,
+component, or product/component scope and `permissions_confirmed=true`.
+The review requires a named reviewer and a bounded validity interval. Missing,
+expired, overlapping, or unreviewed data fails closed; it is not backfilled from
+assignment history.
+
+```bash
+python3 assignee_triage_accuracy/scripts/build_assignee_roster_snapshot.py \
+  --history data/assignee_history.jsonl \
+  --as-of 2026-07-22T00:00:00Z \
+  --reviewed-active data/active_assignees.reviewed.json \
+  --reviewed-eligibility \
+    assignee_triage_accuracy/phase8_operational_readiness/roster/assignee_eligibility_review.example.json \
+  --reviewer engineering-lead@example.com \
+  --confirm-organizational-review \
+  --output data/active_assignees.with_eligibility.json \
+  --report reports/assignee_roster_audit.json
+```
+
+Evaluate both label definitions without overwriting the exact-owner result:
+
+```bash
+python3 assignee_triage_accuracy/scripts/evaluate_assignee_eligible_owner.py \
+  --predictions reports/rolling_predictions.jsonl \
+  --eligibility-roster data/active_assignees.with_eligibility.json \
+  --output-predictions reports/rolling_predictions.eligible.jsonl \
+  --report reports/dual_owner_accuracy.json
+```
+
+To freeze a new multi-window Top-5 policy against the eligible set, pass
+`--top5-correctness-field is_top5_eligible_correct` and repeat
+`--eligibility-roster` for every non-overlapping snapshot covering the policy
+selection windows. The same snapshots are mandatory on sealed holdout replay.
+Runtime will only expose an eligible-policy Top-5 list when all five candidates
+are currently active and eligible, then checks them again when the user makes a
+selection. Consequently the displayed subset's eligible hit rate should be
+100% by construction; coverage, qualification-label coverage, candidate
+eligibility precision, and the same subset's secondary exact-owner accuracy
+must remain visible so that this safety filter is not mistaken for ranking
+quality. Feedback events preserve the eligibility verification evidence, and
+the live-shadow gate fails if an eligible-policy candidate set or selected
+assignee was not verified.
+
+```bash
+python3 assignee_triage_accuracy/scripts/resolve_assignee_top5_selection.py \
+  --recommendation reports/assignee_top5_suggestion.json \
+  --active-roster data/active_assignees.reviewed.json \
+  --action assign_top1 \
+  --reviewer triager@example.com \
+  --output reports/assignee_top5_decision.json
+```
+
+Reviewed selections recorded with `record_assignee_feedback.py` include the
+selection mode, chosen candidate rank, user action, and whether Top-1 was
+explicitly authorized. `evaluate_assignee_shadow.py` reports a separate Top-5
+assist gate and does not count user-authorized Top-1 as autonomous assignment.
+
 ```bash
 python3 assignee_triage_accuracy/scripts/evaluate_assignee_shadow.py \
   --feedback models/assignee_deployment/assignee_feedback.jsonl \
   --output reports/assignee_shadow_report.json
+```
+
+After the sealed holdout, build the rolling-LTR candidate from ordered history.
+The output is self-contained and hash-verified. Without both a reviewed roster
+and a passed real shadow report it is deliberately emitted as `research_only`;
+`--approve` cannot bypass a missing gate.
+
+```bash
+python3 assignee_triage_accuracy/scripts/prepare_assignee_rolling_deployment.py \
+  --history assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_history_train.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_validation_set.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q3_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2020q4_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q1_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q2_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q3_raw.jsonl \
+  --history assignee_triage_accuracy/paper_grade/data/raw/bmo_public_future_2021q4_raw.jsonl \
+  --active-roster data/active_assignees.reviewed.json \
+  --shadow-report reports/assignee_shadow_report.json \
+  --output-dir models/assignee_rolling_deployment \
+  --approve
+```
+
+Only an approved, unexpired, integrity-checked rolling bundle is accepted by
+the production entry point. Production also requires a short-lived operational
+state bound to the bundle hash. A research-only, expired, modified, mismatched,
+invalid-roster, stale-state, or unhealthy bundle writes `manual_triage`; it
+never authorizes automatic assignment.
+
+```bash
+python3 assignee_triage_accuracy/scripts/evaluate_assignee_operational_guard.py \
+  --bundle models/assignee_rolling_deployment/deployment_bundle.json \
+  --shadow-report reports/assignee_shadow_report.json \
+  --active-roster data/active_assignees.reviewed.json \
+  --requested-rollout-percentage 5 \
+  --output models/assignee_rolling_deployment/operational_state.json
+```
+
+```bash
+python3 assignee_triage_accuracy/scripts/recommend_assignee_rolling.py \
+  --bundle models/assignee_rolling_deployment/deployment_bundle.json \
+  --operational-state models/assignee_rolling_deployment/operational_state.json \
+  --ticket data/new_ticket.json \
+  --output reports/assignee_rolling_decision.json
 ```
 
 ## Build And Run Eclipse Sample Evaluation

@@ -1,0 +1,31 @@
+{
+  "source": "https://bugzilla.mozilla.org/rest",
+  "products": [
+    "Core",
+    "Firefox"
+  ],
+  "statuses": [
+    "RESOLVED",
+    "VERIFIED",
+    "CLOSED"
+  ],
+  "resolutions": [
+    "FIXED"
+  ],
+  "start_date": "2022-04-01",
+  "end_date": "2022-06-30",
+  "limit": 500,
+  "max_bugs": 3000,
+  "include_comments": false,
+  "output": "assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_raw.jsonl",
+  "output_sha256": "38ea3b996b214edc7dc38eb29f02449311501b168b1ee16027000677c5e7bb10",
+  "first_creation_time": "2022-04-01T00:16:43Z",
+  "last_creation_time": "2022-06-22T19:49:24Z",
+  "bugs_written": 3000,
+  "last_offset": 2500,
+  "complete": false,
+  "termination_reason": "max_bugs_reached",
+  "sealed_output": true,
+  "started_at": "2026-07-20T09:57:02.067412+00:00",
+  "finished_at": "2026-07-20T09:57:20.082018+00:00"
+}

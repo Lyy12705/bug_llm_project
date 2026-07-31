@@ -4,6 +4,7 @@ import json
 import sys
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 
@@ -21,19 +22,352 @@ from modules.assignee_deployment import (  # noqa: E402
     build_roster,
     canonicalize_assignee_set,
     derive_ownership,
+    load_active_assignee_set,
     load_assignee_set,
     load_assignee_alias_map,
     load_deployment_bundle,
     normalize_history_record,
+    sha256_file,
     split_temporal_partition,
     temporal_split,
     temporal_protocol_manifest,
     wilson_interval,
 )
+from modules.assignee_rolling_deployment import (  # noqa: E402
+    load_rolling_deployment_bundle,
+)
+from modules.assignee_selection import resolve_top5_assist_selection  # noqa: E402
 from prepare_assignee_deployment import prediction_metrics, selective_routing_gate  # noqa: E402
+from prepare_assignee_rolling_deployment import (  # noqa: E402
+    REQUIRED_HOLDOUT_CHECKS,
+    roster_not_expired,
+    rolling_deployment_gates,
+    unavailable_roster,
+    unavailable_shadow_report,
+)
+from recommend_assignee_rolling import fail_closed_payload, history_available_before  # noqa: E402
+from recommend_assignee_rolling_shadow import build_top5_assist_recommendation  # noqa: E402
 
 
 class AssigneeDeploymentTests(unittest.TestCase):
+    def test_top5_assist_response_requires_user_choice_and_exact_active_roster(self) -> None:
+        prediction = {
+            "ranked_candidates": [f"dev-{index}@example.com" for index in range(6)],
+            "top5_assist_available": True,
+            "top5_assist_status": "top5_user_confirmation",
+            "top5_assist_reason": "top5_candidates_require_user_selection",
+            "candidate_source_count": 2,
+            "calibrated_probability": 0.9,
+            "top_probability": 0.8,
+            "open_set_probability": 0.1,
+        }
+        active = {f"dev-{index}@example.com" for index in range(5)}
+
+        result = build_top5_assist_recommendation(
+            prediction, active, policy_authorized=True
+        )
+
+        self.assertTrue(result["top5_assist_available"])
+        self.assertEqual(len(result["top5_candidates"]), 5)
+        self.assertEqual(result["assignee"], "manual_triage")
+        self.assertTrue(result["requires_user_selection"])
+        self.assertFalse(result["auto_assignment_authorized"])
+        self.assertTrue(result["auto_top1_available"])
+        self.assertEqual(result["top1_candidate"], "dev-0@example.com")
+        self.assertEqual(
+            result["available_actions"],
+            ["select_top5_candidate", "assign_top1", "manual_triage"],
+        )
+        self.assertFalse(result["top1_quality_guaranteed_by_top5_policy"])
+
+        selected = resolve_top5_assist_selection(
+            result,
+            action="select_top5_candidate",
+            selected_candidate_rank=4,
+            active_assignees=active,
+            reviewer="triager@example.com",
+        )
+        self.assertEqual(selected["assignee"], "dev-3@example.com")
+        self.assertEqual(selected["selection_mode"], "top5_candidate_selection")
+        self.assertEqual(selected["selected_candidate_rank"], 4)
+        self.assertTrue(selected["assignment_authorized"])
+        self.assertFalse(selected["auto_top1_selected"])
+        self.assertFalse(selected["autonomous_assignment"])
+
+        auto_top1 = resolve_top5_assist_selection(
+            result,
+            action="assign_top1",
+            active_assignees=active,
+        )
+        self.assertEqual(auto_top1["assignee"], "dev-0@example.com")
+        self.assertEqual(auto_top1["selection_mode"], "top1_user_authorized")
+        self.assertEqual(auto_top1["selected_candidate_rank"], 1)
+        self.assertTrue(auto_top1["auto_top1_selected"])
+        self.assertTrue(auto_top1["auto_top1_authorized"])
+        self.assertTrue(auto_top1["assignment_authorized"])
+        self.assertFalse(auto_top1["auto_assignment_authorized"])
+        self.assertFalse(auto_top1["autonomous_assignment"])
+
+        with self.assertRaisesRegex(ValueError, "between 1 and 5"):
+            resolve_top5_assist_selection(
+                result,
+                action="select_top5_candidate",
+                selected_candidate_rank=6,
+                active_assignees=active,
+            )
+
+        active.remove("dev-4@example.com")
+        blocked = build_top5_assist_recommendation(
+            prediction, active, policy_authorized=True
+        )
+        self.assertFalse(blocked["top5_assist_available"])
+        self.assertEqual(blocked["top5_candidates"], [])
+        self.assertFalse(blocked["auto_top1_available"])
+        self.assertEqual(blocked["available_actions"], ["manual_triage"])
+        self.assertEqual(
+            blocked["fallback_reason"],
+            "top5_contains_inactive_or_unreviewed_owner",
+        )
+        with self.assertRaisesRegex(ValueError, "Top-5 assist is not available"):
+            resolve_top5_assist_selection(blocked, action="assign_top1")
+
+    def test_eligible_top5_policy_requires_all_candidates_to_be_reviewed_qualified(self) -> None:
+        prediction = {
+            "ranked_candidates": [f"dev-{index}@example.com" for index in range(5)],
+            "top5_assist_available": True,
+            "candidate_source_count": 2,
+            "calibrated_probability": 0.9,
+            "top_probability": 0.8,
+            "open_set_probability": 0.1,
+        }
+        active = {f"dev-{index}@example.com" for index in range(5)}
+        incomplete_eligible = {f"dev-{index}@example.com" for index in range(4)}
+
+        blocked = build_top5_assist_recommendation(
+            prediction,
+            active,
+            policy_authorized=True,
+            eligible_assignees=incomplete_eligible,
+            eligibility_required=True,
+            eligibility_review_confirmed=True,
+        )
+        self.assertFalse(blocked["top5_assist_available"])
+        self.assertEqual(blocked["fallback_reason"], "top5_contains_unqualified_owner")
+
+        allowed = build_top5_assist_recommendation(
+            prediction,
+            active,
+            policy_authorized=True,
+            eligible_assignees=active,
+            eligibility_required=True,
+            eligibility_review_confirmed=True,
+        )
+        self.assertTrue(allowed["top5_assist_available"])
+        self.assertTrue(allowed["eligibility_verified"])
+        decision = resolve_top5_assist_selection(
+            allowed,
+            action="assign_top1",
+            active_assignees=active,
+            eligible_assignees=active,
+        )
+        self.assertTrue(decision["eligibility_verified"])
+        with self.assertRaisesRegex(ValueError, "outside the reviewed eligibility"):
+            resolve_top5_assist_selection(
+                allowed,
+                action="assign_top1",
+                active_assignees=active,
+                eligible_assignees=incomplete_eligible,
+            )
+
+    def test_rolling_production_entrypoint_fails_closed_and_filters_future_labels(self) -> None:
+        payload = fail_closed_payload(ValueError("bundle is research-only"))
+        recommendation = payload["assignee_recommendation"]
+        self.assertEqual(recommendation["assignee"], "manual_triage")
+        self.assertFalse(recommendation["auto_assignment_authorized"])
+        self.assertEqual(recommendation["open_set_risk"], 1.0)
+
+        rows = [
+            {
+                "ticket_id": "past",
+                "created_at": "2024-01-01T00:00:00Z",
+                "label_available_at": "2024-01-02T00:00:00Z",
+            },
+            {
+                "ticket_id": "future-label",
+                "created_at": "2024-01-03T00:00:00Z",
+                "label_available_at": "2024-03-01T00:00:00Z",
+            },
+        ]
+        included, withheld = history_available_before(
+            rows, datetime.fromisoformat("2024-02-01T00:00:00+00:00").timestamp()
+        )
+        self.assertEqual([row["ticket_id"] for row in included], ["past"])
+        self.assertEqual(withheld, 1)
+
+    def test_active_roster_loader_never_confuses_inactive_entries_with_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "roster.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "candidates": ["active@example.com"],
+                        "inactive": ["departed@example.com"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(load_active_assignee_set(path), {"active@example.com"})
+
+            path.write_text(
+                json.dumps(
+                    {
+                        "candidates": ["same@example.com"],
+                        "inactive": ["same@example.com"],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "marks candidates inactive"):
+                load_active_assignee_set(path)
+
+    def test_rolling_deployment_stays_research_only_without_roster_shadow_and_approval(self) -> None:
+        routing_hash = "a" * 64
+        routing = {
+            "ranker_name": "ranker-v1",
+            "development_gate": {"passed": True},
+            "routing_policy": {"minimum_candidate_source_count": 2},
+        }
+        holdout = {
+            "protocol": {
+                "holdout_provenance": {"manifest_verified": True},
+                "holdout_used_for_fitting": False,
+                "holdout_used_for_threshold_selection": False,
+                "routing_artifact_sha256": routing_hash,
+            },
+            "deployment_gate": {
+                "passed": True,
+                "score_drift_check": True,
+                "checks": {name: True for name in REQUIRED_HOLDOUT_CHECKS},
+            },
+            "routing_before_drift_gate": {
+                "unseen_auto_assignment_rate_ci95": {"lower": 0.0, "upper": 0.04}
+            },
+        }
+
+        gates = rolling_deployment_gates(
+            routing,
+            {"name": "ranker-v1"},
+            holdout,
+            unavailable_roster(),
+            unavailable_shadow_report(),
+            operator_approved=False,
+            bundled_routing_hash=routing_hash,
+            history_rows=100,
+        )
+
+        self.assertTrue(gates["new_holdout_gate_passed"])
+        self.assertTrue(gates["all_required_holdout_checks_passed"])
+        self.assertFalse(gates["active_roster_review_confirmed"])
+        self.assertFalse(gates["active_roster_not_expired"])
+        self.assertFalse(gates["shadow_gate_passed"])
+        self.assertFalse(gates["explicit_operator_approval"])
+        self.assertFalse(all(gates.values()))
+
+    def test_roster_expiration_is_a_hard_deployment_gate(self) -> None:
+        now = datetime.fromisoformat("2026-07-20T00:00:00+00:00")
+        self.assertFalse(
+            roster_not_expired({"expires_at": "2026-07-19T23:59:59Z"}, now=now)
+        )
+        self.assertTrue(
+            roster_not_expired({"expires_at": "2026-07-21T00:00:00Z"}, now=now)
+        )
+        self.assertFalse(roster_not_expired({}, now=now))
+
+    def test_rolling_bundle_loader_verifies_integrity_and_cross_artifact_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            files = {
+                "assignee_dataset_path": root / "history.jsonl",
+                "assignee_active_roster_path": root / "roster.json",
+                "assignee_ranker_model_path": root / "ranker.joblib",
+                "assignee_ranker_artifact_path": root / "ranker.json",
+                "assignee_rolling_routing_artifact_path": root / "routing.json",
+                "assignee_holdout_report_path": root / "holdout.json",
+                "assignee_shadow_report_path": root / "shadow.json",
+            }
+            files["assignee_dataset_path"].write_text("{}\n", encoding="utf-8")
+            files["assignee_ranker_model_path"].write_bytes(b"model")
+            files["assignee_active_roster_path"].write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "review_confirmed": False,
+                        "assignees": [],
+                        "candidates": [],
+                        "inactive": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            files["assignee_ranker_artifact_path"].write_text(
+                json.dumps({"name": "ranker-v1"}), encoding="utf-8"
+            )
+            files["assignee_rolling_routing_artifact_path"].write_text(
+                json.dumps(
+                    {
+                        "artifact_type": "assignee_rolling_open_set_routing_bundle",
+                        "ranker_name": "ranker-v1",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            routing_hash = sha256_file(files["assignee_rolling_routing_artifact_path"])
+            files["assignee_holdout_report_path"].write_text(
+                json.dumps(
+                    {
+                        "protocol": {"routing_artifact_sha256": routing_hash},
+                        "deployment_gate": {"passed": True},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            files["assignee_shadow_report_path"].write_text(
+                json.dumps({"deployment_gate": {"passed": False}}), encoding="utf-8"
+            )
+            bundle = root / "deployment_bundle.json"
+            bundle.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "artifact_type": "assignee_rolling_deployment_bundle",
+                        "deployment_status": "research_only",
+                        "approval_gate_passed": False,
+                        "expires_at": "2099-01-01T00:00:00Z",
+                        "approval_gates": {"active_roster_review_confirmed": False},
+                        "pipeline_config": {
+                            "assignee_router_engine": "rolling_ltr_v1",
+                            **{key: path.name for key, path in files.items()},
+                        },
+                        "artifact_manifest": {
+                            key: artifact_manifest_entry(path, root) for key, path in files.items()
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            loaded = load_rolling_deployment_bundle(bundle, require_approved=False)
+            self.assertEqual(
+                loaded["pipeline_config"]["assignee_ranker_model_path"],
+                files["assignee_ranker_model_path"].resolve(),
+            )
+            with self.assertRaisesRegex(ValueError, "not approved"):
+                load_rolling_deployment_bundle(bundle)
+
+            files["assignee_ranker_model_path"].write_bytes(b"tampered")
+            with self.assertRaisesRegex(ValueError, "size mismatch|hash mismatch"):
+                load_rolling_deployment_bundle(bundle, require_approved=False)
+
     def test_normalizes_common_issue_tracker_fields(self) -> None:
         row = normalize_history_record(
             {

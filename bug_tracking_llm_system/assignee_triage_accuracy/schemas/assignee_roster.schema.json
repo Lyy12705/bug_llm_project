@@ -9,6 +9,16 @@
     "schema_version": {"const": 1},
     "source": {"type": "string", "minLength": 1},
     "review_confirmed": {"type": "boolean"},
+    "technical_review_confirmed": {"type": "boolean"},
+    "organizational_review_confirmed": {"type": "boolean"},
+    "eligibility_review_confirmed": {"type": "boolean"},
+    "eligibility_reviewer": {"type": "string"},
+    "eligibility_valid_from": {"type": ["string", "null"], "format": "date-time"},
+    "eligibility_expires_at": {"type": ["string", "null"], "format": "date-time"},
+    "eligibility_definition": {"type": "string"},
+    "snapshot_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "reviewer": {"type": "string"},
     "assignees": {
       "type": "array",
       "items": {
@@ -20,11 +30,47 @@
           "active": {"type": "boolean"},
           "status": {"type": "string", "minLength": 1},
           "history_count": {"type": "integer", "minimum": 0},
-          "components": {"type": "array", "items": {"type": "string"}}
+          "components": {"type": "array", "items": {"type": "string"}},
+          "eligibility_reviewed": {"type": "boolean"},
+          "permissions_confirmed": {"type": "boolean"},
+          "eligible_products": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1},
+            "uniqueItems": true
+          },
+          "eligible_components": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1},
+            "uniqueItems": true
+          },
+          "eligible_product_components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["product", "component"],
+              "properties": {
+                "product": {"type": "string", "minLength": 1},
+                "component": {"type": "string", "minLength": 1}
+              }
+            },
+            "uniqueItems": true
+          }
         }
       }
     },
     "candidates": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
-    "inactive": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+    "inactive": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "cold_start": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "reviewed_active": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "reviewed_inactive": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "canonical_identity_mapping": {
+      "type": "object",
+      "properties": {
+        "configured": {"type": "boolean"},
+        "aliases": {"type": "integer", "minimum": 0},
+        "history_rows_remapped": {"type": "integer", "minimum": 0}
+      }
+    }
   }
 }

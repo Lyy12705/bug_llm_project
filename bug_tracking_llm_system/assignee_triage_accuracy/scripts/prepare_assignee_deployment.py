@@ -67,6 +67,7 @@ def main() -> None:
     parser.add_argument("--target-auto-accuracy", type=float, default=0.85)
     parser.add_argument("--minimum-auto-coverage", type=float, default=0.10)
     parser.add_argument("--maximum-unseen-auto-rate", type=float, default=0.05)
+    parser.add_argument("--maximum-unseen-rate-upper-bound", type=float, default=0.05)
     parser.add_argument("--minimum-calibration-rows", type=int, default=30)
     parser.add_argument(
         "--calibration-fit-ratio",
@@ -104,6 +105,7 @@ def main() -> None:
         ("target auto accuracy", args.target_auto_accuracy),
         ("minimum auto coverage", args.minimum_auto_coverage),
         ("maximum unseen auto rate", args.maximum_unseen_auto_rate),
+        ("maximum unseen rate upper bound", args.maximum_unseen_rate_upper_bound),
         ("calibration fit ratio", args.calibration_fit_ratio),
         ("minimum auto accuracy lower bound", args.minimum_auto_accuracy_lower_bound),
         ("minimum component auto accuracy", args.minimum_component_auto_accuracy),
@@ -233,6 +235,7 @@ def main() -> None:
         minimum_component_auto_rows=args.minimum_component_auto_rows,
         minimum_component_accuracy=args.minimum_component_auto_accuracy,
         minimum_component_accuracy_lower_bound=args.minimum_component_auto_accuracy_lower_bound,
+        maximum_unseen_rate_upper_bound=args.maximum_unseen_rate_upper_bound,
     )
     gates = {
         "enough_calibration_rows": len(calibration_predictions) >= args.minimum_calibration_rows,
@@ -699,6 +702,7 @@ def selective_routing_gate(
     minimum_component_auto_rows: int = 30,
     minimum_component_accuracy: float = 0.75,
     minimum_component_accuracy_lower_bound: float = 0.60,
+    maximum_unseen_rate_upper_bound: float = 0.05,
 ) -> dict[str, Any]:
     component_metrics = metrics.get("component_metrics")
     component_metrics_available = isinstance(component_metrics, dict) and bool(component_metrics)
@@ -719,6 +723,10 @@ def selective_routing_gate(
         "auto_assignment_accuracy": metrics["auto_assignment_accuracy"] >= target_accuracy,
         "auto_assignment_coverage": metrics["auto_assignment_coverage"] >= minimum_coverage,
         "unseen_auto_assignment_rate": metrics["unseen_auto_assignment_rate"] < maximum_unseen_auto_rate,
+        "unseen_auto_assignment_rate_confidence_upper_bound": metrics.get(
+            "unseen_auto_assignment_rate_ci95", {"upper": 1.0}
+        )["upper"]
+        < maximum_unseen_rate_upper_bound,
         "minimum_test_rows": metrics["rows"] >= minimum_rows,
         "minimum_auto_rows": metrics["auto_assignment_rows"] >= minimum_auto_rows,
         "auto_accuracy_confidence_lower_bound": metrics["auto_assignment_accuracy_ci95"]["lower"]
@@ -743,6 +751,7 @@ def selective_routing_gate(
             "minimum_component_auto_rows": minimum_component_auto_rows,
             "minimum_component_accuracy": minimum_component_accuracy,
             "minimum_component_accuracy_lower_bound": minimum_component_accuracy_lower_bound,
+            "maximum_unseen_rate_upper_bound": maximum_unseen_rate_upper_bound,
         },
     }
 

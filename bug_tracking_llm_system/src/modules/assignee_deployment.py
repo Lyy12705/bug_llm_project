@@ -186,6 +186,33 @@ def normalize_history_record(row: dict[str, Any]) -> dict[str, Any] | None:
     created_at = _clean(row.get("created_at") or row.get("creation_time") or row.get("reported_at"))
     if not ticket_id or not title or not assignee or _parse_timestamp(created_at) is None:
         return None
+    declared_label_source = _clean(row.get("label_availability_source"))
+    assignment_event_time = _clean(
+        row.get("assignment_label_available_at")
+        or row.get("assignment_changed_at")
+        or row.get("assigned_at")
+    )
+    generic_label_available_at = _clean(row.get("label_available_at"))
+    last_change_time = _clean(row.get("last_change_time") or row.get("updated_at"))
+    label_available_at = (
+        assignment_event_time or generic_label_available_at or last_change_time
+    )
+    if declared_label_source == "last_change_time_proxy":
+        label_availability_source = "last_change_time_proxy"
+    elif declared_label_source == "explicit_assignment_event_time" and (
+        assignment_event_time or generic_label_available_at
+    ):
+        label_availability_source = "explicit_assignment_event_time"
+    elif assignment_event_time or generic_label_available_at:
+        label_availability_source = "explicit_assignment_event_time"
+    elif last_change_time:
+        label_availability_source = "last_change_time_proxy"
+    else:
+        label_availability_source = "missing"
+    duplicate_of = _clean(row.get("duplicate_of") or row.get("dupe_of"))
+    duplicate_family = _clean(
+        row.get("duplicate_family") or row.get("duplicate_family_id") or duplicate_of
+    )
     return {
         "ticket_id": ticket_id,
         "title": title,
@@ -196,6 +223,18 @@ def normalize_history_record(row: dict[str, Any]) -> dict[str, Any] | None:
         "severity": _clean(row.get("severity")),
         "assignee": assignee,
         "created_at": created_at,
+        "label_available_at": label_available_at,
+        "label_availability_source": label_availability_source,
+        "last_change_time": last_change_time,
+        "owner_event_id": _clean(
+            row.get("owner_event_id")
+            or row.get("assignment_event_id")
+            or row.get("assignee_event_id")
+            or row.get("source_event_id")
+        ),
+        "duplicate_of": duplicate_of,
+        "duplicate_family": duplicate_family,
+        "reporter": _clean(row.get("reporter") or row.get("creator")).lower(),
         "file_paths": _file_paths(row),
         "source": _clean(row.get("source")) or "project_history",
     }
@@ -237,6 +276,15 @@ def temporal_split(
         "duplicate_detection_performed": False,
         "cross_split_ticket_id_overlap": _overlap_count(train, validation, test, "ticket_id"),
         "cross_split_content_overlap": _content_overlap_count(train, validation, test),
+        "cross_split_duplicate_family_overlap": _duplicate_family_overlap_count(
+            train, validation, test
+        ),
+        "cross_split_near_duplicate_text_overlap": _near_duplicate_overlap_count(
+            train, validation, test
+        ),
+        "cross_split_owner_event_overlap": _field_overlap_count(
+            train, validation, test, field="owner_event_id"
+        ),
         "chronological_order_valid": _chronological_order_valid(train, validation, test),
         "partitions": {
             "train": _partition_audit(train),
@@ -263,6 +311,15 @@ def split_temporal_partition(
         "chronological_order_valid": _chronological_order_valid(first, second),
         "cross_split_ticket_id_overlap": _overlap_count(first, second, "ticket_id"),
         "cross_split_content_overlap": _content_overlap_count(first, second),
+        "cross_split_duplicate_family_overlap": _duplicate_family_overlap_count(
+            first, second
+        ),
+        "cross_split_near_duplicate_text_overlap": _near_duplicate_overlap_count(
+            first, second
+        ),
+        "cross_split_owner_event_overlap": _field_overlap_count(
+            first, second, field="owner_event_id"
+        ),
         "first": _partition_audit(first),
         "second": _partition_audit(second),
     }
@@ -274,6 +331,9 @@ def temporal_protocol_manifest(
     *,
     source: str,
     seed: int = 0,
+    experiment_id: str = "",
+    git_commit: str = "",
+    partition_roles: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     if not partitions or any(not rows for rows in partitions.values()):
         raise ValueError("temporal protocol requires non-empty partitions")
@@ -281,12 +341,35 @@ def temporal_protocol_manifest(
     chronological = _chronological_order_valid(*(partitions[name] for name in ordered_names))
     ticket_overlap = _overlap_count(*(partitions[name] for name in ordered_names), "ticket_id")
     content_overlap = _content_overlap_count(*(partitions[name] for name in ordered_names))
+    duplicate_family_overlap = _duplicate_family_overlap_count(
+        *(partitions[name] for name in ordered_names)
+    )
+    near_duplicate_overlap = _near_duplicate_overlap_count(
+        *(partitions[name] for name in ordered_names)
+    )
+    owner_event_overlap = _field_overlap_count(
+        *(partitions[name] for name in ordered_names), field="owner_event_id"
+    )
+    roles = partition_roles or {name: name for name in ordered_names}
+    if set(roles) != set(ordered_names):
+        raise ValueError("partition_roles must describe every temporal partition exactly once")
+    checks = {
+        "chronological_order_valid": chronological,
+        "no_cross_split_ticket_id_overlap": ticket_overlap == 0,
+        "no_cross_split_content_overlap": content_overlap == 0,
+        "no_cross_split_duplicate_family_overlap": duplicate_family_overlap == 0,
+        "no_cross_split_near_duplicate_text_overlap": near_duplicate_overlap == 0,
+        "no_cross_split_owner_event_overlap": owner_event_overlap == 0,
+    }
     return {
-        "schema_version": 1,
-        "protocol": "strict_temporal_assignee_routing_v1",
+        "schema_version": 2,
+        "protocol": "strict_temporal_assignee_routing_v2",
+        "experiment_id": experiment_id,
+        "git_commit": git_commit,
         "source": source,
         "seed": seed,
         "partition_order": ordered_names,
+        "partition_roles": roles,
         "partitions": {
             name: _partition_audit(partitions[name]) for name in ordered_names
         },
@@ -294,7 +377,11 @@ def temporal_protocol_manifest(
             "chronological_order_valid": chronological,
             "cross_split_ticket_id_overlap": ticket_overlap,
             "cross_split_content_overlap": content_overlap,
-            "leakage_free": chronological and ticket_overlap == 0 and content_overlap == 0,
+            "cross_split_duplicate_family_overlap": duplicate_family_overlap,
+            "cross_split_near_duplicate_text_overlap": near_duplicate_overlap,
+            "cross_split_owner_event_overlap": owner_event_overlap,
+            "checks": checks,
+            "leakage_free": all(checks.values()),
         },
     }
 
@@ -381,6 +468,53 @@ def load_assignee_set(path: Path | None) -> set[str]:
         if owner:
             owners.add(owner)
     return owners
+
+
+def load_active_assignee_set(path: Path | None) -> set[str]:
+    """Load active candidates without accidentally treating `inactive` as active.
+
+    Versioned roster objects may contain both fields. The generic
+    ``load_assignee_set`` helper is retained for simple active or inactive list
+    files, while runtime active-roster consumers should use this explicit
+    loader.
+    """
+
+    if path is None:
+        return set()
+    try:
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid active assignee roster: {path}") from exc
+    if isinstance(payload, list):
+        values: Any = payload
+        inactive_values: Any = []
+    elif isinstance(payload, dict):
+        values = payload.get("candidates")
+        if values is None:
+            values = [
+                row
+                for row in payload.get("assignees", [])
+                if isinstance(row, dict) and row.get("active") is True
+            ]
+        inactive_values = payload.get("inactive") or []
+    else:
+        raise ValueError("active assignee roster must contain a JSON object or list")
+    if not isinstance(values, list) or not isinstance(inactive_values, list):
+        raise ValueError("active assignee roster candidates and inactive must be lists")
+
+    def owner_value(value: Any) -> str:
+        if isinstance(value, dict):
+            value = value.get("assignee") or value.get("email") or value.get("id")
+        return str(value or "").strip().lower()
+
+    active = {owner for value in values if (owner := owner_value(value))}
+    inactive = {owner for value in inactive_values if (owner := owner_value(value))}
+    overlap = active & inactive
+    if overlap:
+        raise ValueError(
+            "active assignee roster also marks candidates inactive: " + ", ".join(sorted(overlap))
+        )
+    return active
 
 
 def load_assignee_alias_map(path: Path | None) -> dict[str, str]:
@@ -500,8 +634,157 @@ def _overlap_count(*parts: Any) -> int:
 
 
 def _content_overlap_count(*parts: list[dict[str, Any]]) -> int:
-    sets = [{_normalized_content(row) for row in rows} for rows in parts]
+    sets = [
+        {content for row in rows if (content := _normalized_content(row))}
+        for rows in parts
+    ]
     return sum(len(sets[i] & sets[j]) for i in range(len(sets)) for j in range(i + 1, len(sets)))
+
+
+def _field_overlap_count(
+    *parts: list[dict[str, Any]], field: str
+) -> int:
+    sets = [
+        {value for row in rows if (value := _clean(row.get(field)).lower())}
+        for rows in parts
+    ]
+    return sum(
+        len(sets[left] & sets[right])
+        for left in range(len(sets))
+        for right in range(left + 1, len(sets))
+    )
+
+
+def _duplicate_family_overlap_count(*parts: list[dict[str, Any]]) -> int:
+    """Count explicit duplicate-family links that cross temporal partitions.
+
+    Every row contributes its own ticket ID so a duplicate that points at an
+    original ticket in another partition is detected. Rows without a duplicate
+    relation only contribute their ticket ID and therefore cannot collide with
+    an unrelated family.
+    """
+
+    sets: list[set[str]] = []
+    for rows in parts:
+        values: set[str] = set()
+        for row in rows:
+            ticket_id = _normalize_ticket_reference(row.get("ticket_id"))
+            duplicate = _normalize_ticket_reference(
+                row.get("duplicate_family")
+                or row.get("duplicate_family_id")
+                or row.get("duplicate_of")
+                or row.get("dupe_of")
+            )
+            if ticket_id:
+                values.add(ticket_id)
+            if duplicate:
+                values.add(duplicate)
+        sets.append(values)
+    return sum(
+        len(sets[left] & sets[right])
+        for left in range(len(sets))
+        for right in range(left + 1, len(sets))
+    )
+
+
+def _near_duplicate_overlap_count(
+    *parts: list[dict[str, Any]],
+    maximum_hamming_distance: int = 3,
+    minimum_token_jaccard: float = 0.80,
+) -> int:
+    """Detect near-duplicate text across partitions with deterministic SimHash LSH.
+
+    Four 16-bit bands plus a bounded rare-token inverted index keep the audit
+    close to linear for normal datasets. Candidate pairs are verified with an
+    exact Hamming-distance or token-Jaccard check.
+    """
+
+    fingerprints: list[list[tuple[str, frozenset[str], int]]] = []
+    for rows in parts:
+        values: dict[str, tuple[str, frozenset[str], int]] = {}
+        for row in rows:
+            content = _normalized_content(row)
+            fingerprint = _simhash(row)
+            token_set = frozenset(
+                token
+                for token in re.findall(r"[a-z0-9_]+", content)
+                if len(token) >= 3
+            )
+            if fingerprint is not None and len(token_set) >= 5:
+                values[content] = (content, token_set, fingerprint)
+        fingerprints.append(list(values.values()))
+    overlaps = 0
+    for left in range(len(fingerprints)):
+        for right in range(left + 1, len(fingerprints)):
+            right_bands: defaultdict[tuple[int, int], set[int]] = defaultdict(set)
+            token_index: defaultdict[str, set[int]] = defaultdict(set)
+            for index, (_, token_set, fingerprint) in enumerate(fingerprints[right]):
+                for band in range(4):
+                    right_bands[
+                        (band, (fingerprint >> (band * 16)) & 0xFFFF)
+                    ].add(index)
+                for token in token_set:
+                    token_index[token].add(index)
+            maximum_posting = max(100, math.ceil(len(fingerprints[right]) * 0.05))
+            matched: set[tuple[str, str]] = set()
+            for source_content, source_tokens, source in fingerprints[left]:
+                candidates: set[int] = set()
+                for band in range(4):
+                    candidates.update(
+                        right_bands.get(
+                            (band, (source >> (band * 16)) & 0xFFFF), set()
+                        )
+                    )
+                for token in source_tokens:
+                    postings = token_index.get(token, set())
+                    if len(postings) <= maximum_posting:
+                        candidates.update(postings)
+                for candidate_index in candidates:
+                    candidate_content, candidate_tokens, candidate = fingerprints[right][
+                        candidate_index
+                    ]
+                    if source_content == candidate_content:
+                        continue
+                    union = source_tokens | candidate_tokens
+                    jaccard = len(source_tokens & candidate_tokens) / len(union) if union else 0.0
+                    if (
+                        (source ^ candidate).bit_count() <= maximum_hamming_distance
+                        or jaccard >= minimum_token_jaccard
+                    ):
+                        matched.add((source_content, candidate_content))
+            overlaps += len(matched)
+    return overlaps
+
+
+def _simhash(row: dict[str, Any]) -> int | None:
+    token_values = re.findall(r"[a-z0-9_]+", _normalized_content(row))
+    if len(token_values) < 5:
+        return None
+    shingles = [
+        " ".join(token_values[index : index + 3])
+        for index in range(len(token_values) - 2)
+    ]
+    weights = [0] * 64
+    for shingle in shingles:
+        digest = int.from_bytes(hashlib.sha256(shingle.encode("utf-8")).digest()[:8], "big")
+        for bit in range(64):
+            weights[bit] += 1 if digest & (1 << bit) else -1
+    result = 0
+    for bit, weight in enumerate(weights):
+        if weight >= 0:
+            result |= 1 << bit
+    return result
+
+
+def _normalize_ticket_reference(value: Any) -> str:
+    text = _clean(value).lower()
+    if not text:
+        return ""
+    if text.startswith("bmo_"):
+        return text
+    if text.isdigit():
+        return f"bmo_{text}"
+    return text
 
 
 def _chronological_order_valid(*parts: list[dict[str, Any]]) -> bool:
@@ -519,6 +802,12 @@ def _partition_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
     timestamps = [_parse_timestamp(row.get("created_at")) for row in rows]
     valid = [value for value in timestamps if value is not None]
     owners = {str(row.get("assignee") or "") for row in rows if str(row.get("assignee") or "")}
+    label_sources = Counter(
+        str(row.get("label_availability_source") or "missing") for row in rows
+    )
+    explicit_label_rows = label_sources["explicit_assignment_event_time"]
+    proxy_label_rows = label_sources["last_change_time_proxy"]
+    missing_label_rows = len(rows) - explicit_label_rows - proxy_label_rows
     digest = hashlib.sha256()
     for row in sorted(rows, key=_row_sort_key):
         digest.update(json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"))
@@ -529,6 +818,16 @@ def _partition_audit(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "start": min(valid).isoformat() if valid else None,
         "end": max(valid).isoformat() if valid else None,
         "rows_sha256": digest.hexdigest(),
+        "label_availability": {
+            "explicit_assignment_event_rows": explicit_label_rows,
+            "last_change_time_proxy_rows": proxy_label_rows,
+            "missing_rows": missing_label_rows,
+            "explicit_assignment_event_coverage": round(
+                explicit_label_rows / len(rows), 6
+            )
+            if rows
+            else 0.0,
+        },
     }
 
 

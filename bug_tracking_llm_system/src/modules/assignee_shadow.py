@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+from math import ceil, isfinite
 from typing import Any
 
 from modules.assignee_deployment import wilson_interval
@@ -9,6 +10,11 @@ from modules.assignee_deployment import wilson_interval
 
 AUTO_STATUSES = {"auto_assign", "assigned"}
 TOP3_STATUSES = {"top3_confirmation", "needs_confirmation"}
+TOP5_STATUSES = {
+    "top5_user_confirmation",
+    "top5_candidate_selected",
+    "top1_user_authorized_assignment",
+}
 MANUAL_ASSIGNEE = "manual_triage"
 
 
@@ -22,8 +28,19 @@ def evaluate_shadow_feedback(
     minimum_observation_days: int = 28,
     minimum_auto_accuracy_lower_bound: float = 0.80,
     target_top3_accuracy: float = 0.90,
+    target_top5_assist_accuracy: float = 0.85,
+    minimum_top5_assist_coverage: float = 0.10,
+    minimum_top5_assist_rows: int = 100,
+    minimum_top5_assist_accuracy_lower_bound: float = 0.80,
+    required_consecutive_weeks: int = 2,
+    maximum_prediction_latency_p95_ms: float = 5000.0,
+    maximum_invalid_event_rate: float = 0.01,
+    invalid_input_events: int = 0,
 ) -> dict[str, Any]:
-    latest, duplicate_events, invalid_events = _latest_valid_feedback(rows)
+    if invalid_input_events < 0:
+        raise ValueError("invalid_input_events cannot be negative")
+    latest, duplicate_events, invalid_record_events = _latest_valid_feedback(rows)
+    invalid_events = invalid_record_events + invalid_input_events
     auto = [row for row in latest if _is_auto(row)]
     correct_auto = sum(_predicted_owner(row) == _final_owner(row) for row in auto)
     unseen_labeled = [row for row in latest if isinstance(row.get("known_owner"), bool)]
@@ -31,14 +48,65 @@ def evaluate_shadow_feedback(
     unseen_auto = [row for row in unseen if _is_auto(row)]
     review = [row for row in latest if str(row.get("routing_status") or "") in TOP3_STATUSES]
     correct_review = sum(_final_owner(row) in _ranked_candidates(row)[:3] for row in review)
+    top5_review = [
+        row
+        for row in latest
+        if row.get("top5_assist_available") is True
+        or str(row.get("routing_status") or "") in TOP5_STATUSES
+    ]
+    correct_top5 = sum(
+        _final_owner(row) in _ranked_candidates(row)[:5] for row in top5_review
+    )
+    user_authorized_top1 = [
+        row
+        for row in top5_review
+        if row.get("auto_top1_selected") is True
+        or str(row.get("selection_mode") or "") == "top1_user_authorized"
+    ]
+    user_selected_top5 = [
+        row
+        for row in top5_review
+        if str(row.get("selection_mode") or "") == "top5_candidate_selection"
+    ]
+    eligible_top5_review = [
+        row for row in top5_review if row.get("eligibility_required") is True
+    ]
+    eligibility_verified_rows = [
+        row
+        for row in eligible_top5_review
+        if row.get("eligibility_review_confirmed") is True
+        and row.get("eligibility_verified") is True
+    ]
+    selected_eligibility_verified_rows = [
+        row
+        for row in eligible_top5_review
+        if row.get("selected_assignee_eligibility_verified") is True
+    ]
     observation_days = _observation_days(latest)
+    provenance = _shadow_provenance(latest)
+    latencies = [
+        float(row["prediction_latency_ms"])
+        for row in latest
+        if _non_negative_number(row.get("prediction_latency_ms"))
+    ]
+    latency = _latency_metrics(latencies, len(latest))
+    raw_events = len(rows) + invalid_input_events
+    invalid_event_rate = _ratio(invalid_events, raw_events)
 
     metrics = {
         "rows": len(latest),
-        "raw_feedback_events": len(rows),
+        "raw_feedback_events": raw_events,
         "duplicate_or_superseded_events": duplicate_events,
         "invalid_events": invalid_events,
+        "invalid_input_events": invalid_input_events,
+        "invalid_record_events": invalid_record_events,
+        "invalid_event_rate": invalid_event_rate,
         "observation_days": observation_days,
+        "feedback_origin_breakdown": provenance["feedback_origin_breakdown"],
+        "live_shadow_rows": provenance["live_shadow_rows"],
+        "provenance_invalid_rows": provenance["invalid_rows"],
+        "duplicate_source_event_ids": provenance["duplicate_source_event_ids"],
+        "prediction_latency_ms": latency,
         "auto_assignment_rows": len(auto),
         "auto_assignment_correct_rows": correct_auto,
         "auto_assignment_coverage": _ratio(len(auto), len(latest)),
@@ -51,6 +119,26 @@ def evaluate_shadow_feedback(
         "unseen_auto_assignment_rate_ci95": wilson_interval(len(unseen_auto), len(unseen)),
         "top3_confirmation_rows": len(review),
         "top3_confirmation_accuracy": _ratio(correct_review, len(review)),
+        "top5_assist_rows": len(top5_review),
+        "top5_assist_correct_rows": correct_top5,
+        "top5_assist_coverage": _ratio(len(top5_review), len(latest)),
+        "top5_assist_accuracy": _ratio(correct_top5, len(top5_review)),
+        "top5_assist_accuracy_ci95": wilson_interval(
+            correct_top5, len(top5_review)
+        ),
+        "user_authorized_top1_rows": len(user_authorized_top1),
+        "user_selected_top5_candidate_rows": len(user_selected_top5),
+        "eligible_policy_top5_rows": len(eligible_top5_review),
+        "eligibility_verified_top5_rows": len(eligibility_verified_rows),
+        "eligibility_verified_top5_rate": _ratio(
+            len(eligibility_verified_rows), len(eligible_top5_review)
+        ),
+        "selected_assignee_eligibility_verified_rows": len(
+            selected_eligibility_verified_rows
+        ),
+        "selected_assignee_eligibility_verified_rate": _ratio(
+            len(selected_eligibility_verified_rows), len(eligible_top5_review)
+        ),
         "routing_status_breakdown": dict(
             sorted(Counter(str(row.get("routing_status") or "missing") for row in latest).items())
         ),
@@ -65,28 +153,70 @@ def evaluate_shadow_feedback(
         "component_metrics": _component_metrics(latest),
         "weekly_metrics": _weekly_metrics(latest),
     }
+    consecutive_weeks_passed = _latest_weeks_pass(
+        metrics["weekly_metrics"],
+        target_auto_accuracy,
+        minimum_auto_coverage,
+        maximum_unseen_auto_rate,
+        required_weeks=required_consecutive_weeks,
+    )
     checks = {
+        "live_shadow_provenance_complete": provenance["complete"],
         "minimum_observation": len(latest) >= minimum_rows or observation_days >= minimum_observation_days,
         "auto_assignment_accuracy": metrics["auto_assignment_accuracy"] >= target_auto_accuracy,
         "auto_assignment_coverage": metrics["auto_assignment_coverage"] >= minimum_auto_coverage,
         "unseen_labels_available": len(unseen_labeled) == len(latest) and bool(latest),
         "unseen_auto_assignment_rate": bool(unseen_labeled)
         and metrics["unseen_auto_assignment_rate"] < maximum_unseen_auto_rate,
+        "unseen_auto_assignment_rate_confidence_upper_bound": bool(unseen)
+        and metrics["unseen_auto_assignment_rate_ci95"]["upper"]
+        < maximum_unseen_auto_rate,
         "auto_accuracy_confidence_lower_bound": metrics["auto_assignment_accuracy_ci95"]["lower"]
         >= minimum_auto_accuracy_lower_bound,
+        "consecutive_weeks_pass_primary_rates": consecutive_weeks_passed,
+        "prediction_latency_complete": latency["missing_rows"] == 0 and bool(latest),
+        "prediction_latency_p95": latency["p95"] is not None
+        and latency["p95"] <= maximum_prediction_latency_p95_ms,
+        "invalid_event_rate": invalid_event_rate <= maximum_invalid_event_rate,
     }
     advisory = {
         "top3_confirmation_accuracy": metrics["top3_confirmation_accuracy"] >= target_top3_accuracy,
-        "two_latest_weeks_pass_primary_rates": _latest_weeks_pass(
-            metrics["weekly_metrics"],
-            target_auto_accuracy,
-            minimum_auto_coverage,
-            maximum_unseen_auto_rate,
-        ),
     }
+    top5_checks = {
+        "live_shadow_provenance_complete": provenance["complete"],
+        "top5_assist_accuracy": metrics["top5_assist_accuracy"]
+        >= target_top5_assist_accuracy,
+        "top5_assist_coverage": metrics["top5_assist_coverage"]
+        >= minimum_top5_assist_coverage,
+        "minimum_top5_assist_rows": metrics["top5_assist_rows"]
+        >= minimum_top5_assist_rows,
+        "top5_accuracy_confidence_lower_bound": metrics[
+            "top5_assist_accuracy_ci95"
+        ]["lower"]
+        >= minimum_top5_assist_accuracy_lower_bound,
+        "prediction_latency_complete": latency["missing_rows"] == 0 and bool(latest),
+        "prediction_latency_p95": latency["p95"] is not None
+        and latency["p95"] <= maximum_prediction_latency_p95_ms,
+        "invalid_event_rate": invalid_event_rate <= maximum_invalid_event_rate,
+        "never_auto_assigns": not any(_is_auto(row) for row in top5_review),
+        "never_autonomously_assigns": not any(_is_auto(row) for row in top5_review),
+    }
+    if eligible_top5_review:
+        top5_checks.update(
+            {
+                "eligible_policy_review_confirmed": len(
+                    eligibility_verified_rows
+                )
+                == len(eligible_top5_review),
+                "selected_assignee_eligibility_verified": len(
+                    selected_eligibility_verified_rows
+                )
+                == len(eligible_top5_review),
+            }
+        )
     return {
-        "schema_version": 1,
-        "method": "append_only_assignee_shadow_evaluation_v1",
+        "schema_version": 3,
+        "method": "operationally_gated_append_only_assignee_shadow_evaluation_v3",
         "metrics": metrics,
         "deployment_gate": {
             "passed": all(checks.values()),
@@ -99,9 +229,30 @@ def evaluate_shadow_feedback(
                 "minimum_rows": minimum_rows,
                 "minimum_observation_days": minimum_observation_days,
                 "minimum_auto_accuracy_lower_bound": minimum_auto_accuracy_lower_bound,
+                "required_consecutive_weeks": required_consecutive_weeks,
+                "maximum_prediction_latency_p95_ms": maximum_prediction_latency_p95_ms,
+                "maximum_invalid_event_rate": maximum_invalid_event_rate,
             },
             "advisory_checks": advisory,
             "advisory_targets": {"target_top3_accuracy": target_top3_accuracy},
+        },
+        "top5_assist_gate": {
+            "passed": all(top5_checks.values()),
+            "checks": top5_checks,
+            "failed_checks": [
+                name for name, passed in top5_checks.items() if not passed
+            ],
+            "targets": {
+                "target_top5_assist_accuracy": target_top5_assist_accuracy,
+                "minimum_top5_assist_coverage": minimum_top5_assist_coverage,
+                "minimum_top5_assist_rows": minimum_top5_assist_rows,
+                "minimum_top5_assist_accuracy_lower_bound": (
+                    minimum_top5_assist_accuracy_lower_bound
+                ),
+            },
+            "requires_user_selection": True,
+            "auto_assignment_authorized": False,
+            "user_authorized_top1_supported": True,
         },
     }
 
@@ -125,6 +276,43 @@ def _latest_valid_feedback(
             latest[ticket_id] = candidate
     selected = [value[2] for value in sorted(latest.values(), key=lambda value: (value[0], value[1]))]
     return selected, valid_events - len(selected), invalid
+
+
+def _shadow_provenance(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    origins = Counter(str(row.get("feedback_origin") or "unspecified").strip().lower() for row in rows)
+    source_ids: Counter[tuple[str, str]] = Counter()
+    invalid_rows = 0
+    live_rows = 0
+    for row in rows:
+        origin = str(row.get("feedback_origin") or "unspecified").strip().lower()
+        source_system = str(row.get("source_system") or "").strip()
+        source_event_id = str(row.get("source_event_id") or "").strip()
+        prediction_at = _timestamp(row.get("prediction_created_at"))
+        finalized_at = _timestamp(row.get("created_at"))
+        ticket_at = _timestamp(row.get("ticket_created_at"))
+        if origin == "live_shadow":
+            live_rows += 1
+        valid = (
+            origin == "live_shadow"
+            and bool(source_system)
+            and bool(source_event_id)
+            and prediction_at is not None
+            and finalized_at is not None
+            and prediction_at <= finalized_at
+            and (ticket_at is None or ticket_at <= prediction_at)
+        )
+        if not valid:
+            invalid_rows += 1
+        if source_system and source_event_id:
+            source_ids[(source_system, source_event_id)] += 1
+    duplicate_ids = sum(count - 1 for count in source_ids.values() if count > 1)
+    return {
+        "complete": bool(rows) and invalid_rows == 0 and duplicate_ids == 0,
+        "live_shadow_rows": live_rows,
+        "invalid_rows": invalid_rows,
+        "duplicate_source_event_ids": duplicate_ids,
+        "feedback_origin_breakdown": dict(sorted(origins.items())),
+    }
 
 
 def _component_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -171,16 +359,49 @@ def _weekly_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _latest_weeks_pass(
-    weeks: dict[str, Any], target_accuracy: float, minimum_coverage: float, maximum_unseen_rate: float
+    weeks: dict[str, Any],
+    target_accuracy: float,
+    minimum_coverage: float,
+    maximum_unseen_rate: float,
+    *,
+    required_weeks: int = 2,
 ) -> bool:
-    latest = [weeks[name] for name in sorted(weeks)[-2:]]
-    return len(latest) == 2 and all(
+    if required_weeks < 1:
+        raise ValueError("required_weeks must be positive")
+    latest = [weeks[name] for name in sorted(weeks)[-required_weeks:]]
+    return len(latest) == required_weeks and all(
         row["auto_assignment_accuracy"] >= target_accuracy
         and row["auto_assignment_coverage"] >= minimum_coverage
         and row["unseen_labels_complete"]
         and row["unseen_auto_assignment_rate"] < maximum_unseen_rate
         for row in latest
     )
+
+
+def _latency_metrics(values: list[float], total_rows: int) -> dict[str, Any]:
+    ordered = sorted(values)
+    return {
+        "observed_rows": len(ordered),
+        "missing_rows": max(0, total_rows - len(ordered)),
+        "p50": _nearest_rank(ordered, 0.50),
+        "p95": _nearest_rank(ordered, 0.95),
+        "maximum": round(ordered[-1], 3) if ordered else None,
+    }
+
+
+def _nearest_rank(values: list[float], quantile: float) -> float | None:
+    if not values:
+        return None
+    index = min(len(values) - 1, max(0, ceil(quantile * len(values)) - 1))
+    return round(values[index], 3)
+
+
+def _non_negative_number(value: Any) -> bool:
+    try:
+        number = float(value)
+        return isfinite(number) and number >= 0.0
+    except (TypeError, ValueError):
+        return False
 
 
 def _is_auto(row: dict[str, Any]) -> bool:

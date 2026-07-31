@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/assignee/assignee_temporal_protocol.schema.json",
+  "title": "Assignee routing v3 experiment protocol",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "experiment_id",
+    "deployment_status",
+    "git",
+    "temporal_protocol",
+    "protected_holdouts",
+    "sealed_holdout_plan",
+    "artifact_registry",
+    "protocol_gate",
+    "manifest_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "artifact_type": {"const": "assignee_v3_experiment_protocol"},
+    "experiment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"},
+    "deployment_status": {"const": "research_only"},
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "git": {
+      "type": "object",
+      "required": ["commit", "dirty"],
+      "properties": {
+        "commit": {"type": "string"},
+        "dirty": {"type": "boolean"}
+      }
+    },
+    "protocol_gate": {
+      "type": "object",
+      "required": ["passed", "checks", "blocked_by"],
+      "properties": {
+        "passed": {"type": "boolean"},
+        "checks": {"type": "object"},
+        "blocked_by": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

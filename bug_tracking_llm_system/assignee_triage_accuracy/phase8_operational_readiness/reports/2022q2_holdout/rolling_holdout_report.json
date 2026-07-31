@@ -1,0 +1,3315 @@
+{
+  "schema_version": 1,
+  "method": "frozen_rolling_history_holdout_evaluation_v1",
+  "evaluated_at": "2026-07-20T10:00:34.855578+00:00",
+  "deployment_status": "research_only",
+  "protocol": {
+    "window": "2022_q2_sealed_3000",
+    "source": "assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_raw.jsonl",
+    "prior_snapshot_rows": 25102,
+    "history_rows": 22576,
+    "history_rows_withheld_future_last_change": 2526,
+    "history_rows_withheld_missing_last_change": 0,
+    "query_rows_loaded": 2819,
+    "query_rows": 2803,
+    "overlap_rows_excluded": 16,
+    "history_end": "2022-03-29T18:17:59Z",
+    "label_availability_cutoff": "2022-04-01T00:16:43Z",
+    "query_start": "2022-04-01T00:16:43Z",
+    "query_end": "2022-06-22T19:49:24Z",
+    "known_owner_rows": 2603,
+    "unseen_owner_rows": 200,
+    "unseen_owner_rate": 0.071352,
+    "temporal_order_valid": true,
+    "frozen_artifact_history_windows": [
+      "2021_q2",
+      "2021_q3",
+      "2021_q4",
+      "2022_q1"
+    ],
+    "intermediate_history_windows": [],
+    "intermediate_history_used_for_fitting": false,
+    "intermediate_history_used_for_threshold_selection": false,
+    "intermediate_history_update_only": true,
+    "holdout_used_for_fitting": false,
+    "holdout_used_for_threshold_selection": false,
+    "rolling_history_updated_only_from_prior_windows": true,
+    "label_availability_policy": "last_change_time_at_or_before_query_start",
+    "assignment_time_history_available": false,
+    "holdout_provenance": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_raw.jsonl",
+      "sha256": "38ea3b996b214edc7dc38eb29f02449311501b168b1ee16027000677c5e7bb10",
+      "manifest_verified": true,
+      "manifest": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_manifest.json",
+      "manifest_sha256": "fb0052bfed9d6e54519a231111d8a3193c6f7e3544e652cb75acc57d7cedd774",
+      "fetch_started_at": "2026-07-20T09:57:02.067412+00:00",
+      "fetch_finished_at": "2026-07-20T09:57:20.082018+00:00",
+      "start_date": "2022-04-01",
+      "end_date": "2022-06-30",
+      "bugs_written": 3000,
+      "complete": false,
+      "sealed_output": true
+    },
+    "routing_artifact_sha256": "d602c135704f398c64e9662104bc3a7559d3f86271b45f4b4df94091a6cc17df",
+    "sealed_holdout_evaluation_id": "c62e3020d25024fb79d0",
+    "evaluation_mode": "first_formal_evaluation",
+    "evaluation_registry": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase8_operational_readiness/sealed_holdout_evaluation_registry.jsonl"
+  },
+  "recommendation_metrics": {
+    "rows": 2803,
+    "top1_accuracy": 0.431324,
+    "top3_accuracy": 0.619693,
+    "top5_accuracy": 0.688905,
+    "top10_accuracy": 0.763468,
+    "candidate_pool_recall": 0.843739,
+    "mrr": 0.538826,
+    "macro_f1": 0.124409
+  },
+  "recommendation_metrics_known_owner": {
+    "rows": 2603,
+    "top1_accuracy": 0.464464,
+    "top3_accuracy": 0.667307,
+    "top5_accuracy": 0.741836,
+    "top10_accuracy": 0.822128,
+    "candidate_pool_recall": 0.908567,
+    "mrr": 0.580226,
+    "macro_f1": 0.172452
+  },
+  "calibration_metrics": {
+    "rows": 2803,
+    "positive_rate": 0.431324,
+    "mean_probability": 0.435418,
+    "brier": 0.15397,
+    "ece": 0.047861
+  },
+  "open_set_metrics": {
+    "rows": 2803,
+    "known_rows": 2603,
+    "unknown_rows": 200,
+    "auroc": 0.65132,
+    "auprc": 0.113568,
+    "unknown_recall_at_5pct_known_fpr": 0.1,
+    "threshold_at_5pct_known_fpr": 0.72746366,
+    "threshold": 0.35779667,
+    "unknown_recall": 0.69,
+    "known_false_positive_rate": 0.47406838263542067
+  },
+  "routing_before_drift_gate": {
+    "rows": 2803,
+    "known_rows": 2603,
+    "unseen_rows": 200,
+    "auto_assignment_rows": 721,
+    "auto_assignment_correct_rows": 633,
+    "auto_assignment_coverage": 0.257224,
+    "auto_assignment_accuracy": 0.877947,
+    "auto_assignment_accuracy_ci95": {
+      "lower": 0.85203,
+      "upper": 0.899859
+    },
+    "unseen_auto_assignment_rows": 8,
+    "unseen_auto_assignment_rate": 0.04,
+    "unseen_auto_assignment_rate_ci95": {
+      "lower": 0.020406,
+      "upper": 0.076932
+    },
+    "top3_confirmation_rows": 0,
+    "top3_confirmation_rate": 0.0,
+    "top3_confirmation_accuracy": 0.0,
+    "manual_triage_rate": 0.742776,
+    "routing_status_breakdown": {
+      "auto_assign": 721,
+      "manual_triage_low_confidence": 710,
+      "manual_triage_open_set": 1372
+    },
+    "fallback_reason_breakdown": {
+      "high_confidence_low_open_set_risk": 721,
+      "low_ranking_confidence": 710,
+      "unseen_owner_risk": 1372
+    },
+    "component_metrics": {
+      "about:logins": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "address bar": {
+        "rows": 31,
+        "auto_assignment_rows": 13,
+        "auto_assignment_coverage": 0.419355,
+        "auto_assignment_accuracy": 0.769231,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.497436,
+          "upper": 0.918205
+        }
+      },
+      "audio/video": {
+        "rows": 17,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.058824,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.793451
+        }
+      },
+      "audio/video: cubeb": {
+        "rows": 6,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.833333,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "audio/video: gmp": {
+        "rows": 12,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "audio/video: mediastreamgraph": {
+        "rows": 6,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "audio/video: playback": {
+        "rows": 71,
+        "auto_assignment_rows": 9,
+        "auto_assignment_coverage": 0.126761,
+        "auto_assignment_accuracy": 0.555556,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.266651,
+          "upper": 0.811221
+        }
+      },
+      "audio/video: recording": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "audio/video: web codecs": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "autoconfig (mission control desktop)": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "bookmarks & history": {
+        "rows": 14,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.142857,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "css parsing and computation": {
+        "rows": 106,
+        "auto_assignment_rows": 55,
+        "auto_assignment_coverage": 0.518868,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.934715,
+          "upper": 1.0
+        }
+      },
+      "css transitions and animations": {
+        "rows": 23,
+        "auto_assignment_rows": 9,
+        "auto_assignment_coverage": 0.391304,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.700855,
+          "upper": 1.0
+        }
+      },
+      "disability access apis": {
+        "rows": 92,
+        "auto_assignment_rows": 22,
+        "auto_assignment_coverage": 0.23913,
+        "auto_assignment_accuracy": 0.318182,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.163606,
+          "upper": 0.526814
+        }
+      },
+      "dll services": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: animation": {
+        "rows": 10,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.5,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "dom: bindings (webidl)": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: content processes": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: copy & paste and drag & drop": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: core & html": {
+        "rows": 251,
+        "auto_assignment_rows": 173,
+        "auto_assignment_coverage": 0.689243,
+        "auto_assignment_accuracy": 0.988439,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.958834,
+          "upper": 0.996824
+        }
+      },
+      "dom: css object model": {
+        "rows": 10,
+        "auto_assignment_rows": 7,
+        "auto_assignment_coverage": 0.7,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.64567,
+          "upper": 1.0
+        }
+      },
+      "dom: device interfaces": {
+        "rows": 10,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.4,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "dom: editor": {
+        "rows": 30,
+        "auto_assignment_rows": 28,
+        "auto_assignment_coverage": 0.933333,
+        "auto_assignment_accuracy": 0.928571,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.773546,
+          "upper": 0.980188
+        }
+      },
+      "dom: events": {
+        "rows": 10,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.2,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "dom: file": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: forms": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: geolocation": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: html parser": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: navigation": {
+        "rows": 14,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.142857,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.65762
+        }
+      },
+      "dom: networking": {
+        "rows": 24,
+        "auto_assignment_rows": 15,
+        "auto_assignment_coverage": 0.625,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.796117,
+          "upper": 1.0
+        }
+      },
+      "dom: performance apis": {
+        "rows": 6,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "dom: postmessage": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: security": {
+        "rows": 54,
+        "auto_assignment_rows": 23,
+        "auto_assignment_coverage": 0.425926,
+        "auto_assignment_accuracy": 0.956522,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.790088,
+          "upper": 0.992283
+        }
+      },
+      "dom: selection": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: service workers": {
+        "rows": 11,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.454545,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "dom: streams": {
+        "rows": 16,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.3125,
+        "auto_assignment_accuracy": 0.6,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.230724,
+          "upper": 0.882379
+        }
+      },
+      "dom: ui events & focus handling": {
+        "rows": 18,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: web authentication": {
+        "rows": 5,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.8,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "dom: web payments": {
+        "rows": 1,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 1.0,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "dom: workers": {
+        "rows": 8,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.125,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "downloads panel": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "enterprise policies": {
+        "rows": 11,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.090909,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "file handling": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "find backend": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "firefox accounts": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "firefox view": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "fuzzing": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "gecko profiler": {
+        "rows": 16,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.25,
+        "auto_assignment_accuracy": 0.75,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.300642,
+          "upper": 0.954413
+        }
+      },
+      "general": {
+        "rows": 72,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics": {
+        "rows": 76,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.013158,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "graphics: canvas2d": {
+        "rows": 31,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.064516,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "graphics: canvaswebgl": {
+        "rows": 11,
+        "auto_assignment_rows": 8,
+        "auto_assignment_coverage": 0.727273,
+        "auto_assignment_accuracy": 0.5,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.215216,
+          "upper": 0.784784
+        }
+      },
+      "graphics: color management": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics: imagelib": {
+        "rows": 17,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.176471,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "graphics: layers": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics: text": {
+        "rows": 11,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.363636,
+        "auto_assignment_accuracy": 0.75,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.300642,
+          "upper": 0.954413
+        }
+      },
+      "graphics: webgpu": {
+        "rows": 16,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics: webrender": {
+        "rows": 103,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "hardware abstraction layer (hal)": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "headless": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "installer": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "internationalization": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "internationalization: localization": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "ipc": {
+        "rows": 29,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "javascript engine": {
+        "rows": 114,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.035088,
+        "auto_assignment_accuracy": 0.75,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.300642,
+          "upper": 0.954413
+        }
+      },
+      "javascript engine: jit": {
+        "rows": 65,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.046154,
+        "auto_assignment_accuracy": 0.666667,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.20766,
+          "upper": 0.938508
+        }
+      },
+      "javascript: gc": {
+        "rows": 18,
+        "auto_assignment_rows": 13,
+        "auto_assignment_coverage": 0.722222,
+        "auto_assignment_accuracy": 0.692308,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.423693,
+          "upper": 0.873193
+        }
+      },
+      "javascript: internationalization api": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "javascript: standard library": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "javascript: webassembly": {
+        "rows": 36,
+        "auto_assignment_rows": 6,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 0.333333,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.096771,
+          "upper": 0.700007
+        }
+      },
+      "keyboard navigation": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout": {
+        "rows": 135,
+        "auto_assignment_rows": 92,
+        "auto_assignment_coverage": 0.681481,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.959919,
+          "upper": 1.0
+        }
+      },
+      "layout: block and inline": {
+        "rows": 5,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.2,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "layout: columns": {
+        "rows": 30,
+        "auto_assignment_rows": 28,
+        "auto_assignment_coverage": 0.933333,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.879357,
+          "upper": 1.0
+        }
+      },
+      "layout: flexbox": {
+        "rows": 5,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 1.0,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "layout: floats": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout: form controls": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout: generated content, lists, and counters": {
+        "rows": 17,
+        "auto_assignment_rows": 17,
+        "auto_assignment_coverage": 1.0,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.815682,
+          "upper": 1.0
+        }
+      },
+      "layout: grid": {
+        "rows": 7,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.571429,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "layout: images, video, and html frames": {
+        "rows": 7,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.571429,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "layout: positioned": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout: scrolling and overflow": {
+        "rows": 23,
+        "auto_assignment_rows": 6,
+        "auto_assignment_coverage": 0.26087,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.609666,
+          "upper": 1.0
+        }
+      },
+      "layout: tables": {
+        "rows": 6,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.5,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "layout: text and fonts": {
+        "rows": 22,
+        "auto_assignment_rows": 16,
+        "auto_assignment_coverage": 0.727273,
+        "auto_assignment_accuracy": 0.9375,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.716713,
+          "upper": 0.988881
+        }
+      },
+      "mathml": {
+        "rows": 2,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.5,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "memory allocator": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "menus": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "messaging system": {
+        "rows": 116,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "mfbt": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "mozglue": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "networking": {
+        "rows": 28,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.142857,
+        "auto_assignment_accuracy": 0.25,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.045587,
+          "upper": 0.699358
+        }
+      },
+      "networking: cookies": {
+        "rows": 5,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.4,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "networking: dns": {
+        "rows": 7,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.571429,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.489891
+        }
+      },
+      "networking: http": {
+        "rows": 17,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.058824,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.793451
+        }
+      },
+      "networking: websockets": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "new tab page": {
+        "rows": 20,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "nimbus desktop client": {
+        "rows": 12,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.333333,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.489891
+        }
+      },
+      "normandy client": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "panning and zooming": {
+        "rows": 37,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.135135,
+        "auto_assignment_accuracy": 0.4,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.117621,
+          "upper": 0.769276
+        }
+      },
+      "pdf viewer": {
+        "rows": 17,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "performance engineering": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "performance: general": {
+        "rows": 17,
+        "auto_assignment_rows": 6,
+        "auto_assignment_coverage": 0.352941,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.609666,
+          "upper": 1.0
+        }
+      },
+      "pocket": {
+        "rows": 22,
+        "auto_assignment_rows": 10,
+        "auto_assignment_coverage": 0.454545,
+        "auto_assignment_accuracy": 0.7,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.396778,
+          "upper": 0.892209
+        }
+      },
+      "preferences: backend": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "print preview": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "printing: output": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "printing: setup": {
+        "rows": 22,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "privacy: anti-tracking": {
+        "rows": 46,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.021739,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "private browsing": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "protections ui": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "remote settings client": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "sanitizers": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "screenshots": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "search": {
+        "rows": 16,
+        "auto_assignment_rows": 10,
+        "auto_assignment_coverage": 0.625,
+        "auto_assignment_accuracy": 0.5,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.236593,
+          "upper": 0.763407
+        }
+      },
+      "security": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: caps": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: process sandboxing": {
+        "rows": 25,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: psm": {
+        "rows": 27,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: rlbox": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "session restore": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "settings ui": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "shell integration": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "site identity": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "site permissions": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "spelling checker": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "storage: cache api": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "storage: indexeddb": {
+        "rows": 12,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.333333,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "storage: localstorage & sessionstorage": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "storage: quota manager": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "string": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "svg": {
+        "rows": 11,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.272727,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "sync": {
+        "rows": 23,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "tabbed browser": {
+        "rows": 10,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "theme": {
+        "rows": 47,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "toolbars and customization": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "untriaged": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "web audio": {
+        "rows": 5,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.6,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "web painting": {
+        "rows": 17,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.294118,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "web speech": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webrtc": {
+        "rows": 31,
+        "auto_assignment_rows": 8,
+        "auto_assignment_coverage": 0.258065,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.675592,
+          "upper": 1.0
+        }
+      },
+      "webrtc: audio/video": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webrtc: networking": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webrtc: signaling": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webvr": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "widget": {
+        "rows": 12,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "widget: cocoa": {
+        "rows": 12,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "widget: gtk": {
+        "rows": 58,
+        "auto_assignment_rows": 27,
+        "auto_assignment_coverage": 0.465517,
+        "auto_assignment_accuracy": 0.481481,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.307432,
+          "upper": 0.660144
+        }
+      },
+      "widget: win32": {
+        "rows": 22,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "xpcom": {
+        "rows": 38,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.078947,
+        "auto_assignment_accuracy": 0.333333,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.061492,
+          "upper": 0.79234
+        }
+      },
+      "xpconnect": {
+        "rows": 32,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "xslt": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "xul": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      }
+    }
+  },
+  "score_drift": {
+    "rows": 2803,
+    "maximum_psi": 0.08102,
+    "threshold": 0.25,
+    "severe_drift": false,
+    "features": {
+      "calibrated_probability": {
+        "psi": 0.037291,
+        "current_distribution": {
+          "minimum": 0.01270028,
+          "p25": 0.1481651,
+          "median": 0.34408964,
+          "p75": 0.73413478,
+          "maximum": 0.98779209
+        }
+      },
+      "open_set_probability": {
+        "psi": 0.037634,
+        "current_distribution": {
+          "minimum": 0.01384863,
+          "p25": 0.1820708,
+          "median": 0.35004218,
+          "p75": 0.52505008,
+          "maximum": 0.95989385
+        }
+      },
+      "top_probability": {
+        "psi": 0.08102,
+        "current_distribution": {
+          "minimum": 0.01066108,
+          "p25": 0.10303619,
+          "median": 0.30775138,
+          "p75": 0.58353814,
+          "maximum": 0.99740038
+        }
+      },
+      "probability_margin": {
+        "psi": 0.040712,
+        "current_distribution": {
+          "minimum": 0.0,
+          "p25": 0.03109981,
+          "median": 0.1479334,
+          "p75": 0.45334989,
+          "maximum": 0.94788613
+        }
+      }
+    }
+  },
+  "routing_metrics": {
+    "rows": 2803,
+    "known_rows": 2603,
+    "unseen_rows": 200,
+    "auto_assignment_rows": 721,
+    "auto_assignment_correct_rows": 633,
+    "auto_assignment_coverage": 0.257224,
+    "auto_assignment_accuracy": 0.877947,
+    "auto_assignment_accuracy_ci95": {
+      "lower": 0.85203,
+      "upper": 0.899859
+    },
+    "unseen_auto_assignment_rows": 8,
+    "unseen_auto_assignment_rate": 0.04,
+    "unseen_auto_assignment_rate_ci95": {
+      "lower": 0.020406,
+      "upper": 0.076932
+    },
+    "top3_confirmation_rows": 0,
+    "top3_confirmation_rate": 0.0,
+    "top3_confirmation_accuracy": 0.0,
+    "manual_triage_rate": 0.742776,
+    "routing_status_breakdown": {
+      "auto_assign": 721,
+      "manual_triage_low_confidence": 710,
+      "manual_triage_open_set": 1372
+    },
+    "fallback_reason_breakdown": {
+      "high_confidence_low_open_set_risk": 721,
+      "low_ranking_confidence": 710,
+      "unseen_owner_risk": 1372
+    },
+    "component_metrics": {
+      "about:logins": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "address bar": {
+        "rows": 31,
+        "auto_assignment_rows": 13,
+        "auto_assignment_coverage": 0.419355,
+        "auto_assignment_accuracy": 0.769231,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.497436,
+          "upper": 0.918205
+        }
+      },
+      "audio/video": {
+        "rows": 17,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.058824,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.793451
+        }
+      },
+      "audio/video: cubeb": {
+        "rows": 6,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.833333,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "audio/video: gmp": {
+        "rows": 12,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "audio/video: mediastreamgraph": {
+        "rows": 6,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "audio/video: playback": {
+        "rows": 71,
+        "auto_assignment_rows": 9,
+        "auto_assignment_coverage": 0.126761,
+        "auto_assignment_accuracy": 0.555556,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.266651,
+          "upper": 0.811221
+        }
+      },
+      "audio/video: recording": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "audio/video: web codecs": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "autoconfig (mission control desktop)": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "bookmarks & history": {
+        "rows": 14,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.142857,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "css parsing and computation": {
+        "rows": 106,
+        "auto_assignment_rows": 55,
+        "auto_assignment_coverage": 0.518868,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.934715,
+          "upper": 1.0
+        }
+      },
+      "css transitions and animations": {
+        "rows": 23,
+        "auto_assignment_rows": 9,
+        "auto_assignment_coverage": 0.391304,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.700855,
+          "upper": 1.0
+        }
+      },
+      "disability access apis": {
+        "rows": 92,
+        "auto_assignment_rows": 22,
+        "auto_assignment_coverage": 0.23913,
+        "auto_assignment_accuracy": 0.318182,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.163606,
+          "upper": 0.526814
+        }
+      },
+      "dll services": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: animation": {
+        "rows": 10,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.5,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "dom: bindings (webidl)": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: content processes": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: copy & paste and drag & drop": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: core & html": {
+        "rows": 251,
+        "auto_assignment_rows": 173,
+        "auto_assignment_coverage": 0.689243,
+        "auto_assignment_accuracy": 0.988439,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.958834,
+          "upper": 0.996824
+        }
+      },
+      "dom: css object model": {
+        "rows": 10,
+        "auto_assignment_rows": 7,
+        "auto_assignment_coverage": 0.7,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.64567,
+          "upper": 1.0
+        }
+      },
+      "dom: device interfaces": {
+        "rows": 10,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.4,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "dom: editor": {
+        "rows": 30,
+        "auto_assignment_rows": 28,
+        "auto_assignment_coverage": 0.933333,
+        "auto_assignment_accuracy": 0.928571,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.773546,
+          "upper": 0.980188
+        }
+      },
+      "dom: events": {
+        "rows": 10,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.2,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "dom: file": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: forms": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: geolocation": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: html parser": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: navigation": {
+        "rows": 14,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.142857,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.65762
+        }
+      },
+      "dom: networking": {
+        "rows": 24,
+        "auto_assignment_rows": 15,
+        "auto_assignment_coverage": 0.625,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.796117,
+          "upper": 1.0
+        }
+      },
+      "dom: performance apis": {
+        "rows": 6,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "dom: postmessage": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: security": {
+        "rows": 54,
+        "auto_assignment_rows": 23,
+        "auto_assignment_coverage": 0.425926,
+        "auto_assignment_accuracy": 0.956522,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.790088,
+          "upper": 0.992283
+        }
+      },
+      "dom: selection": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: service workers": {
+        "rows": 11,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.454545,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "dom: streams": {
+        "rows": 16,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.3125,
+        "auto_assignment_accuracy": 0.6,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.230724,
+          "upper": 0.882379
+        }
+      },
+      "dom: ui events & focus handling": {
+        "rows": 18,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "dom: web authentication": {
+        "rows": 5,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.8,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "dom: web payments": {
+        "rows": 1,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 1.0,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "dom: workers": {
+        "rows": 8,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.125,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "downloads panel": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "enterprise policies": {
+        "rows": 11,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.090909,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "file handling": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "find backend": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "firefox accounts": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "firefox view": {
+        "rows": 11,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "fuzzing": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "gecko profiler": {
+        "rows": 16,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.25,
+        "auto_assignment_accuracy": 0.75,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.300642,
+          "upper": 0.954413
+        }
+      },
+      "general": {
+        "rows": 72,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics": {
+        "rows": 76,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.013158,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "graphics: canvas2d": {
+        "rows": 31,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.064516,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "graphics: canvaswebgl": {
+        "rows": 11,
+        "auto_assignment_rows": 8,
+        "auto_assignment_coverage": 0.727273,
+        "auto_assignment_accuracy": 0.5,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.215216,
+          "upper": 0.784784
+        }
+      },
+      "graphics: color management": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics: imagelib": {
+        "rows": 17,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.176471,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "graphics: layers": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics: text": {
+        "rows": 11,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.363636,
+        "auto_assignment_accuracy": 0.75,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.300642,
+          "upper": 0.954413
+        }
+      },
+      "graphics: webgpu": {
+        "rows": 16,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "graphics: webrender": {
+        "rows": 103,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "hardware abstraction layer (hal)": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "headless": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "installer": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "internationalization": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "internationalization: localization": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "ipc": {
+        "rows": 29,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "javascript engine": {
+        "rows": 114,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.035088,
+        "auto_assignment_accuracy": 0.75,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.300642,
+          "upper": 0.954413
+        }
+      },
+      "javascript engine: jit": {
+        "rows": 65,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.046154,
+        "auto_assignment_accuracy": 0.666667,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.20766,
+          "upper": 0.938508
+        }
+      },
+      "javascript: gc": {
+        "rows": 18,
+        "auto_assignment_rows": 13,
+        "auto_assignment_coverage": 0.722222,
+        "auto_assignment_accuracy": 0.692308,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.423693,
+          "upper": 0.873193
+        }
+      },
+      "javascript: internationalization api": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "javascript: standard library": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "javascript: webassembly": {
+        "rows": 36,
+        "auto_assignment_rows": 6,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 0.333333,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.096771,
+          "upper": 0.700007
+        }
+      },
+      "keyboard navigation": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout": {
+        "rows": 135,
+        "auto_assignment_rows": 92,
+        "auto_assignment_coverage": 0.681481,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.959919,
+          "upper": 1.0
+        }
+      },
+      "layout: block and inline": {
+        "rows": 5,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.2,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "layout: columns": {
+        "rows": 30,
+        "auto_assignment_rows": 28,
+        "auto_assignment_coverage": 0.933333,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.879357,
+          "upper": 1.0
+        }
+      },
+      "layout: flexbox": {
+        "rows": 5,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 1.0,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "layout: floats": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout: form controls": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout: generated content, lists, and counters": {
+        "rows": 17,
+        "auto_assignment_rows": 17,
+        "auto_assignment_coverage": 1.0,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.815682,
+          "upper": 1.0
+        }
+      },
+      "layout: grid": {
+        "rows": 7,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.571429,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "layout: images, video, and html frames": {
+        "rows": 7,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.571429,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "layout: positioned": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "layout: scrolling and overflow": {
+        "rows": 23,
+        "auto_assignment_rows": 6,
+        "auto_assignment_coverage": 0.26087,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.609666,
+          "upper": 1.0
+        }
+      },
+      "layout: tables": {
+        "rows": 6,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.5,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "layout: text and fonts": {
+        "rows": 22,
+        "auto_assignment_rows": 16,
+        "auto_assignment_coverage": 0.727273,
+        "auto_assignment_accuracy": 0.9375,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.716713,
+          "upper": 0.988881
+        }
+      },
+      "mathml": {
+        "rows": 2,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.5,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "memory allocator": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "menus": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "messaging system": {
+        "rows": 116,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "mfbt": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "mozglue": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "networking": {
+        "rows": 28,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.142857,
+        "auto_assignment_accuracy": 0.25,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.045587,
+          "upper": 0.699358
+        }
+      },
+      "networking: cookies": {
+        "rows": 5,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.4,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "networking: dns": {
+        "rows": 7,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.571429,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.489891
+        }
+      },
+      "networking: http": {
+        "rows": 17,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.058824,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.793451
+        }
+      },
+      "networking: websockets": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "new tab page": {
+        "rows": 20,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "nimbus desktop client": {
+        "rows": 12,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.333333,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 0.489891
+        }
+      },
+      "normandy client": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "panning and zooming": {
+        "rows": 37,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.135135,
+        "auto_assignment_accuracy": 0.4,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.117621,
+          "upper": 0.769276
+        }
+      },
+      "pdf viewer": {
+        "rows": 17,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "performance engineering": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "performance: general": {
+        "rows": 17,
+        "auto_assignment_rows": 6,
+        "auto_assignment_coverage": 0.352941,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.609666,
+          "upper": 1.0
+        }
+      },
+      "pocket": {
+        "rows": 22,
+        "auto_assignment_rows": 10,
+        "auto_assignment_coverage": 0.454545,
+        "auto_assignment_accuracy": 0.7,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.396778,
+          "upper": 0.892209
+        }
+      },
+      "preferences: backend": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "print preview": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "printing: output": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "printing: setup": {
+        "rows": 22,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "privacy: anti-tracking": {
+        "rows": 46,
+        "auto_assignment_rows": 1,
+        "auto_assignment_coverage": 0.021739,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.206549,
+          "upper": 1.0
+        }
+      },
+      "private browsing": {
+        "rows": 4,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "protections ui": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "remote settings client": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "sanitizers": {
+        "rows": 3,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "screenshots": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "search": {
+        "rows": 16,
+        "auto_assignment_rows": 10,
+        "auto_assignment_coverage": 0.625,
+        "auto_assignment_accuracy": 0.5,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.236593,
+          "upper": 0.763407
+        }
+      },
+      "security": {
+        "rows": 7,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: caps": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: process sandboxing": {
+        "rows": 25,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: psm": {
+        "rows": 27,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "security: rlbox": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "session restore": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "settings ui": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "shell integration": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "site identity": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "site permissions": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "spelling checker": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "storage: cache api": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "storage: indexeddb": {
+        "rows": 12,
+        "auto_assignment_rows": 4,
+        "auto_assignment_coverage": 0.333333,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.510109,
+          "upper": 1.0
+        }
+      },
+      "storage: localstorage & sessionstorage": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "storage: quota manager": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "string": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "svg": {
+        "rows": 11,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.272727,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "sync": {
+        "rows": 23,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "tabbed browser": {
+        "rows": 10,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "theme": {
+        "rows": 47,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "toolbars and customization": {
+        "rows": 8,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "untriaged": {
+        "rows": 5,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "web audio": {
+        "rows": 5,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.6,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.438503,
+          "upper": 1.0
+        }
+      },
+      "web painting": {
+        "rows": 17,
+        "auto_assignment_rows": 5,
+        "auto_assignment_coverage": 0.294118,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.565518,
+          "upper": 1.0
+        }
+      },
+      "web speech": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webrtc": {
+        "rows": 31,
+        "auto_assignment_rows": 8,
+        "auto_assignment_coverage": 0.258065,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.675592,
+          "upper": 1.0
+        }
+      },
+      "webrtc: audio/video": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webrtc: networking": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webrtc: signaling": {
+        "rows": 9,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "webvr": {
+        "rows": 1,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "widget": {
+        "rows": 12,
+        "auto_assignment_rows": 2,
+        "auto_assignment_coverage": 0.166667,
+        "auto_assignment_accuracy": 1.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.34238,
+          "upper": 1.0
+        }
+      },
+      "widget: cocoa": {
+        "rows": 12,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "widget: gtk": {
+        "rows": 58,
+        "auto_assignment_rows": 27,
+        "auto_assignment_coverage": 0.465517,
+        "auto_assignment_accuracy": 0.481481,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.307432,
+          "upper": 0.660144
+        }
+      },
+      "widget: win32": {
+        "rows": 22,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "xpcom": {
+        "rows": 38,
+        "auto_assignment_rows": 3,
+        "auto_assignment_coverage": 0.078947,
+        "auto_assignment_accuracy": 0.333333,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.061492,
+          "upper": 0.79234
+        }
+      },
+      "xpconnect": {
+        "rows": 32,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "xslt": {
+        "rows": 2,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      },
+      "xul": {
+        "rows": 6,
+        "auto_assignment_rows": 0,
+        "auto_assignment_coverage": 0.0,
+        "auto_assignment_accuracy": 0.0,
+        "auto_assignment_accuracy_ci95": {
+          "lower": 0.0,
+          "upper": 1.0
+        }
+      }
+    }
+  },
+  "routing_score_diagnostics": {
+    "rows": 2803,
+    "calibrated_probability": {
+      "minimum": 0.01270028,
+      "p25": 0.1481651,
+      "median": 0.34408964,
+      "p75": 0.73413478,
+      "maximum": 0.98779209
+    },
+    "open_set_probability": {
+      "minimum": 0.01384863,
+      "p25": 0.1820708,
+      "median": 0.35004218,
+      "p75": 0.52505008,
+      "maximum": 0.95989385
+    },
+    "frozen_t_high": 0.66175082,
+    "frozen_open_set_threshold": 0.35779667,
+    "rows_above_high_confidence": 803,
+    "rows_below_open_set_gate": 1431,
+    "rows_passing_both_auto_assignment_gates": 721,
+    "maximum_calibrated_probability_below_open_set_gate": 0.98779209
+  },
+  "deployment_gate": {
+    "passed": true,
+    "checks": {
+      "auto_assignment_accuracy": true,
+      "auto_assignment_coverage": true,
+      "unseen_auto_assignment_rate": true,
+      "minimum_holdout_rows": true,
+      "minimum_auto_rows": true,
+      "auto_accuracy_confidence_lower_bound": true,
+      "component_accuracy_floor": true,
+      "component_accuracy_confidence_floor": true
+    },
+    "failed_checks": [],
+    "component_failures": {},
+    "component_confidence_failures": {},
+    "targets": {
+      "target_auto_accuracy": 0.85,
+      "minimum_auto_coverage": 0.1,
+      "maximum_unseen_auto_rate": 0.05,
+      "minimum_holdout_rows": 2500,
+      "minimum_auto_rows": 250,
+      "minimum_accuracy_lower_bound": 0.8,
+      "minimum_component_auto_rows": 30,
+      "minimum_component_accuracy": 0.75,
+      "minimum_component_accuracy_lower_bound": 0.6
+    },
+    "blocker": "explicit_operator_and_roster_approval_required",
+    "advisory_checks": {
+      "top3_confirmation_accuracy": false
+    },
+    "advisory_targets": {
+      "target_top3_confirmation_accuracy": 0.9
+    },
+    "score_drift_check": true,
+    "production_integration_allowed": false,
+    "production_blocker": "reviewed_active_roster_and_explicit_operator_approval_required"
+  }
+}

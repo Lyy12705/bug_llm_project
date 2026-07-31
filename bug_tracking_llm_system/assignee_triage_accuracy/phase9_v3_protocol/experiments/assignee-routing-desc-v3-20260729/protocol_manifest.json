@@ -1,0 +1,288 @@
+{
+  "schema_version": 1,
+  "artifact_type": "assignee_v3_experiment_protocol",
+  "experiment_id": "assignee-routing-desc-v3-20260729",
+  "created_at": "2026-07-28T17:37:11.153348+00:00",
+  "status": "registered_development_protocol",
+  "deployment_status": "research_only",
+  "seed": 3407,
+  "git": {
+    "commit": "116242bf7ff7922fc903332c970ec2f488c3e452",
+    "dirty": true
+  },
+  "temporal_protocol": {
+    "schema_version": 2,
+    "protocol": "strict_temporal_assignee_routing_v2",
+    "experiment_id": "assignee-routing-desc-v3-20260729",
+    "git_commit": "116242bf7ff7922fc903332c970ec2f488c3e452",
+    "source": "explicit_v3_development_partitions",
+    "seed": 3407,
+    "partition_order": [
+      "ranker-fit",
+      "ranker-selection",
+      "calibrator-fit",
+      "open-set-fit",
+      "policy-q1",
+      "policy-q2",
+      "policy-q3"
+    ],
+    "partition_roles": {
+      "ranker-fit": "ranker_fit",
+      "ranker-selection": "ranker_selection",
+      "calibrator-fit": "calibrator_fit",
+      "open-set-fit": "open_set_fit",
+      "policy-q1": "policy_selection",
+      "policy-q2": "policy_selection",
+      "policy-q3": "policy_selection"
+    },
+    "partitions": {
+      "ranker-fit": {
+        "rows": 6524,
+        "assignees": 155,
+        "start": "2020-01-01T00:09:13+00:00",
+        "end": "2020-05-26T01:59:30+00:00",
+        "rows_sha256": "7eb44cb3d424893fb3c9aa6edff3efaf2d46ddf19ccd157a85bb6ef040c57819",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 0,
+          "missing_rows": 6524,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      },
+      "ranker-selection": {
+        "rows": 794,
+        "assignees": 130,
+        "start": "2020-05-26T07:06:25+00:00",
+        "end": "2020-06-10T22:33:16+00:00",
+        "rows_sha256": "867c5e73df447c0cf41a31152d5a5c6e26df12357a6582f874ed8013b3a03d25",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 0,
+          "missing_rows": 794,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      },
+      "calibrator-fit": {
+        "rows": 3000,
+        "assignees": 326,
+        "start": "2020-07-01T01:06:57+00:00",
+        "end": "2020-09-01T04:16:44+00:00",
+        "rows_sha256": "2cccf7421e8324b794e281128470f4ad23fc85d9e8feff667e409286c010ef57",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 3000,
+          "missing_rows": 0,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      },
+      "open-set-fit": {
+        "rows": 3000,
+        "assignees": 286,
+        "start": "2020-10-01T00:04:08+00:00",
+        "end": "2020-12-08T20:27:45+00:00",
+        "rows_sha256": "1fa563f4f57c6029801263e0a92d2ace0083c30004cea28b27f49fd68aeb082e",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 3000,
+          "missing_rows": 0,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      },
+      "policy-q1": {
+        "rows": 3000,
+        "assignees": 288,
+        "start": "2021-01-01T07:03:52+00:00",
+        "end": "2021-03-04T19:42:56+00:00",
+        "rows_sha256": "20ba4b85282aaa9e13843e1664a80d5975dcda70f95d9f1ba7a3d65fc5ac60f7",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 3000,
+          "missing_rows": 0,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      },
+      "policy-q2": {
+        "rows": 3000,
+        "assignees": 311,
+        "start": "2021-04-01T00:11:32+00:00",
+        "end": "2021-06-03T10:01:55+00:00",
+        "rows_sha256": "ade004d4f8a818fcfd3cbaa4d62a342ad2eeecce20d8944cc4849aebc2f807f6",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 3000,
+          "missing_rows": 0,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      },
+      "policy-q3": {
+        "rows": 3000,
+        "assignees": 298,
+        "start": "2021-07-01T01:56:21+00:00",
+        "end": "2021-09-23T13:05:07+00:00",
+        "rows_sha256": "5e58c6be465ff55adbe61d82a36b64080230005ee585954f53ab8af65975b57b",
+        "label_availability": {
+          "explicit_assignment_event_rows": 0,
+          "last_change_time_proxy_rows": 3000,
+          "missing_rows": 0,
+          "explicit_assignment_event_coverage": 0.0
+        }
+      }
+    },
+    "audit": {
+      "chronological_order_valid": true,
+      "cross_split_ticket_id_overlap": 0,
+      "cross_split_content_overlap": 0,
+      "cross_split_duplicate_family_overlap": 0,
+      "cross_split_near_duplicate_text_overlap": 21128,
+      "cross_split_owner_event_overlap": 0,
+      "checks": {
+        "chronological_order_valid": true,
+        "no_cross_split_ticket_id_overlap": true,
+        "no_cross_split_content_overlap": true,
+        "no_cross_split_duplicate_family_overlap": true,
+        "no_cross_split_near_duplicate_text_overlap": false,
+        "no_cross_split_owner_event_overlap": true
+      },
+      "leakage_free": false
+    }
+  },
+  "source_files": {
+    "ranker-fit": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_history_train.jsonl",
+      "sha256": "1dc57e13ec6cb3d85d39f9d5cbeddacef628acbf0c286c027e664c1a895e313b",
+      "size_bytes": 10167502,
+      "rows": 6524,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    },
+    "ranker-selection": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/paper_grade/data/processed/bmo_public_10k_desc_validation_set.jsonl",
+      "sha256": "d7354ab4d7e1fee6ed8fdcd3cf3a35d65dd13703ea68edc97f13d4a8d165b137",
+      "size_bytes": 1122677,
+      "rows": 794,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    },
+    "calibrator-fit": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2020q3_description_enriched_raw.jsonl",
+      "sha256": "4eb0bee6487a26ca35ebcdc950f932ec16a514925af62c09e8050c031db393b2",
+      "size_bytes": 6885983,
+      "rows": 3000,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    },
+    "open-set-fit": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2020q4_description_enriched_raw.jsonl",
+      "sha256": "92053f0281d5e8cc2e900175c999a5a057fc55213491efbc0ce4a30b8128cdfd",
+      "size_bytes": 7315302,
+      "rows": 3000,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    },
+    "policy-q1": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2021q1_description_enriched_raw.jsonl",
+      "sha256": "52a7a4f40e9691d681d7ad5642213012f7bde92b8409eaed0c977faf3f8e23e8",
+      "size_bytes": 6980240,
+      "rows": 3000,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    },
+    "policy-q2": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2021q2_description_enriched_raw.jsonl",
+      "sha256": "d11180fa70e909acc45e50652b2d0c69eef128f254a546de896d176e9ce5b954",
+      "size_bytes": 6849357,
+      "rows": 3000,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    },
+    "policy-q3": {
+      "path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase9_v3_protocol/experiments/assignee-routing-desc-v3-20260729/data/bmo_public_future_2021q3_description_enriched_raw.jsonl",
+      "sha256": "ff3100086382365e97b9304144efd6377f24357645885a7f255ca7aa65063ed5",
+      "size_bytes": 7162542,
+      "rows": 3000,
+      "rejected_rows": 0,
+      "alias_rows_remapped": 0,
+      "non_unique_ticket_ids": 0
+    }
+  },
+  "protected_holdouts": [
+    {
+      "manifest_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_manifest.json",
+      "manifest_sha256": "fb0052bfed9d6e54519a231111d8a3193c6f7e3544e652cb75acc57d7cedd774",
+      "data_path": "/Users/linyaying/Documents/bug_llm_project/bug_tracking_llm_system/assignee_triage_accuracy/phase8_operational_readiness/data/bmo_public_future_2022q2_sealed_raw.jsonl",
+      "data_sha256": "38ea3b996b214edc7dc38eb29f02449311501b168b1ee16027000677c5e7bb10",
+      "start": "2022-04-01",
+      "end": "2022-06-30",
+      "sealed": true,
+      "intended_use": "diagnosis_only_not_model_or_policy_selection",
+      "labels_read_by_protocol_builder": false
+    }
+  ],
+  "sealed_holdout_plan": {
+    "labels_accessible_to_training_or_policy_selection": false,
+    "features_or_labels_opened": false,
+    "planned_start": "2023-01-01T00:00:00+00:00",
+    "planned_end": null,
+    "minimum_rows": 2500,
+    "minimum_auto_rows": 250,
+    "one_formal_evaluation_only": true,
+    "failure_transitions_to": "diagnosis_only_not_model_or_policy_selection"
+  },
+  "artifact_registry": {
+    "ranker": {
+      "status": "pending",
+      "required_role": "ranker_fit"
+    },
+    "calibrator": {
+      "status": "pending",
+      "required_role": "calibrator_fit"
+    },
+    "open_set_detector": {
+      "status": "pending",
+      "required_role": "open_set_fit"
+    },
+    "routing_policy": {
+      "status": "pending",
+      "required_role": "policy_selection"
+    },
+    "drift_reference": {
+      "status": "pending",
+      "required_role": "policy_selection"
+    },
+    "sealed_holdout_report": {
+      "status": "not_acquired"
+    }
+  },
+  "protocol_gate": {
+    "passed": false,
+    "checks": {
+      "all_required_roles_present": true,
+      "two_policy_selection_windows": true,
+      "cross_split_leakage_free": false,
+      "all_rows_normalized": true,
+      "unique_ticket_ids_within_partitions": true,
+      "assignment_label_timestamps_explicit": false,
+      "planned_holdout_is_later": true,
+      "git_commit_recorded": true,
+      "git_worktree_clean": false,
+      "protected_holdouts_not_opened": true
+    },
+    "blocked_by": [
+      "cross_split_leakage_free",
+      "assignment_label_timestamps_explicit",
+      "git_worktree_clean"
+    ]
+  },
+  "limitations": [
+    "A passed protocol gate only authorizes development; it is not model or deployment approval.",
+    "Protected holdout manifests are registered by hash only; their data and labels are never opened here.",
+    "A reviewed current roster, live shadow evidence, and explicit operator approval remain external gates."
+  ],
+  "manifest_sha256": "75dbbed3c6bcad0093c19392dc0acec04085b507db11e1ecd79ad3eceeb84abd"
+}

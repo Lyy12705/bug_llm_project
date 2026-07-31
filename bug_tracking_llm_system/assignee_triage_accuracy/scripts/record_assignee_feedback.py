@@ -12,7 +12,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from modules.assignee_feedback import append_assignee_feedback, build_assignee_feedback_record  # noqa: E402
-from modules.assignee_deployment import load_assignee_set  # noqa: E402
+from modules.assignee_deployment import load_active_assignee_set  # noqa: E402
 
 
 def main() -> None:
@@ -23,6 +23,14 @@ def main() -> None:
     parser.add_argument("--feedback", type=Path, required=True)
     parser.add_argument("--reviewer", default="")
     parser.add_argument("--notes", default="")
+    parser.add_argument(
+        "--feedback-origin",
+        required=True,
+        choices=("live_shadow", "historical_replay", "synthetic"),
+        help="Evidence origin. Only provenance-complete live_shadow rows can pass deployment gates.",
+    )
+    parser.add_argument("--source-system", default="")
+    parser.add_argument("--source-event-id", default="")
     parser.add_argument(
         "--active-roster",
         type=Path,
@@ -36,7 +44,11 @@ def main() -> None:
     prediction = prediction_payload.get("assignee_recommendation", prediction_payload)
     if not isinstance(ticket, dict) or not isinstance(prediction, dict):
         raise SystemExit("Ticket and prediction files must contain JSON objects.")
-    active_roster = load_assignee_set(args.active_roster) if args.active_roster else set()
+    if args.feedback_origin == "live_shadow" and (
+        not args.source_system.strip() or not args.source_event_id.strip()
+    ):
+        raise SystemExit("live_shadow feedback requires --source-system and --source-event-id")
+    active_roster = load_active_assignee_set(args.active_roster) if args.active_roster else set()
     final_owner = args.final_assignee.strip().lower()
     known_owner = final_owner in active_roster if args.active_roster else None
     record = build_assignee_feedback_record(
@@ -48,6 +60,9 @@ def main() -> None:
         notes=args.notes,
         known_owner=known_owner,
         owner_status=("known_active" if known_owner else "unseen_or_inactive") if args.active_roster else "",
+        feedback_origin=args.feedback_origin,
+        source_system=args.source_system,
+        source_event_id=args.source_event_id,
     )
     append_assignee_feedback(args.feedback, record)
     print(json.dumps(record, ensure_ascii=False, indent=2))
