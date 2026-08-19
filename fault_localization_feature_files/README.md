@@ -1,296 +1,349 @@
-# Integrated Bug Tracking LLM System
+# Fault Localization Feature
 
-This directory implements the integration layer described in
-`../bug_tracking_llm_system_code_flow_plan.md`.
+This directory contains the fault-localization portion of the bug-tracking LLM
+project. It is a retrieval-first implementation that indexes repository source
+code, ranks suspicious files and symbols against a bug report, and optionally
+reranks the bounded candidate set with a local Ollama model.
 
-The existing research subprojects remain reusable:
+The trainable target architecture, data contract, leakage rules, and file- and
+symbol-level evaluation definitions are specified in
+[`FAULT_LOCALIZATION_MODEL_SPEC.md`](FAULT_LOCALIZATION_MODEL_SPEC.md). Read and
+update that specification before implementing or changing model training.
+The current full SWE-bench 2,294-ticket experiment is documented in
+[`reports/fault_localization/SWEBENCH_FULL_STAGE1_EXPERIMENT_REPORT_ZH.md`](reports/fault_localization/SWEBENCH_FULL_STAGE1_EXPERIMENT_REPORT_ZH.md).
+The earlier SWE-bench Lite 300-ticket Stage-1 v11 report remains available as
+historical evidence in
+[`reports/fault_localization/STAGE1_V11_FINAL_REPORT_ZH.md`](reports/fault_localization/STAGE1_V11_FINAL_REPORT_ZH.md).
 
-- `../ToJson`: ticket-to-JSON extraction experiments.
-- `../bug-duplicate-detection`: duplicate ranking experiments.
-- `../bug-priority-drone`: DRONE/GRAY priority prediction experiments.
+It is not a copy of the complete bug-tracking pipeline. Commands and paths in
+this README only refer to files that exist in this directory.
 
-This package adds the missing orchestration contract: every module exposes the
-class interface from the plan, returns stable JSON, and can be called by a single
-`PipelineOrchestrator`.
-
-## Pipeline
-
-```text
-raw ticket
-  -> TicketExtractor
-  -> DuplicateDetector
-  -> PriorityClassifier
-  -> AssigneeTriager
-  -> BugLocalizer
-  -> PatchGenerator
-  -> TestGenerator
-  -> RegressionTester
-  -> CommitMessageGenerator
-  -> final_pipeline_result.json
-```
-
-The default implementation is intentionally runnable without network access or
-large model downloads. It uses deterministic baselines and explicit fallback
-statuses so integration can proceed safely:
-
-- duplicate detection uses a lightweight text similarity baseline;
-- priority classification uses DRONE/GRAY-style factor scores;
-- assignee triage uses the Hybrid triager with historical BMO train/history data
-  when available, plus component-owner mapping as a fallback;
-- bug localization uses code chunk indexing plus embedding-style retrieval, with
-  stack trace/path boosts and optional LLM reranking;
-- patch generation accepts a provided unified diff or reports
-  `needs_manual_patch`;
-- regression testing validates patches in a temporary copy of the repository.
-
-LLM and trained-model adapters can replace the default modules later without
-changing the orchestrator interface.
-
-## Run
-
-From this directory:
-
-```bash
-PYTHONPATH=src python3 src/main.py \
-  --raw-ticket data/raw_tickets/raw_ticket.example.json \
-  --repo-path ../bug-duplicate-detection \
-  --output final_pipeline_result.json
-```
-
-By default, the integrated pipeline uses the paper-grade BMO assignee history if
-this file exists:
+## Implemented flow
 
 ```text
-assignee_triage_accuracy/paper_grade/data/processed/bmo_paper_2024_3k_history_train.jsonl
+bug ticket
+  -> input-quality checks
+  -> repository code index
+  -> TF-IDF, optional full SBERT, or bounded TF-IDF -> SBERT rerank
+  -> stack trace / component / keyword / symbol scoring
+  -> optional high-precision domain/path routing
+  -> one best chunk per file with supporting chunks
+  -> explicit Top-20 unique Stage-1 candidate files
+  -> optional validated Ollama rerank blended with retrieval
+  -> confidence and patch-handoff gate
+  -> JSON result and Top-k/MRR evaluation
 ```
 
-For another project or a private bug tracker export, pass a compatible JSONL file:
+Supported source suffixes include Python, JavaScript/TypeScript, Java, C/C++,
+Go, and Rust. Python symbols are extracted with `ast`; other languages use a
+lightweight declaration and block-range parser.
+
+## Run tests
 
 ```bash
-PYTHONPATH=src python3 src/main.py \
-  --raw-ticket data/raw_tickets/raw_ticket.example.json \
-  --repo-path ../bug-duplicate-detection \
-  --assignee-dataset path/to/assignee_history.jsonl \
-  --output final_pipeline_result.json
+python3 -m unittest discover -s tests -v
 ```
 
-Each assignee-history row should include at least `assignee`, `component`, and
-`title`; `product`, `description`, `severity`, and `priority` are used when
-present.
-
-Step-level JSON checkpoints are written under:
-
-```text
-data/processed_tickets/<ticket_id>/
-```
-
-Run tests:
+## Build a reusable code index
 
 ```bash
-PYTHONPATH=src python3 -m unittest discover -s tests
+python3 scripts/build_code_index.py \
+  --repo-path path/to/repository \
+  --output data/code_index/project.json
 ```
 
-## Fault Localization Baseline
+Tests are excluded by default. Use `--include-tests` only when test files are
+valid localization targets.
 
-The first fault-localization implementation follows the literature-friendly
-two-stage shape used by modern LLM bug-fixing systems: retrieve a compact set of
-file/function/class candidates first, then optionally rerank those candidates
-with an instruction-tuned code LLM. It scans a repository into code chunks, keeps
-metadata such as `file_path`, `function_name`, `class_name`, `symbol_name`,
-`start_line`, `end_line`, and `code_text`, then ranks chunks against the ticket
-text. The default backend is a local TF-IDF vector baseline so it works without
-downloads. If `sentence-transformers` and a cached model are available, use
-`--embedding-backend sbert` for SBERT-style semantic retrieval.
+The index records per-file SHA-256 fingerprints. A later incremental build can
+reuse chunks for unchanged files.
 
-Each candidate includes explainable scoring fields:
+## Localize one ticket
 
-- `embedding_score`
-- `stack_trace_score`
-- `component_score`
-- `keyword_score`
-- `symbol_score`
-- `final_score`
-
-Build a reusable code index:
+With a prebuilt index:
 
 ```bash
-PYTHONPATH=src python3 scripts/build_code_index.py \
-  --repo-path ../bug-duplicate-detection \
-  --output data/code_index/bug_duplicate_detection.json
-```
-
-Localize a single ticket:
-
-```bash
-PYTHONPATH=src python3 scripts/fault_localization.py \
-  --ticket data/raw_tickets/raw_ticket.example.json \
-  --code-index data/code_index/bug_duplicate_detection.json \
-  --output data/processed_tickets/RAW-001/fault_localization_result.json \
+python3 scripts/fault_localization.py \
+  --ticket ticket.json \
+  --code-index data/code_index/project.json \
+  --output prediction.json \
   --top-k 5
 ```
 
-Run directly without a prebuilt index:
+Or build the index from a repository:
 
 ```bash
-PYTHONPATH=src python3 scripts/fault_localization.py \
-  --ticket data/raw_tickets/raw_ticket.example.json \
-  --repo-path ../bug-duplicate-detection
+python3 scripts/fault_localization.py \
+  --ticket ticket.json \
+  --repo-path path/to/repository
 ```
 
-Run JSONL batch localization:
+The default output is file-aggregated: each `localized_candidates` entry points
+to a different file, while `supporting_chunks` retains other matching symbols
+from that file. Use `--no-file-aggregation` for controlled chunk-level
+experiments.
+
+## Batch mode, cache, progress, and resume
 
 ```bash
-PYTHONPATH=src python3 scripts/fault_localization.py \
-  --tickets-jsonl data/historical_tickets.jsonl \
-  --repo-path ../bug-duplicate-detection \
-  --output data/evaluation_results/fault_localization_predictions.jsonl
+python3 scripts/fault_localization.py \
+  --tickets-jsonl tickets.jsonl \
+  --repo-path path/to/repository \
+  --index-cache-dir data/code_index/cache \
+  --output predictions.jsonl \
+  --progress json \
+  --checkpoint-every 25
 ```
 
-Optional Code Llama/Ollama reranking:
+If a run stops, repeat the command with `--resume`. Completed ticket IDs from
+the existing output are retained and skipped. Checkpoints are written
+atomically. When repository files change, the cached index rebuilds only the
+changed source files and reuses unchanged chunks.
+
+Use `--force-reindex` to ignore a current cache.
+
+## Output contract
+
+The existing compatibility fields remain available:
+
+- `localized_candidates`: ranked primary code chunks.
+- `bug_location`: best file, symbol, and line range.
+- `candidates`: legacy candidate representation.
+
+Additional safety and file-level fields include:
+
+- `localized_files`: one entry per suspicious file.
+- `input_validation`: sparse or invalid ticket diagnostics.
+- `confidence_level`: `high`, `medium`, or `low`.
+- `should_manual_review` and `recommend_patch_generation`.
+- `patch_generation_policy`: patch suggestion, manual review, or block.
+
+Only high-confidence results are recommended for patch suggestion. Medium and
+low confidence results remain localization hints for human review.
+
+## Stage-1 candidate retrieval contract
+
+The reportable Stage-1 boundary is now explicit:
+
+1. score repository code chunks with TF-IDF plus code-evidence signals;
+2. add a bounded domain-to-source-path routing signal from production ticket text;
+3. in hybrid mode, select one TF-IDF representative per file and rerank at most 50 unique files with SBERT;
+4. aggregate chunks by file and preserve the best 20 files;
+5. only then allow an optional LLM/File reranker to change the final Top-K.
+
+`stage1_candidate_files` is therefore the pre-LLM Top-20 output used by
+Candidate Hit@20 and Candidate Recall@20. `localized_files` remains the final
+Top-K output. Every prediction also records `stage1_diagnostics`, including the
+requested/returned candidate counts and the exact stage boundary.
+
+The hybrid mode implements `Top 50 unique files -> Top 20 files`. It can
+be stated explicitly with `--semantic-candidate-k 50 --candidate-file-k 20`.
+Ticket IDs, benchmark hints, failing-test labels, and duplicate text fields are
+not included in the retrieval query.
+
+Domain-path routing is deliberately explainable: every activated rule is saved
+in `matching_domain_intents`. Because these mappings are tuned on development
+errors, improvements must be confirmed on untouched tickets and the frozen
+holdout before being reported as generalization.
+
+## Optional SBERT retrieval
+
+Install `sentence-transformers`, then run:
 
 ```bash
-PYTHONPATH=src python3 scripts/fault_localization.py \
-  --ticket data/raw_tickets/raw_ticket.example.json \
-  --repo-path ../bug-duplicate-detection \
+python3 scripts/fault_localization.py \
+  --ticket ticket.json \
+  --repo-path path/to/repository \
+  --embedding-backend sbert
+```
+
+`--embedding-backend auto` falls back to TF-IDF when a local SBERT model is not
+available. `--allow-sbert-download` permits model download.
+
+For large repositories, prefer the bounded hybrid mode. It applies the existing
+TF-IDF and code-evidence ranking to all chunks, then sends only the best 50
+chunks to SBERT:
+
+```bash
+python3 scripts/fault_localization.py \
+  --ticket ticket.json \
+  --repo-path path/to/repository \
+  --embedding-backend tfidf-sbert-rerank \
+  --semantic-candidate-k 50 \
+  --candidate-file-k 20
+```
+
+## Optional Ollama rerank
+
+```bash
+python3 scripts/fault_localization.py \
+  --ticket ticket.json \
+  --repo-path path/to/repository \
   --llm-rerank \
-  --ollama-model codellama:7b-instruct
+  --llm-candidate-k 10 \
+  --ollama-model codellama:7b-instruct \
+  --ollama-timeout 180
 ```
 
-Evaluate predictions when ground truth fixed files are available:
+The prompt is bounded, and the timeout is enforced as a hard request deadline.
+The model is asked to return every candidate exactly once. Invalid and duplicate
+rows are removed; incomplete coverage, an unavailable service, or non-finite
+scores fall back to retrieval. Valid LLM scores are blended with retrieval at
+30%/70% instead of replacing the calibrated score.
+The LLM service is optional and is not required for the default TF-IDF flow.
+
+## Prepare and evaluate ground truth
+
+Normalize project-specific bug-fix records:
 
 ```bash
-PYTHONPATH=src python3 scripts/prepare_fault_localization_gold.py \
-  --input path/to/bug_fix_records.jsonl \
-  --output data/evaluation_results/fault_localization_gold.jsonl \
+python3 scripts/prepare_fault_localization_gold.py \
+  --input bug_fix_records.jsonl \
+  --output gold.jsonl \
   --skip-empty
-
-PYTHONPATH=src python3 scripts/evaluate_fault_localization.py \
-  --gold data/evaluation_results/fault_localization_gold.jsonl \
-  --pred data/evaluation_results/fault_localization_predictions.jsonl \
-  --output data/evaluation_results/fault_localization_metrics.json
 ```
 
-Gold rows can use fields such as `fixed_files`, `modified_files`,
-`changed_files`, `file_path`, or `file` for file-level evaluation, plus
-`fixed_symbols`, `function_name`, `class_name`, or `symbol_qualified_name` for
-symbol-level evaluation. The evaluator reports file-level and symbol-level
-Top-1, Top-3, Top-5 accuracy and MRR. If the dataset does not yet include
-bug-fixing files or commit-derived changed files, rows without ground truth are
-skipped and the metrics output explains what needs to be added.
-
-### Public Evaluation Dataset
-
-This project now includes a legal public dataset preparation path for
-SWE-bench Lite. SWE-bench Lite contains real GitHub issues and developer patches
-from open-source Python repositories. The prepared fault-localization view uses:
-
-- `problem_statement` as the bug report text.
-- files changed in the developer `patch` as file-level ground truth.
-- `repo` and `base_commit` as the source snapshot to check out before running
-  localization.
-
-Prepare the dataset:
+Evaluate predictions:
 
 ```bash
-PYTHONPATH=src python3 scripts/prepare_swebench_lite_fault_localization.py \
+python3 scripts/evaluate_fault_localization.py \
+  --gold gold.jsonl \
+  --pred predictions.jsonl \
+  --output metrics.json
+```
+
+Metrics include Stage-1 Candidate Hit@20, Candidate Recall@20, average candidate
+count, outcome counts (full recall, partial recall, and miss), plus file- and
+symbol-level Top-1, Top-3, Top-5, and MRR. Missing predictions remain in the
+denominator instead of being silently discarded. Interpret Candidate Hit@20 as
+the proportion of tickets whose Top 20 contains at least one correct file;
+interpret Candidate Recall@20 as the average proportion of all correct files
+recovered per ticket. Recall is the primary Stage-1 optimization metric.
+The evaluator also records the ticket IDs in each full/partial/miss outcome for
+reproducible error analysis.
+
+## Frozen Stage-1 v11 result
+
+This section records the earlier 300-ticket SWE-bench Lite experiment and must
+not be presented as the current full-dataset result. The current protocol uses
+2,294 tickets; its selected TF-IDF Top-50 + SBERT method achieves Frozen
+Holdout Hit@20 93.00%, Recall@20 84.47%, Top-1 54.80%, and MRR@20 0.6623.
+
+The selected method is TF-IDF plus validated domain/path routing. Generic
+routing, repository proximity, advanced file aggregation, SBERT, and LLM
+reranking are disabled in the frozen method. Use `--frozen-stage1-v11` to make
+the runner reject any parameter drift.
+
+- Development: Recall@20 93.33% (196/210), 95% CI [90.00%, 96.67%].
+- One-time cross-project Holdout: Recall@20 84.44% (76/90), 95% CI
+  [76.67%, 91.11%].
+- Every evaluated ticket returned exactly 20 unique files; both runs had zero
+  failures.
+
+The Holdout is below the 90% research target and must not be reused for v11
+tuning. See the final Chinese report and the sealed evaluation manifest under
+`reports/fault_localization/` for the per-repository breakdown and next work.
+
+The equivalent experiment entry point is:
+
+```bash
+python3 experiments/evaluate_bug_localization.py \
+  --gold gold.jsonl \
+  --pred predictions.jsonl
+```
+
+## SWE-bench Lite preparation
+
+```bash
+python3 scripts/prepare_swebench_lite_fault_localization.py \
   --split test \
   --output-dir data/fault_localization/swebench_lite
 ```
 
-Generated files:
+This prepares ticket and file-level gold JSONL from developer patches.
+SWE-bench Lite does not provide symbol-level ground truth by default.
 
-```text
-data/fault_localization/swebench_lite/test.parquet
-data/fault_localization/swebench_lite/test_tickets.jsonl
-data/fault_localization/swebench_lite/test_gold.jsonl
-data/fault_localization/swebench_lite/test_repos.jsonl
-data/fault_localization/swebench_lite/test_manifest.json
-```
-
-The prepared `test_gold.jsonl` can be passed directly to
-`scripts/evaluate_fault_localization.py` after you produce predictions. Because
-each SWE-bench Lite instance may have a different `repo` and `base_commit`, run
-localization against the matching checked-out repository snapshot for each
-ticket before aggregating predictions.
-
-Example for one instance:
+Run the fixed TF-IDF baseline:
 
 ```bash
-# Inspect the first prepared ticket and gold row.
-python3 -m json.tool data/fault_localization/swebench_lite/test_manifest.json
-head -n 1 data/fault_localization/swebench_lite/test_tickets.jsonl
-head -n 1 data/fault_localization/swebench_lite/test_gold.jsonl
-
-# Then clone the referenced repo and checkout the row's base_commit.
-# Example from the first SWE-bench Lite test row:
-git clone https://github.com/astropy/astropy data/fault_localization/swebench_lite/repos/astropy__astropy
-cd data/fault_localization/swebench_lite/repos/astropy__astropy
-git checkout d16bfe05a744909de4b27f5875fe0d4ed41ce607
+python3 scripts/run_swebench_lite_fault_localization.py \
+  --dataset-dir data/fault_localization/swebench_lite \
+  --split test \
+  --clone-missing \
+  --output-dir reports/fault_localization/swebench_lite_tfidf_baseline \
+  --checkpoint-every 10 \
+  --progress json
 ```
 
-After checkout, build a code index for that repo snapshot, run localization for
-the matching ticket, append the prediction to a JSONL file, and evaluate against
-`test_gold.jsonl`. The prepared data gives legal file-level ground truth; it does
-not include function/class-level ground truth unless you add symbol annotations.
+Repeat an interrupted run with the same arguments plus `--resume`. The runner:
 
-## Demo Interface
+- resolves every ticket's `repo` and `base_commit`;
+- creates an isolated snapshot instead of switching the user's source checkout;
+- caches one code index per repository commit;
+- writes predictions and failures atomically;
+- records an exact method ID so incompatible runs cannot be mixed on resume;
+- records how many requested LLM reranks were used or fell back to retrieval;
+- evaluates only the selected ticket subset.
 
-The `demo/` directory provides a local web interface for presenting this project
-as an AI assistant that can be attached to an existing bug tracker.
-
-From the repository root:
+Run SBERT and LLM comparisons into separate output directories:
 
 ```bash
-python3 bug_tracking_llm_system/demo/demo_app.py --port 8765
+python3 scripts/run_swebench_lite_fault_localization.py \
+  --dataset-dir data/fault_localization/swebench_lite \
+  --embedding-backend tfidf-sbert-rerank \
+  --semantic-candidate-k 50 \
+  --candidate-file-k 20 \
+  --output-dir reports/fault_localization/swebench_lite_tfidf_sbert \
+  --resume
+
+python3 scripts/run_swebench_lite_fault_localization.py \
+  --dataset-dir data/fault_localization/swebench_lite \
+  --llm-rerank \
+  --llm-candidate-k 10 \
+  --output-dir reports/fault_localization/swebench_lite_tfidf_llm \
+  --resume
 ```
 
-Then open:
+Compare their metrics against TF-IDF:
 
-```text
-http://127.0.0.1:8765
+```bash
+python3 scripts/compare_fault_localization_runs.py \
+  --run tfidf=reports/fault_localization/swebench_lite_tfidf_baseline/test_metrics.json \
+  --run sbert=reports/fault_localization/swebench_lite_tfidf_sbert/test_metrics.json \
+  --run llm=reports/fault_localization/swebench_lite_tfidf_llm/test_metrics.json \
+  --baseline tfidf \
+  --output reports/fault_localization/swebench_lite_method_comparison.json
 ```
 
-The demo includes two cases:
+The comparison reports metric deltas and warns if methods were evaluated with
+different file- or symbol-level denominators, or if an LLM run contains
+retrieval fallbacks. A one-ticket smoke run verifies execution only; use the
+same frozen ticket subset across methods before interpreting accuracy deltas.
 
-- a duplicate-ticket case that stops after duplicate recommendation;
-- a non-duplicate case that continues through priority, assignee, localization,
-  patch, tests, regression, and commit message.
+## Main files
 
-## Module Files
+- `src/utils/fault_localization.py`: indexing, retrieval, aggregation, and confidence.
+- `src/modules/bug_localizer.py`: reusable integration class with in-memory incremental indexing.
+- `scripts/build_code_index.py`: standalone index builder.
+- `scripts/fault_localization.py`: single and batch CLI.
+- `scripts/evaluate_fault_localization.py`: Candidate Hit/Recall@20, Top-k, and MRR evaluation.
+- `scripts/prepare_fault_localization_gold.py`: gold normalization.
+- `scripts/prepare_swebench_lite_fault_localization.py`: public dataset preparation.
+- `scripts/run_swebench_lite_fault_localization.py`: resumable per-commit benchmark runner.
+- `scripts/create_swebench_full_fault_localization_split.py`: deterministic 2,294-ticket protocol split.
+- `scripts/run_swebench_full_stage1_experiment.py`: repository-parallel full-dataset runner.
+- `scripts/freeze_swebench_full_stage1_experiment.py`: method and artifact freeze before holdout.
+- `scripts/analyze_swebench_full_stage1_results.py`: Top-20 metrics and paired bootstrap analysis.
+- `scripts/compare_fault_localization_runs.py`: TF-IDF/SBERT/LLM metric comparison.
+- `tests/test_fault_localization.py`: regression and CLI tests.
 
-The implementation follows the plan's paths:
+## Known limitations
 
-- `src/modules/ticket_extractor.py`
-- `src/modules/duplicate_detector.py`
-- `src/modules/priority_classifier.py`
-- `src/modules/assignee_triager.py`
-- `src/modules/bug_localizer.py`
-- `src/modules/patch_generator.py`
-- `src/modules/test_generator.py`
-- `src/modules/regression_tester.py`
-- `src/modules/commit_message_generator.py`
-- `src/pipeline/orchestrator.py`
-- `src/config.py`
-- `src/utils/fault_localization.py`
-- `scripts/build_code_index.py`
-- `scripts/fault_localization.py`
-- `scripts/evaluate_fault_localization.py`
-- `scripts/prepare_fault_localization_gold.py`
-
-The `experiments/evaluate_*.py` scripts provide lightweight JSON-level metrics
-for each module output, so pipeline checkpoints can be evaluated without
-rerunning the model experiments.
-
-## Replacing Baselines With Models
-
-Keep each replacement behind the same method names:
-
-- `TicketExtractor.extract(raw_ticket) -> structured_ticket`
-- `DuplicateDetector.detect(ticket_json, historical_db=None) -> duplicate_result`
-- `PriorityClassifier.predict(ticket_json, duplicate_candidates) -> priority_result`
-- `AssigneeTriager.assign(ticket_json, priority_result) -> assignee_result`
-- `BugLocalizer.localize(ticket_json, repo_path) -> bug_location_result`
-- `PatchGenerator.generate(ticket_json, bug_location, repo_path) -> patch_result`
-- `TestGenerator.generate_tests(ticket_json, patch) -> generated_tests_result`
-- `RegressionTester.run(patch, repo_path) -> regression_test_result`
-- `CommitMessageGenerator.generate(ticket_json, patch, test_result) -> commit_message_result`
+- Non-Python symbol extraction remains heuristic rather than parser-based.
+- Full-repository SBERT remains available for controlled small-repository runs,
+  but is substantially slower than bounded hybrid reranking on large projects.
+- Real Ollama execution requires a running, locally accessible service and model.
+- The confidence gate is rule-based and should be calibrated on a frozen
+  held-out benchmark before production automation.
+- Reproducing the full SWE-bench experiment requires repository downloads,
+  substantial index storage, and a deliberate long-running benchmark invocation.

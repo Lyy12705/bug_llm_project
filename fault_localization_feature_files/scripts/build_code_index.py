@@ -40,7 +40,12 @@ def main() -> None:
         "repository_path": index.repository_path,
         "chunks": len(index.chunks),
         "output": str(Path(args.output)),
-        "settings": index.settings,
+        "settings": {
+            key: index.settings.get(key)
+            for key in ("chunk_lines", "overlap_lines", "include_tests", "max_file_bytes")
+        },
+        "repository_fingerprint": index.settings.get("repository_fingerprint", ""),
+        "index_stats": index.settings.get("index_stats", {}),
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
