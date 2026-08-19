@@ -36,21 +36,39 @@ except ModuleNotFoundError:
         return unique
 
 
-DATASET_NAME = "princeton-nlp/SWE-bench_Lite"
 DATASET_LICENSE = "MIT"
-DATASET_SOURCE_URL = "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite"
 PROJECT_SOURCE_URL = "https://github.com/SWE-bench/SWE-bench"
-PARQUET_URLS = {
-    "test": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/main/data/test-00000-of-00001.parquet",
-    "dev": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/main/data/dev-00000-of-00001.parquet",
+DATASET_VARIANTS = {
+    "lite": {
+        "name": "princeton-nlp/SWE-bench_Lite",
+        "source_url": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite",
+        "parquet_urls": {
+            "test": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/main/data/test-00000-of-00001.parquet",
+            "dev": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite/resolve/main/data/dev-00000-of-00001.parquet",
+        },
+    },
+    "full": {
+        "name": "princeton-nlp/SWE-bench",
+        "source_url": "https://huggingface.co/datasets/princeton-nlp/SWE-bench",
+        "parquet_urls": {
+            "test": "https://huggingface.co/datasets/princeton-nlp/SWE-bench/resolve/main/data/test-00000-of-00001.parquet",
+            "dev": "https://huggingface.co/datasets/princeton-nlp/SWE-bench/resolve/main/data/dev-00000-of-00001.parquet",
+        },
+    },
 }
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Prepare SWE-bench Lite as a legal fault-localization evaluation dataset."
+        description="Prepare SWE-bench Lite or full SWE-bench for file-level fault localization."
     )
-    parser.add_argument("--split", choices=sorted(PARQUET_URLS), default="test", help="SWE-bench Lite split.")
+    parser.add_argument(
+        "--dataset",
+        choices=sorted(DATASET_VARIANTS),
+        default="lite",
+        help="Dataset variant. The existing default remains SWE-bench Lite.",
+    )
+    parser.add_argument("--split", choices=("dev", "test"), default="test", help="Dataset split.")
     parser.add_argument(
         "--output-dir",
         default="data/fault_localization/swebench_lite",
@@ -64,6 +82,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
+    dataset = DATASET_VARIANTS[args.dataset]
+    dataset_name = str(dataset["name"])
+    dataset_source_url = str(dataset["source_url"])
+    parquet_url = str(dataset["parquet_urls"][args.split])
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     parquet_path = output_dir / f"{args.split}.parquet"
@@ -72,11 +94,11 @@ def main() -> None:
         if source_parquet.resolve() != parquet_path.resolve():
             shutil.copyfile(source_parquet, parquet_path)
     else:
-        download_file(PARQUET_URLS[args.split], parquet_path, force=args.force_download)
+        download_file(parquet_url, parquet_path, force=args.force_download)
 
     records = read_swebench_records(parquet_path, split=args.split, limit=args.limit)
-    tickets = [ticket_record(record) for record in records]
-    gold = [gold_record(record) for record in records]
+    tickets = [ticket_record(record, dataset_name=dataset_name) for record in records]
+    gold = [gold_record(record, dataset_name=dataset_name) for record in records]
     repos = sorted({record["repo"] for record in records})
 
     tickets_path = output_dir / f"{args.split}_tickets.jsonl"
@@ -87,14 +109,15 @@ def main() -> None:
     write_jsonl(repo_manifest_path, [repo_record(repo) for repo in repos])
 
     manifest = {
-        "dataset_name": DATASET_NAME,
+        "dataset_name": dataset_name,
+        "dataset_variant": args.dataset,
         "split": args.split,
         "rows": len(records),
         "unique_repositories": len(repos),
         "license": DATASET_LICENSE,
-        "dataset_source_url": DATASET_SOURCE_URL,
+        "dataset_source_url": dataset_source_url,
         "project_source_url": PROJECT_SOURCE_URL,
-        "parquet_url": PARQUET_URLS[args.split],
+        "parquet_url": parquet_url,
         "parquet_path": str(parquet_path),
         "tickets_path": str(tickets_path),
         "gold_path": str(gold_path),
@@ -103,12 +126,12 @@ def main() -> None:
         "evaluation_notes": [
             "Use problem_statement as the bug report.",
             "Use repo and base_commit to check out the exact source snapshot before running localization.",
-            "SWE-bench Lite provides file-level ground truth from patches; symbol-level ground truth is not provided by default.",
+            "SWE-bench provides file-level ground truth; symbol-level ground truth is not provided by default.",
         ],
     }
     manifest_path = output_dir / f"{args.split}_manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    write_readme(output_dir)
+    write_readme(output_dir, dataset_name=dataset_name, dataset_source_url=dataset_source_url)
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
 
 
@@ -142,7 +165,11 @@ def normalize_value(value: Any) -> Any:
     return value
 
 
-def ticket_record(record: dict[str, Any]) -> dict[str, Any]:
+def ticket_record(
+    record: dict[str, Any],
+    *,
+    dataset_name: str = "princeton-nlp/SWE-bench_Lite",
+) -> dict[str, Any]:
     problem = str(record.get("problem_statement") or "")
     title = first_nonempty_line(problem) or str(record.get("instance_id") or "")
     return {
@@ -152,7 +179,7 @@ def ticket_record(record: dict[str, Any]) -> dict[str, Any]:
         "bug_report": problem,
         "product": str(record.get("repo") or ""),
         "component": str(record.get("repo") or "").split("/")[-1],
-        "source_dataset": DATASET_NAME,
+        "source_dataset": dataset_name,
         "source_split": str(record.get("split") or ""),
         "repo": str(record.get("repo") or ""),
         "repository_url": str(record.get("repository_url") or ""),
@@ -165,18 +192,22 @@ def ticket_record(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def gold_record(record: dict[str, Any]) -> dict[str, Any]:
+def gold_record(
+    record: dict[str, Any],
+    *,
+    dataset_name: str = "princeton-nlp/SWE-bench_Lite",
+) -> dict[str, Any]:
     return {
         "ticket_id": str(record.get("instance_id") or ""),
         "fixed_files": list(record.get("fixed_files") or []),
         "fixed_symbols": [],
-        "source_dataset": DATASET_NAME,
+        "source_dataset": dataset_name,
         "source_split": str(record.get("split") or ""),
         "repo": str(record.get("repo") or ""),
         "repository_url": str(record.get("repository_url") or ""),
         "base_commit": str(record.get("base_commit") or ""),
         "license": DATASET_LICENSE,
-        "ground_truth_source": "SWE-bench Lite patch field",
+        "ground_truth_source": "SWE-bench fixed-file annotation",
     }
 
 
@@ -216,18 +247,23 @@ def write_jsonl(path: Path, records: list[dict[str, Any]]) -> None:
             handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
-def write_readme(output_dir: Path) -> None:
+def write_readme(
+    output_dir: Path,
+    *,
+    dataset_name: str = "princeton-nlp/SWE-bench_Lite",
+    dataset_source_url: str = "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite",
+) -> None:
     readme = output_dir / "README.md"
     readme.write_text(
         "\n".join(
             [
-                "# SWE-bench Lite Fault Localization Dataset",
+                "# SWE-bench Fault Localization Dataset",
                 "",
-                "This directory is generated from the public `princeton-nlp/SWE-bench_Lite` dataset.",
+                f"This directory is generated from the public `{dataset_name}` dataset.",
                 "It is prepared for file-level fault-localization evaluation.",
                 "",
                 "Source:",
-                f"- Dataset: {DATASET_SOURCE_URL}",
+                f"- Dataset: {dataset_source_url}",
                 f"- Project: {PROJECT_SOURCE_URL}",
                 f"- License: {DATASET_LICENSE}",
                 "",
@@ -238,7 +274,7 @@ def write_readme(output_dir: Path) -> None:
                 "- `<split>_manifest.json`: source, license, and preparation metadata.",
                 "",
                 "Important evaluation note:",
-                "SWE-bench Lite gives repository and base commit per instance. To evaluate localization,",
+                "SWE-bench gives repository and base commit per instance. To evaluate localization,",
                 "checkout each `repo` at its `base_commit`, run localization for that ticket, then evaluate",
                 "against `<split>_gold.jsonl` with `scripts/evaluate_fault_localization.py`.",
                 "",
