@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="管理 BugFlow AI 使用的歷史錯誤回報與團隊成員資料。">
+    <title>BugFlow AI｜資料管理</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin.css">
+  </head>
+  <body class="admin-body">
+    <div class="app-shell">
+      <header class="topbar admin-topbar">
+        <a class="brand-lockup brand-link" href="/" aria-label="返回 BugFlow AI">
+          <span class="brand-mark" aria-hidden="true">BF</span>
+          <div>
+            <p class="brand-name">BugFlow AI</p>
+            <p class="brand-subtitle">資料管理中心</p>
+          </div>
+        </a>
+
+        <div class="top-actions">
+          <span class="system-status"><i aria-hidden="true"></i> 分析資料已就緒</span>
+          <a class="button button-ghost" href="/">返回錯誤回報</a>
+        </div>
+      </header>
+
+      <main class="admin-main">
+        <section class="admin-hero">
+          <div>
+            <p class="section-kicker">管理後台</p>
+            <h1>管理分析所需的資料</h1>
+            <p>匯入既有 Ticket 與團隊資料，讓相似問題檢查及負責人建議有可靠的參考依據。</p>
+          </div>
+          <div class="sync-summary">
+            <span>最近更新</span>
+            <strong id="latestUpdate">讀取中…</strong>
+            <small>匯入後會立即套用到下一次分析</small>
+          </div>
+        </section>
+
+        <section class="metric-grid" aria-label="資料摘要">
+          <article class="metric-card">
+            <span class="metric-icon ticket-icon" aria-hidden="true">T</span>
+            <div><strong id="ticketCount">—</strong><span>歷史 Ticket</span></div>
+            <small id="ticketImportCount">讀取中</small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-icon member-icon" aria-hidden="true">P</span>
+            <div><strong id="memberCount">—</strong><span>可用負責人</span></div>
+            <small id="memberImportCount">讀取中</small>
+          </article>
+          <article class="metric-card">
+            <span class="metric-icon component-icon" aria-hidden="true">F</span>
+            <div><strong id="componentCount">—</strong><span>涵蓋功能</span></div>
+            <small>用於問題分類與分派</small>
+          </article>
+          <article class="metric-card healthy">
+            <span class="metric-icon ready-icon" aria-hidden="true">✓</span>
+            <div><strong>可使用</strong><span>資料狀態</span></div>
+            <small>新 Ticket 可立即進行分析</small>
+          </article>
+        </section>
+
+        <section class="admin-section import-section">
+          <div class="admin-section-heading">
+            <div>
+              <p class="section-kicker">匯入資料</p>
+              <h2>更新分析依據</h2>
+              <p>支援 CSV 與 JSON。相同編號或帳號會更新既有資料，不會產生重複紀錄。</p>
+            </div>
+          </div>
+
+          <div class="import-grid">
+            <article class="import-card" data-import-card="tickets">
+              <div class="import-card-head">
+                <span class="import-symbol ticket-icon" aria-hidden="true">T</span>
+                <div>
+                  <h3>歷史 Ticket</h3>
+                  <p>用於比對相似問題與學習過往負責人。</p>
+                </div>
+              </div>
+              <div class="format-fields">
+                <span>必要欄位</span>
+                <p>ticket_id、title、description</p>
+                <small>建議一併提供 product、component、assignee、status 與處理結果。</small>
+              </div>
+              <input class="file-input" id="ticketFile" type="file" accept=".csv,.json,text/csv,application/json" data-file-input="tickets">
+              <div class="drop-zone" data-drop-zone="tickets">
+                <strong>選擇 Ticket 資料檔</strong>
+                <span>CSV 或 JSON，單次最多 5,000 筆</span>
+                <button class="button button-secondary" type="button" data-choose-file="tickets">選擇檔案</button>
+              </div>
+              <div class="file-ready is-hidden" data-file-ready="tickets">
+                <div>
+                  <strong data-file-name="tickets"></strong>
+                  <span data-file-summary="tickets"></span>
+                </div>
+                <button class="text-button" type="button" data-clear-file="tickets">重新選擇</button>
+              </div>
+              <div class="import-actions">
+                <a class="sample-link" href="samples/tickets_sample.csv" download>下載 Ticket 範例</a>
+                <button class="button button-primary" type="button" data-import="tickets" disabled>確認匯入</button>
+              </div>
+            </article>
+
+            <article class="import-card" data-import-card="members">
+              <div class="import-card-head">
+                <span class="import-symbol member-icon" aria-hidden="true">P</span>
+                <div>
+                  <h3>團隊成員與負責範圍</h3>
+                  <p>用於推薦合適人選並顯示專長與工作狀態。</p>
+                </div>
+              </div>
+              <div class="format-fields">
+                <span>必要欄位</span>
+                <p>email、name、component</p>
+                <small>建議一併提供 team、role、specialties、open_items 與 availability。</small>
+              </div>
+              <input class="file-input" id="memberFile" type="file" accept=".csv,.json,text/csv,application/json" data-file-input="members">
+              <div class="drop-zone" data-drop-zone="members">
+                <strong>選擇團隊資料檔</strong>
+                <span>CSV 或 JSON，單次最多 5,000 筆</span>
+                <button class="button button-secondary" type="button" data-choose-file="members">選擇檔案</button>
+              </div>
+              <div class="file-ready is-hidden" data-file-ready="members">
+                <div>
+                  <strong data-file-name="members"></strong>
+                  <span data-file-summary="members"></span>
+                </div>
+                <button class="text-button" type="button" data-clear-file="members">重新選擇</button>
+              </div>
+              <div class="import-actions">
+                <a class="sample-link" href="samples/members_sample.csv" download>下載團隊範例</a>
+                <button class="button button-primary" type="button" data-import="members" disabled>確認匯入</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="admin-section records-section">
+          <div class="admin-section-heading records-heading">
+            <div>
+              <p class="section-kicker">目前資料</p>
+              <h2>確認系統已載入的內容</h2>
+              <p>這些資料會在下一張錯誤回報送出時自動參與分析。</p>
+            </div>
+            <div class="record-tabs" role="tablist" aria-label="資料類型">
+              <button class="record-tab active" type="button" role="tab" aria-selected="true" data-record-view="tickets">歷史 Ticket</button>
+              <button class="record-tab" type="button" role="tab" aria-selected="false" data-record-view="members">團隊成員</button>
+            </div>
+          </div>
+
+          <div class="table-shell">
+            <table class="records-table">
+              <thead id="recordsHead"></thead>
+              <tbody id="recordsBody">
+                <tr><td class="table-loading">正在讀取資料…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note" id="tableNote"></p>
+        </section>
+
+        <section class="data-flow-note">
+          <span aria-hidden="true">i</span>
+          <div>
+            <strong>資料會在什麼時候使用？</strong>
+            <p>管理員先在此處匯入或更新資料；一般使用者送出新 Ticket 時，系統會自動讀取最新資料，不需要再次上傳。</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="adminToast" role="status" aria-live="polite"></div>
+    <script src="admin.js" defer></script>
+  </body>
+</html>

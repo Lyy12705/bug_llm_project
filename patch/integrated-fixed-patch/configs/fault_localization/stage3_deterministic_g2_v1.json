@@ -1,0 +1,79 @@
+{
+  "schema_version": "stage3-deterministic-g2-config-v1",
+  "experiment_id": "stage3-deterministic-g2-dev-v1",
+  "data_scope": "development-only",
+  "tickets": "data/fault_localization/swebench_full/stage3_symbol_gold/development_source_tickets.jsonl",
+  "gold": "data/fault_localization/swebench_full/stage3_symbol_gold/symbol_gold_v1.jsonl",
+  "stage2_predictions": "reports/fault_localization/stage1_next_iteration/e7_development_1294/e7_a/predictions.jsonl",
+  "stage2_contract": {
+    "label": "E7-A deterministic file baseline",
+    "candidate_file_k": 20,
+    "top_k": 5,
+    "embedding_backend": "tfidf-sbert-rerank",
+    "generic_routing": false,
+    "domain_path_routing": false,
+    "import_graph_mode": "off",
+    "call_graph_mode": "outgoing-top3",
+    "symbol_expansion_mode": "symbol-definitions-api",
+    "file_aggregation_mode": "basic",
+    "llm_rerank": false,
+    "note": "E8-A retains this ranking configuration and only expands indexed source extensions. The Stage-3 development set reuses the persisted E7-A file outputs to isolate symbol retrieval."
+  },
+  "index_dir": "data/fault_localization/swebench_full/indexes",
+  "output_dir": "reports/fault_localization/stage3_deterministic_g2_dev_v1",
+  "candidate_k": 30,
+  "retrieval_top_k": 5,
+  "variants": [
+    {
+      "variant_id": "b0_tfidf",
+      "mode": "b0-tfidf",
+      "selection_mode": "global",
+      "per_file_quota": 0
+    },
+    {
+      "variant_id": "b1_structured",
+      "mode": "b1-structured",
+      "selection_mode": "global",
+      "per_file_quota": 0
+    },
+    {
+      "variant_id": "b1_structured_q4",
+      "mode": "b1-structured",
+      "selection_mode": "global",
+      "per_file_quota": 4
+    },
+    {
+      "variant_id": "b1_structured_q6",
+      "mode": "b1-structured",
+      "selection_mode": "global",
+      "per_file_quota": 6
+    },
+    {
+      "variant_id": "b1_structured_q8",
+      "mode": "b1-structured",
+      "selection_mode": "global",
+      "per_file_quota": 8
+    },
+    {
+      "variant_id": "b1_module_reserved",
+      "mode": "b1-structured",
+      "selection_mode": "module-reserved",
+      "per_file_quota": 0
+    },
+    {
+      "variant_id": "b1_coverage_aware_v1",
+      "mode": "b1-structured",
+      "selection_mode": "coverage-aware-v1",
+      "per_file_quota": 0
+    }
+  ],
+  "selection_policy": {
+    "primary": "conditional exact candidate recall@30",
+    "secondary": "conditional exact candidate recall@10",
+    "b1_adoption": "Adopt the best B1 variant only when its recall@30 is strictly greater than B0; otherwise retain B0."
+  },
+  "g2": {
+    "metric": "conditional_exact_candidate_recall_at_30",
+    "threshold": 0.9
+  }
+}

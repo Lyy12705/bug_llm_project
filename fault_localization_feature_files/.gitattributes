@@ -1,0 +1,4 @@
+reports/fault_localization/**/*.jsonl filter=lfs diff=lfs merge=lfs -text
+data/**/*.parquet filter=lfs diff=lfs merge=lfs -text
+data/fault_localization/swebench_full/indexes/*.json filter=lfs diff=lfs merge=lfs -text
+

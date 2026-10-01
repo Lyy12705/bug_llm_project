@@ -1,0 +1,3 @@
+ticket_id,title,description,product,component,priority,assignee,status,environment,steps_to_reproduce,expected_behavior,actual_behavior,error_message
+WEB-1051,套用優惠券後訂單金額未更新,優惠券顯示套用成功但應付金額仍為原價,線上購物平台,checkout,P2,checkout-team@example.com,處理中,Windows 11 / Chrome 127,"進入結帳頁|輸入 SAVE100|點選套用",訂單總額應立即扣除折扣,畫面顯示成功但總額未更新,DiscountSyncError
+AUTH-2085,登入逾時後重新登入頁面閃退,工作階段逾時後重新送出登入表單會顯示空白頁,會員管理系統,authentication,P2,auth-team@example.com,已解決,macOS 14 / Chrome 127,"登入帳號|等待工作階段逾時|重新登入",應重新驗證並返回首頁,頁面變成空白無法操作,TypeError token is missing

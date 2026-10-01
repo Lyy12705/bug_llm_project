@@ -1,6 +1,13 @@
-# AI Bug Assistant Demo
+# BugFlow AI Demo
 
-這個目錄提供一個無外部相依的本機展示介面，用來把專題核心 pipeline 包裝成「現有 bug tracker 的 AI 輔助套件」。
+這個目錄提供一個可直接操作的錯誤回報處理介面，協助團隊從收到問題到完成分派：
+
+1. 將中文或英文 Ticket 整理成固定 JSON 欄位。
+2. 顯示 Top-10 重複 Ticket 候選，由工程師確認是否重複。
+3. 確認非重複後，預測 P1–P5 優先級並顯示判定因素。
+4. 推薦負責人候選；資料不足時改標示為需要人工分派。
+
+每次分析都會將已完成階段分別儲存為 JSON，展示介面也可下載本次完整結果。
 
 ## 啟動
 
@@ -10,30 +17,45 @@
 python3 bug_tracking_llm_system/demo/demo_app.py --port 8765
 ```
 
-開啟：
+再開啟：
 
 ```text
 http://127.0.0.1:8765
 ```
 
-## 建議展示流程
-
-1. 左側文字框可以直接輸入或貼上 bug report，支援中文與英文文字。
-2. 先選 `Duplicate 案例`，按 `開始分析`，展示使用者輸入文字、JSON 欄位抽取，以及 duplicate 半自動判定。系統會列出 Top-k 候選，最後由工程師確認是否真的重複。
-3. 再選 `整合功能案例`，按 `開始分析`，展示使用者輸入文字、JSON 欄位抽取、duplicate 候選清單、priority prediction，以及 assignee suggestion。
-4. 在 `分配負責人` 停一下，說明目前使用 Hybrid triager：結合歷史 component/product 分派、component-owner mapping、BM25 文字相似度。
-
-## 修改案例
-
-展示資料放在：
+資料管理後台：
 
 ```text
-bug_tracking_llm_system/demo/data/scenarios.json
+http://127.0.0.1:8765/admin
 ```
 
-每個案例包含：
+後台可匯入 CSV 或 JSON 格式的歷史 Ticket 與團隊成員資料。匯入資料會儲存在
+`demo/admin_data/`，並在下一次分析時用於相似問題比對及負責人建議。
 
-- `ticket`：左側 bug tracker 顯示的原始 ticket。
-- `workflow`：AI assistant 的流程步驟。
-- `result`：符合目前 pipeline JSON 風格的分析結果。
-- `tracker_comment`：可貼回 bug tracker 的摘要。
+## 建議的操作流程
+
+### 1. 結帳頁異常
+
+- 按「開始分析」，指出左側原始文字已轉成 `structured_ticket.json`。
+- 在重複候選階段按「確認非重複，繼續分析」。
+- 說明 P1–P5 優先級、信心分數與六項判定因素。
+- 在候選負責人中選擇一位，再按「確認選定負責人」。
+
+### 2. 登入問題
+
+- 切換到「登入問題」並開始分析。
+- 選擇 `BUG-038`，按「確認為重複，停止流程」。
+- 說明系統不會再建立新的優先級與負責人分派，避免重複處理。
+
+### 3. 報表頁異常
+
+- 切換到「報表頁異常」，確認中文欄位可以正確整理。
+- 確認非重複後，指出系統因負責人證據不足而顯示低信心警告。
+- 按「拒絕建議，改由人工分派」，展示系統如何在資訊不足時保留人工決策。
+
+## 展示資料與輸出
+
+- 案例：`demo/data/scenarios.json`
+- 每次分析的 JSON checkpoint：`demo/runs/<run_id>/`
+
+`demo/runs/` 已排除在 Git 版本控制之外，可在展示前清空或保留作為執行紀錄。

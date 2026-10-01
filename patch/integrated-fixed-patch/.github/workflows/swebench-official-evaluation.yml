@@ -1,0 +1,76 @@
+name: SWE-bench official cloud evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset_name:
+        description: Hugging Face SWE-bench dataset
+        required: true
+        default: SWE-bench/SWE-bench_Lite
+      split:
+        description: Dataset split
+        required: true
+        default: test
+      predictions_path:
+        description: Repository-relative prediction JSON/JSONL path, or gold
+        required: true
+        default: gold
+      instance_id:
+        description: One SWE-bench instance ID
+        required: true
+      run_id:
+        description: Unique evaluator run ID
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      DATASET_NAME: ${{ inputs.dataset_name }}
+      DATASET_SPLIT: ${{ inputs.split }}
+      PREDICTIONS_PATH: ${{ inputs.predictions_path }}
+      INSTANCE_ID: ${{ inputs.instance_id }}
+      RUN_ID: ${{ inputs.run_id }}
+      PYTHONUTF8: "1"
+      NO_COLOR: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install pinned official evaluator
+        run: python -m pip install "swebench==5.0.2"
+
+      - name: Confirm cloud Docker runner
+        run: docker info
+
+      - name: Run one official evaluation
+        run: >-
+          python -m swebench.harness.run_evaluation
+          --dataset_name "$DATASET_NAME"
+          --split "$DATASET_SPLIT"
+          --predictions_path "$PREDICTIONS_PATH"
+          --max_workers 1
+          --run_id "$RUN_ID"
+          --timeout 1800
+          --instance_ids "$INSTANCE_ID"
+
+      - name: Upload official report and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swebench-${{ inputs.run_id }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            logs/run_evaluation/
+            *.json

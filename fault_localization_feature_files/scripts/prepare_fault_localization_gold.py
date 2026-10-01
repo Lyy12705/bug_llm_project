@@ -113,6 +113,11 @@ def prepare_gold_records(
     symbol_keys = symbol_fields or list(DEFAULT_SYMBOL_FIELDS)
     rows: list[dict[str, Any]] = []
     for record in records:
+        if "ground_truth_schema" in record or "merged_fix" in record:
+            # Preserve the merged provenance, symbol records and verification gate.
+            # Normalizing to only fixed_files would downgrade verified Gold to legacy.
+            rows.append(dict(record))
+            continue
         ticket_id = _ticket_id(record)
         fixed_files = _unique_paths(_collect_values(record, file_keys))
         fixed_symbols = _unique_symbols(_collect_values(record, symbol_keys))

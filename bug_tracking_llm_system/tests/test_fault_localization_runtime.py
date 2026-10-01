@@ -19,7 +19,7 @@ for path in (str(SRC_ROOT), str(PROJECT_ROOT)):
 
 from scripts.fault_localization import _repo_cache_token
 from modules.bug_localizer import BugLocalizer
-from utils.fault_localization import build_code_index
+from utils.fault_localization_stage3 import build_code_index
 
 
 class FaultLocalizationRuntimeTests(unittest.TestCase):

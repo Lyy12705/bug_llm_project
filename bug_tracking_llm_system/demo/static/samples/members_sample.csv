@@ -1,0 +1,3 @@
+email,name,team,role,component,specialties,similar_cases,resolved_90_days,open_items,availability,status
+payment-owner@example.com,付款服務負責人,交易平台團隊,資深後端工程師,checkout,"付款狀態|金流串接|訂單同步",18,27,3,可立即承接,active
+report-owner@example.com,報表功能負責人,營運系統團隊,全端工程師,報表匯出,"Excel 匯出|資料查詢|排程任務",12,19,5,本週可承接,active

@@ -1,0 +1,33 @@
+# Local Python environments and caches
+.venv*/
+.hf-cache*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local editor / operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Reproducible repository checkouts and generated full-dataset indexes.
+# The 61 indexes required by the current Stage-3 development run are
+# force-added to Git LFS even though the full index directory is ignored.
+data/repositories
+data/fault_localization/swebench_full/e7_development_repos/
+data/fault_localization/swebench_full/final_holdout_e7_v1_repos/
+data/fault_localization/swebench_full/final_holdout_e7_v1_indexes/
+data/fault_localization/swebench_full/final_holdout_v2/
+data/fault_localization/swebench_full/indexes/
+data/fault_localization/swebench_full/snapshots/
+data/fault_localization/swebench_lite/snapshots/
+data/fault_localization/swebench_live/e8_holdout_v1_indexes/
+data/fault_localization/swebench_live/e8_holdout_v1_repos/
+
+# Interrupted-run temporary files
+*.tmp
+*.partial
+

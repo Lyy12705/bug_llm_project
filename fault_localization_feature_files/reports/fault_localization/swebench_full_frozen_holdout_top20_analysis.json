@@ -1,0 +1,143 @@
+{
+  "metric_scope": "Stage-1 Top-20 candidate files only",
+  "gold_path": "data/fault_localization/swebench_full/protocol_v1/frozen_holdout_gold.jsonl",
+  "rows": 500,
+  "methods": {
+    "tfidf-sbert": {
+      "rows": 500,
+      "hit_at_20": 0.93,
+      "recall_at_20": 0.8446930342533284,
+      "top_1_accuracy": 0.548,
+      "mrr_at_20": 0.6623338088725859,
+      "full_recall_rows": 387,
+      "partial_recall_rows": 78,
+      "miss_rows": 35,
+      "bootstrap_95_ci": {
+        "hit_at_20": {
+          "lower": 0.906,
+          "upper": 0.952
+        },
+        "recall_at_20": {
+          "lower": 0.816301,
+          "upper": 0.871053
+        },
+        "top_1_accuracy": {
+          "lower": 0.506,
+          "upper": 0.592
+        },
+        "mrr_at_20": {
+          "lower": 0.627032,
+          "upper": 0.697332
+        }
+      },
+      "per_repository": {
+        "astropy/astropy": {
+          "rows": 22,
+          "hit_at_20": 0.9090909090909091,
+          "recall_at_20": 0.801948051948052,
+          "top_1_accuracy": 0.36363636363636365,
+          "mrr_at_20": 0.5195808350888564,
+          "miss_rows": 2
+        },
+        "django/django": {
+          "rows": 185,
+          "hit_at_20": 0.9675675675675676,
+          "recall_at_20": 0.8946148657913364,
+          "top_1_accuracy": 0.6216216216216216,
+          "mrr_at_20": 0.7322299642036484,
+          "miss_rows": 6
+        },
+        "matplotlib/matplotlib": {
+          "rows": 40,
+          "hit_at_20": 0.975,
+          "recall_at_20": 0.9005208333333334,
+          "top_1_accuracy": 0.5,
+          "mrr_at_20": 0.6264989177489177,
+          "miss_rows": 1
+        },
+        "mwaskom/seaborn": {
+          "rows": 4,
+          "hit_at_20": 0.75,
+          "recall_at_20": 0.75,
+          "top_1_accuracy": 0.25,
+          "mrr_at_20": 0.35,
+          "miss_rows": 1
+        },
+        "pallets/flask": {
+          "rows": 2,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 1.0,
+          "mrr_at_20": 1.0,
+          "miss_rows": 0
+        },
+        "psf/requests": {
+          "rows": 10,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 0.2,
+          "mrr_at_20": 0.4208333333333333,
+          "miss_rows": 0
+        },
+        "pydata/xarray": {
+          "rows": 26,
+          "hit_at_20": 0.9230769230769231,
+          "recall_at_20": 0.8315018315018315,
+          "top_1_accuracy": 0.5769230769230769,
+          "mrr_at_20": 0.6824730094466938,
+          "miss_rows": 2
+        },
+        "pylint-dev/pylint": {
+          "rows": 13,
+          "hit_at_20": 0.7692307692307693,
+          "recall_at_20": 0.6538461538461539,
+          "top_1_accuracy": 0.38461538461538464,
+          "mrr_at_20": 0.5366300366300366,
+          "miss_rows": 3
+        },
+        "pytest-dev/pytest": {
+          "rows": 26,
+          "hit_at_20": 0.9230769230769231,
+          "recall_at_20": 0.8397435897435896,
+          "top_1_accuracy": 0.4230769230769231,
+          "mrr_at_20": 0.5215578539107951,
+          "miss_rows": 2
+        },
+        "scikit-learn/scikit-learn": {
+          "rows": 52,
+          "hit_at_20": 0.9807692307692307,
+          "recall_at_20": 0.8773962148962149,
+          "top_1_accuracy": 0.6153846153846154,
+          "mrr_at_20": 0.7272550366300367,
+          "miss_rows": 1
+        },
+        "sphinx-doc/sphinx": {
+          "rows": 43,
+          "hit_at_20": 0.7441860465116279,
+          "recall_at_20": 0.7183462532299741,
+          "top_1_accuracy": 0.37209302325581395,
+          "mrr_at_20": 0.49867109634551493,
+          "miss_rows": 11
+        },
+        "sympy/sympy": {
+          "rows": 77,
+          "hit_at_20": 0.922077922077922,
+          "recall_at_20": 0.7754961488727723,
+          "top_1_accuracy": 0.6103896103896104,
+          "mrr_at_20": 0.7021322165229728,
+          "miss_rows": 6
+        }
+      }
+    }
+  },
+  "paired_baseline": "tfidf-sbert",
+  "paired_differences": {},
+  "bootstrap_samples": 10000,
+  "seed": 20260817,
+  "definitions": {
+    "hit_at_20": "Fraction of tickets with at least one gold file in the first 20 candidates.",
+    "recall_at_20": "Mean fraction of all gold files recovered in the first 20 candidates.",
+    "top_1_accuracy": "Fraction of tickets whose first candidate matches a gold file.",
+    "mrr_at_20": "Mean reciprocal rank of the first gold file within candidates 1-20; zero on misses."
+  }
+}

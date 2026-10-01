@@ -274,6 +274,19 @@ def build_default_orchestrator(config: PipelineConfig | None = None) -> Pipeline
         if cfg.fault_localization_llm_rerank
         else None
     )
+    patch_generation_llm = (
+        OllamaClient(
+            url=cfg.patch_generation_ollama_url,
+            model=cfg.patch_generation_ollama_model,
+            timeout=cfg.patch_generation_ollama_timeout,
+            json_mode=False,
+            raw_mode=False,
+            num_ctx=cfg.patch_generation_num_ctx,
+            num_predict=cfg.patch_generation_num_predict,
+        )
+        if cfg.patch_generation_enabled
+        else None
+    )
     return PipelineOrchestrator(
         ticket_extractor=TicketExtractor(prompt_path=prompt_root / "extract_ticket_prompt.txt"),
         duplicate_detector=DuplicateDetector(config=cfg),
@@ -291,7 +304,10 @@ def build_default_orchestrator(config: PipelineConfig | None = None) -> Pipeline
             llm_candidate_k=cfg.fault_localization_llm_candidate_k,
             llm_cache_dir=cfg.fault_localization_llm_cache_dir,
         ),
-        patch_generator=PatchGenerator(prompt_path=prompt_root / "patch_prompt.txt"),
+        patch_generator=PatchGenerator(
+            llm_client=patch_generation_llm,
+            prompt_path=prompt_root / "patch_prompt.txt",
+        ),
         test_generator=TestGenerator(),
         regression_tester=RegressionTester(config=cfg),
         commit_message_generator=CommitMessageGenerator(),

@@ -1099,14 +1099,12 @@ class FaultLocalizationTests(unittest.TestCase):
             metrics = tmp_path / "metrics.json"
             demo_cases = tmp_path / "demo_cases.json"
             failures = tmp_path / "failures.jsonl"
-            tickets.write_text(
-                '{"ticket_id":"SWE-1","repo":"local/repo","local_repo_path":"'
-                + str(repo)
-                + '","title":"Login crash when token is missing",'
-                '"description":"TypeError token is None in auth validator.",'
-                '"component":"authentication","logs":"TypeError at src/auth/validator.py:2"}\n',
-                encoding="utf-8",
-            )
+            tickets.write_text(json.dumps({
+                "ticket_id": "SWE-1", "repo": "local/repo", "local_repo_path": str(repo),
+                "title": "Login crash when token is missing",
+                "description": "TypeError token is None in auth validator.",
+                "component": "authentication", "logs": "TypeError at src/auth/validator.py:2",
+            }) + "\n", encoding="utf-8")
             gold.write_text(
                 '{"ticket_id":"SWE-1","fixed_files":["src/auth/validator.py"],"fixed_symbols":["validate_token"]}\n',
                 encoding="utf-8",

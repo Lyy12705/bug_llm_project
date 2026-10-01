@@ -1,5 +1,14 @@
 Generate a safe unified diff patch for the provided bug ticket and localized
 code. Return only the unified diff. Do not include Markdown or explanation.
+Use the paths exactly as shown. Include `--- a/path` and `+++ b/path` headers.
+Ensure each `@@` hunk header line count matches the lines in that hunk.
+Make the smallest change that fixes the reported behavior. Do not modify tests.
+Treat every expected behavior in the ticket as a required acceptance criterion.
+Preserve existing behavior that the ticket does not identify as broken.
+Before responding, silently check that the change handles the reported failing
+input and keeps the stated behavior for existing inputs.
+A patch that removes and adds identical source text is invalid. Added lines must
+implement the missing behavior in executable code.
 
 Ticket:
 {ticket_json}
@@ -9,3 +18,8 @@ Location:
 
 Code:
 {context}
+
+Re-read these required acceptance criteria before writing the diff:
+{ticket_json}
+
+Return the corrected unified diff now.

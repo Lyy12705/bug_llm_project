@@ -8,6 +8,8 @@ build/
 .mplconfig/
 final_pipeline_result.json
 data/processed_tickets/*/
+demo/runs/
+demo/admin_data/
 
 # Assignee-triage outputs that are reproducible from source data and scripts.
 assignee_triage_accuracy/assignee_profiles/*.csv

@@ -2,7 +2,7 @@
   "scenarios": [
     {
       "id": "duplicate-login-token",
-      "label": "Duplicate 案例",
+      "label": "登入問題",
       "kind": "duplicate",
       "one_line": "新 ticket 與歷史 BUG-038 高度相似，AI 建議工程師確認 duplicate。",
       "adapter": {
@@ -43,7 +43,7 @@
         "expected_behavior": "System should show a validation error.",
         "actual_behavior": "Application crashes."
       },
-      "user_input": "Login page crashes when token is missing\n\nReporter: qa-auth@example.com\nComponent: authentication\nSeverity: major\nEnvironment: macOS 14, app 1.2.0\n\nWhen I try to login without a token, the app crashes instead of showing a validation error.\n\nSteps to reproduce:\n1. Open the login page\n2. Submit login without token\n\nExpected: System should show a validation error.\nActual: Application crashes.\n\nLog: TypeError: token is None at src/auth/validator.py:42",
+      "user_input": "Ticket ID: RAW-101\nLogin page crashes when token is missing\n\nReporter: qa-auth@example.com\nProduct: Auth Service\nComponent: authentication\nSeverity: major\nEnvironment: macOS 14, app 1.2.0\n\nWhen I try to login without a token, the app crashes instead of showing a validation error.\n\nSteps to reproduce:\n1. Open the login page\n2. Submit login without token\n\nExpected: System should show a validation error.\nActual: Application crashes.\n\nLog: TypeError: token is None at src/auth/validator.py:42",
       "workflow": [
         {
           "key": "extract",
@@ -127,7 +127,7 @@
     },
     {
       "id": "integrated-triage-flow",
-      "label": "整合功能案例",
+      "label": "結帳頁異常",
       "kind": "integrated_triage",
       "one_line": "沒有確認 duplicate，AI 繼續完成 priority prediction 與 assignee suggestion。",
       "adapter": {
@@ -170,7 +170,7 @@
         "expected_behavior": "The discount should be applied and the order total should update.",
         "actual_behavior": "The checkout page becomes blank."
       },
-      "user_input": "Checkout page becomes blank after applying a discount code\n\nReporter: qa-checkout@example.com\nComponent: frontend\nSeverity: major\nEnvironment: Chrome 124, macOS 14, app 2.4.1\n\nAfter entering a discount code on the checkout page, the page becomes blank. Refreshing the browser restores the cart, but the discount is not applied.\n\nSteps to reproduce:\n1. Open a cart with one item\n2. Go to checkout\n3. Enter discount code SPRING20\n4. Click Apply\n\nExpected: The discount should be applied and the order total should update.\nActual: The checkout page becomes blank.\n\nLog: TypeError: Cannot read properties of undefined (reading 'total') at src/checkout/discounts.ts:88",
+      "user_input": "Ticket ID: RAW-202\nCheckout page becomes blank after applying a discount code\n\nReporter: qa-checkout@example.com\nProduct: Checkout UI\nComponent: frontend\nSeverity: major\nEnvironment: Chrome 124, macOS 14, app 2.4.1\n\nAfter entering a discount code on the checkout page, the page becomes blank. Refreshing the browser restores the cart, but the discount is not applied.\n\nSteps to reproduce:\n1. Open a cart with one item\n2. Go to checkout\n3. Enter discount code SPRING20\n4. Click Apply\n\nExpected: The discount should be applied and the order total should update.\nActual: The checkout page becomes blank.\n\nLog: TypeError: Cannot read properties of undefined (reading 'total') at src/checkout/discounts.ts:88",
       "workflow": [
         {
           "key": "extract",
@@ -275,6 +275,56 @@
         }
       },
       "tracker_comment": "AI Assistant Summary:\n- Structured JSON: extracted title, component, severity, error message, steps, expected behavior, and actual behavior.\n- Duplicate check: no confirmed duplicate. Top candidate BUG-319 scored 0.49 below threshold 0.82.\n- Suggested priority: P2, confidence 0.74.\n- Suggested assignee: frontend-team@example.com, selected by Hybrid triager using component history, owner mapping, and text similarity."
+    },
+    {
+      "id": "manual-triage-zh",
+      "label": "報表頁異常",
+      "kind": "manual_triage",
+      "one_line": "資料不足時不強制自動指派，保留候選名單並要求管理者決策。",
+      "adapter": {
+        "tracker": "內部客服系統",
+        "project": "營運後台",
+        "surface": "中文 Ticket 分流助手"
+      },
+      "ticket": {
+        "ticket_id": "RAW-303",
+        "title": "行動版報表頁偶爾顯示空白",
+        "reporter": "客服中心",
+        "product": "營運後台",
+        "component": "報表匯出",
+        "severity": "中",
+        "environment": "Windows 11, 版本 3.1.0",
+        "description": "使用者開啟每月報表時偶爾只看到空白畫面，目前沒有穩定的操作路徑。",
+        "logs": "",
+        "steps_to_reproduce": [
+          "尚未穩定重現"
+        ],
+        "expected_behavior": "顯示月報表。",
+        "actual_behavior": "偶爾顯示空白頁。"
+      },
+      "user_input": "Ticket ID: RAW-303\n行動版報表頁偶爾顯示空白\n\n回報者：客服中心\n產品：營運後台\n元件：報表匯出\n嚴重性：中\n執行環境：Windows 11, 版本 3.1.0\n\n問題描述：使用者開啟每月報表時偶爾只看到空白畫面，目前沒有穩定的操作路徑。\n\n重現步驟：\n1. 尚未穩定重現\n\n預期：顯示月報表。\n實際：偶爾顯示空白頁。",
+      "workflow": [
+        {
+          "key": "extract",
+          "label": "中文 Ticket JSON 正規化",
+          "summary": "讀取中文標籤並轉成一致欄位。"
+        },
+        {
+          "key": "duplicate",
+          "label": "Duplicate Detection",
+          "summary": "列出候選後由使用者確認不是重複問題。"
+        },
+        {
+          "key": "priority",
+          "label": "Priority Prediction",
+          "summary": "顯示 P1 至 P5 與各項因素。"
+        },
+        {
+          "key": "assignee",
+          "label": "Manual Triage Guard",
+          "summary": "資料不足時停止自動指派，交由管理者選擇。"
+        }
+      ]
     }
   ]
 }

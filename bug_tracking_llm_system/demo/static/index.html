@@ -3,52 +3,185 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AI Bug Assistant Demo</title>
+    <meta name="description" content="協助團隊整理錯誤回報、辨識相似問題、安排優先順序並找到合適負責人。">
+    <title>BugFlow AI｜智慧錯誤回報助理</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Integrated issue triage demo</p>
-        <h1>Bug Ticket 分派 Demo</h1>
-      </div>
-      <div class="top-actions">
-        <button class="button button-primary" id="runButton" type="button">
-          <span class="button-icon">▶</span>
-          開始分析
-        </button>
-      </div>
-    </header>
-
-    <main class="workspace">
-      <section class="tracker-pane" aria-label="User input">
-        <div class="pane-header">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">BF</span>
           <div>
-            <p class="eyebrow" id="trackerName">User Input</p>
-            <h2 id="ticketTitle">Loading</h2>
+            <p class="brand-name">BugFlow AI</p>
+            <p class="brand-subtitle">讓每張錯誤回報更快進入處理</p>
           </div>
-          <span class="status-chip" id="ticketId">--</span>
         </div>
 
-        <section class="ticket-section">
-          <h3>使用者輸入的文字訊息</h3>
-          <textarea class="input-block" id="userInput" spellcheck="false"></textarea>
+        <div class="top-actions">
+          <span class="system-status"><i aria-hidden="true"></i> 服務正常</span>
+          <a class="button button-ghost" href="/admin">
+            <span aria-hidden="true">⚙</span>
+            資料管理
+          </a>
+          <a class="button button-ghost is-hidden" id="exportButton" href="#" download>
+            <span aria-hidden="true">↓</span>
+            下載結果
+          </a>
+          <button class="button button-primary" id="runButton" type="button">
+            <span class="button-icon" aria-hidden="true">▶</span>
+            開始分析
+          </button>
+        </div>
+      </header>
+
+      <main class="demo-layout">
+        <section class="input-card" aria-label="錯誤回報輸入">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">新增錯誤回報</p>
+              <h1>輸入錯誤回報</h1>
+              <p class="section-description">輸入收到的錯誤回報內容，我們會自動整理重點並提供處理建議。</p>
+            </div>
+          </div>
+
+          <div class="input-context">
+            <span>錯誤回報內容</span>
+            <span class="language-pill">中 / EN</span>
+          </div>
+
+          <form class="bug-form" id="bugForm" novalidate>
+            <div class="form-grid">
+              <label class="form-field form-field-full" for="ticketTitle">
+                <span class="form-label">問題標題 <em>必填</em></span>
+                <input class="form-control" id="ticketTitle" name="title" type="text" placeholder="用一句話描述發生的問題" autocomplete="off" required>
+              </label>
+
+              <label class="form-field" for="productName">
+                <span class="form-label">產品或系統 <em>必填</em></span>
+                <input class="form-control" id="productName" name="product" type="text" placeholder="例如：線上購物平台" autocomplete="off" required>
+              </label>
+
+              <label class="form-field" for="ticketIdField">
+                <span class="form-label">回報編號 <small>選填</small></span>
+                <input class="form-control" id="ticketIdField" name="ticketId" type="text" placeholder="例如：WEB-1042" autocomplete="off">
+              </label>
+
+              <label class="form-field" for="componentField">
+                <span class="form-label">影響功能 <em>必填</em></span>
+                <select class="form-control" id="componentField" name="component" required>
+                  <option value="">請選擇影響功能</option>
+                  <option value="checkout">結帳與訂單</option>
+                  <option value="authentication">登入與驗證</option>
+                  <option value="frontend">前端介面</option>
+                  <option value="backend">後端服務</option>
+                  <option value="database">資料庫</option>
+                  <option value="email">郵件服務</option>
+                  <option value="search">搜尋功能</option>
+                  <option value="api">API 服務</option>
+                  <option value="other">其他</option>
+                  <option value="unknown">尚未確定</option>
+                </select>
+              </label>
+
+              <label
+                class="form-field form-field-full other-component-field is-hidden"
+                id="componentOtherWrapper"
+                for="componentOtherField"
+                aria-hidden="true"
+              >
+                <span class="form-label">其他影響功能 <em>必填</em></span>
+                <input
+                  class="form-control"
+                  id="componentOtherField"
+                  name="componentOther"
+                  type="text"
+                  placeholder="請輸入實際受影響的功能，例如：優惠券審核"
+                  autocomplete="off"
+                >
+                <small class="form-help">請填寫最接近問題發生位置的功能名稱。</small>
+              </label>
+
+              <label class="form-field" for="severityField">
+                <span class="form-label">嚴重程度 <em>必填</em></span>
+                <select class="form-control" id="severityField" name="severity" required>
+                  <option value="">請選擇嚴重程度</option>
+                  <option value="critical">重大－服務無法使用</option>
+                  <option value="major">高－主要功能受影響</option>
+                  <option value="normal">中－部分功能異常</option>
+                  <option value="minor">低－輕微問題</option>
+                </select>
+              </label>
+
+              <label class="form-field form-field-full" for="environmentField">
+                <span class="form-label">發生環境 <em>必填</em></span>
+                <input class="form-control" id="environmentField" name="environment" type="text" placeholder="例如：Windows 11／Chrome 127／版本 4.2.0" autocomplete="off" required>
+              </label>
+
+              <label class="form-field form-field-full" for="descriptionField">
+                <span class="form-label">問題描述 <em>必填</em></span>
+                <textarea class="form-control form-textarea" id="descriptionField" name="description" placeholder="說明發生什麼問題、影響哪些使用者或操作" required></textarea>
+              </label>
+
+              <label class="form-field form-field-full" for="stepsField">
+                <span class="form-label">重現步驟 <em>必填</em></span>
+                <textarea class="form-control form-textarea form-textarea-tall" id="stepsField" name="steps" placeholder="每行輸入一個步驟，例如：&#10;登入會員帳號&#10;進入結帳頁&#10;完成信用卡付款" required></textarea>
+                <small class="form-help">每行一個步驟，系統會自動整理順序。</small>
+              </label>
+
+              <label class="form-field form-field-full" for="expectedField">
+                <span class="form-label">預期結果 <em>必填</em></span>
+                <textarea class="form-control form-textarea form-textarea-compact" id="expectedField" name="expected" placeholder="正常情況下應該看到什麼結果？" required></textarea>
+              </label>
+
+              <label class="form-field form-field-full" for="actualField">
+                <span class="form-label">實際結果 <em>必填</em></span>
+                <textarea class="form-control form-textarea form-textarea-compact" id="actualField" name="actual" placeholder="實際發生了什麼情況？" required></textarea>
+              </label>
+
+              <label class="form-field form-field-full" for="logsField">
+                <span class="form-label">錯誤訊息或 Log <small>選填</small></span>
+                <textarea class="form-control form-textarea form-textarea-compact form-control-code" id="logsField" name="logs" placeholder="輸入畫面上的錯誤訊息、錯誤代碼或系統 Log"></textarea>
+              </label>
+            </div>
+          </form>
+
+          <div class="input-footer">
+            <span id="inputMeta">已完成 0 / 9 個必填欄位</span>
+            <span>完成所有必填欄位後即可開始分析</span>
+          </div>
+
+          <div class="outcome-note">
+            <span class="outcome-icon" aria-hidden="true">✓</span>
+            <div>
+              <strong>分析後，你會得到</strong>
+              <p>清楚的問題摘要、相似回報、處理順序與建議負責人。</p>
+            </div>
+          </div>
         </section>
-      </section>
 
-      <section class="assistant-pane" aria-label="AI assistant analysis">
-        <div class="pane-header">
-          <div>
-            <p class="eyebrow">Analysis Result</p>
-            <h2 id="assistantHeadline">Ready</h2>
+        <section class="analysis-card" aria-label="AI 分析結果">
+          <div class="analysis-heading">
+            <div>
+              <p class="section-kicker">處理建議</p>
+              <h2 id="assistantHeadline">錯誤回報處理建議</h2>
+              <p id="assistantSubline">輸入錯誤回報並開始分析後，這裡會顯示完整的處理建議。</p>
+            </div>
+            <span class="status-chip status-neutral" id="pipelineStatus">待開始</span>
           </div>
-          <span class="status-chip status-neutral" id="pipelineStatus">waiting</span>
-        </div>
 
-        <div class="result-grid" id="moduleGrid"></div>
-      </section>
-    </main>
+          <div class="workflow" id="workflowBar" aria-label="分析進度"></div>
+          <div class="result-grid" id="moduleGrid" aria-live="polite"></div>
+        </section>
+      </main>
 
+      <footer class="page-footer">
+        <span>讓問題更快被理解、排序與分派</span>
+        <span>分析結果可隨時下載保存</span>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="app.js"></script>
   </body>
 </html>

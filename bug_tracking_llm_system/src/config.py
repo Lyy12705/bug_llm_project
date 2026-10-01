@@ -61,10 +61,19 @@ class PipelineConfig:
     fault_localization_ollama_model: str = "codellama:7b-instruct"
     fault_localization_ollama_url: str = "http://localhost:11434/api/generate"
     fault_localization_ollama_timeout: int = 180
+    patch_generation_enabled: bool = False
+    patch_generation_ollama_model: str = "codellama:7b-instruct"
+    patch_generation_ollama_url: str = "http://localhost:11434/api/generate"
+    patch_generation_ollama_timeout: int = 300
+    patch_generation_num_ctx: int = 16384
+    patch_generation_num_predict: int = 2048
 
     def __post_init__(self) -> None:
         self.project_root = Path(self.project_root)
         self.test_timeout_seconds = max(1, int(self.test_timeout_seconds))
+        self.patch_generation_ollama_timeout = max(1, int(self.patch_generation_ollama_timeout))
+        self.patch_generation_num_ctx = max(2048, int(self.patch_generation_num_ctx))
+        self.patch_generation_num_predict = max(256, int(self.patch_generation_num_predict))
         if self.historical_tickets_path is None:
             self.historical_tickets_path = self.project_root / "data" / "historical_tickets.jsonl"
         else:

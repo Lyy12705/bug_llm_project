@@ -1,0 +1,7 @@
+{
+  "ticket_id": "FIM-SMOKE-1",
+  "base_commit": "2dd4f2ef226d02dd478afb32fda06a6bf5bd4c40",
+  "patch": "--- a/username.py\n+++ b/username.py\n@@ -1,4 +1,6 @@\n def normalize_username(value):\n+    if value is None:\n+        return \"\"\n     return value.strip().lower()\n \n \n",
+  "verified": true,
+  "provenance": "Synthetic smoke reference; not a SWE-bench result or merged production commit."
+}

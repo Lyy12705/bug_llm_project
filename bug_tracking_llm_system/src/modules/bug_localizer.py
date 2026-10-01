@@ -3,15 +3,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from utils.fault_localization import CODE_SUFFIXES, CodeIndex, build_code_index, load_code_index, localize_ticket
+from utils.fault_localization_stage3 import CODE_SUFFIXES, CodeIndex, build_code_index, load_code_index, localize_ticket
 
 
 class BugLocalizer:
     """Locate likely faulty files/functions from ticket text and repository code.
 
-    The default implementation is a runnable retrieval baseline: it builds code
-    chunks from the repository, ranks them against the bug report with vector
-    similarity, and optionally leaves room for an LLM reranker.
+    The default returns the selected deterministic Stage-3 baseline: B1
+    structured evidence with coverage-aware-v1 selection, up to 30 symbol
+    candidates and five ranked symbols. File retrieval settings remain
+    configurable independently. Patch consumers should read
+    ``stage3_ranked_symbols``; legacy file-level fields retain their meaning.
     """
 
     def __init__(
@@ -22,10 +24,22 @@ class BugLocalizer:
         embedding_backend: str = "tfidf",
         sbert_model: str = "sentence-transformers/all-MiniLM-L6-v2",
         sbert_local_files_only: bool = True,
-        sbert_cache_dir: str | Path | None = None,
+        semantic_candidate_k: int = 50,
+        candidate_file_k: int = 20,
+        generic_routing: bool = False,
+        domain_path_routing: bool = True,
+        repository_proximity: bool = False,
+        import_graph_mode: str = "off",
+        call_graph_mode: str = "off",
+        symbol_expansion_mode: str = "off",
         llm_client: Any | None = None,
         llm_rerank: bool = False,
         llm_candidate_k: int | None = None,
+        file_aggregation: bool = True,
+        advanced_file_aggregation: bool = False,
+        min_ticket_chars: int = 20,
+        symbol_localization: bool = True,
+        sbert_cache_dir: str | Path | None = None,
         llm_cache_dir: str | Path | None = None,
     ) -> None:
         self.code_index_path = Path(code_index_path) if code_index_path else None
@@ -33,52 +47,118 @@ class BugLocalizer:
         self.embedding_backend = embedding_backend
         self.sbert_model = sbert_model
         self.sbert_local_files_only = sbert_local_files_only
-        self.sbert_cache_dir = Path(sbert_cache_dir) if sbert_cache_dir else None
+        self.semantic_candidate_k = semantic_candidate_k
+        self.candidate_file_k = candidate_file_k
+        self.generic_routing = generic_routing
+        self.domain_path_routing = domain_path_routing
+        self.repository_proximity = repository_proximity
+        self.import_graph_mode = import_graph_mode
+        self.call_graph_mode = call_graph_mode
+        self.symbol_expansion_mode = symbol_expansion_mode
         self.llm_client = llm_client
         self.llm_rerank = llm_rerank
         self.llm_candidate_k = llm_candidate_k
+        self.file_aggregation = file_aggregation
+        self.advanced_file_aggregation = advanced_file_aggregation
+        self.min_ticket_chars = min_ticket_chars
+        self.symbol_localization = symbol_localization
+        # Retained for compatibility with the full-system configuration. The
+        # selected implementation owns its index cache at the runner layer.
+        self.sbert_cache_dir = Path(sbert_cache_dir) if sbert_cache_dir else None
         self.llm_cache_dir = Path(llm_cache_dir) if llm_cache_dir else None
-        self._cached_index_key: tuple[str, str] | None = None
+        self._cached_index_key: tuple[str, ...] | None = None
         self._cached_index: CodeIndex | None = None
 
     def localize(self, ticket_json: dict[str, Any], repo_path: str) -> dict[str, Any]:
-        code_index: CodeIndex | None = None
+        code_index: CodeIndex
         if self.code_index_path is not None and self.code_index_path.exists():
             key = (str(self.code_index_path.resolve()), str(self.code_index_path.stat().st_mtime_ns))
             if self._cached_index_key != key:
                 self._cached_index = load_code_index(self.code_index_path)
                 self._cached_index_key = key
-            code_index = self._cached_index
         else:
             root = Path(repo_path).resolve()
-            key = (str(root), _source_tree_token(root))
+            repository_name = str(
+                ticket_json.get("repo")
+                or ticket_json.get("repository")
+                or root.name
+            ).strip()
+            base_commit = str(ticket_json.get("base_commit") or "").strip()
+            key = (
+                str(root),
+                _source_tree_token(root),
+                repository_name,
+                base_commit,
+            )
             if self._cached_index_key != key:
-                self._cached_index = build_code_index(root)
+                previous_index = (
+                    self._cached_index
+                    if self._cached_index is not None
+                    and self._cached_index.runtime_repository_matches(root) is True
+                    else None
+                )
+                self._cached_index = build_code_index(
+                    root,
+                    repository_name=repository_name,
+                    base_commit=base_commit or None,
+                    previous_index=previous_index,
+                )
                 self._cached_index_key = key
-            code_index = self._cached_index
+
+        if self._cached_index is None:  # Defensive guard for type/runtime safety.
+            raise ValueError("Unable to build or load the repository code index.")
+        code_index = self._cached_index
 
         result = localize_ticket(
             ticket_json,
-            repo_path=repo_path if code_index is None else None,
             code_index=code_index,
             top_k=self.top_k,
             embedding_backend=self.embedding_backend,
             sbert_model=self.sbert_model,
             sbert_local_files_only=self.sbert_local_files_only,
-            sbert_cache_dir=self.sbert_cache_dir,
+            semantic_candidate_k=self.semantic_candidate_k,
+            candidate_file_k=self.candidate_file_k,
+            generic_routing=self.generic_routing,
+            domain_path_routing=self.domain_path_routing,
+            repository_proximity=self.repository_proximity,
+            import_graph_mode=self.import_graph_mode,
+            call_graph_mode=self.call_graph_mode,
+            symbol_expansion_mode=self.symbol_expansion_mode,
             llm_client=self.llm_client,
             llm_rerank=self.llm_rerank,
             llm_candidate_k=self.llm_candidate_k,
-            llm_cache_dir=self.llm_cache_dir,
+            symbol_localization=self.symbol_localization,
+            symbol_llm_rerank=False,
+            symbol_candidate_k=30,
+            symbol_top_k=5,
+            symbol_retrieval_mode="b1-structured",
+            symbol_per_file_quota=0,
+            symbol_selection_mode="coverage-aware-v1",
+            file_aggregation=self.file_aggregation,
+            advanced_file_aggregation=self.advanced_file_aggregation,
+            min_ticket_chars=self.min_ticket_chars,
         )
-        if not result.get("localized_candidates"):
+        input_validation = result.get("input_validation")
+        # Preserve the indexed snapshot identity for the patch-context consumer.
+        result["repo"] = code_index.settings.get("repository_name", "")
+        result["base_commit"] = code_index.settings.get("base_commit", "")
+        fingerprints = code_index.settings.get("file_fingerprints", {})
+        result["source_file_sha256"] = {
+            row["file_path"]: fingerprints[row["file_path"]]
+            for row in result.get("stage3_ranked_symbols", [])
+            if row.get("file_path") in fingerprints
+        }
+        invalid_input = isinstance(input_validation, dict) and not bool(input_validation.get("is_valid", True))
+        if not result.get("localized_candidates") and not invalid_input:
             raise ValueError("No bug localization candidates found in the repository code index.")
         if not result.get("repository_path"):
-            result["repository_path"] = str(Path(repo_path).resolve())
+            result["repository_path"] = "."
         return result
 
 
 def _source_tree_token(root: Path) -> str:
+    """Return a cheap change token so repeated tickets can reuse one index."""
+
     count = 0
     total_size = 0
     latest_mtime_ns = 0

@@ -1,0 +1,458 @@
+{
+  "metric_scope": "Stage-1 Top-20 candidate files only",
+  "gold_path": "data/fault_localization/swebench_full/protocol_v1/validation_gold.jsonl",
+  "rows": 500,
+  "methods": {
+    "tfidf": {
+      "rows": 500,
+      "hit_at_20": 0.878,
+      "recall_at_20": 0.8113307280883367,
+      "top_1_accuracy": 0.52,
+      "mrr_at_20": 0.6239541646605888,
+      "full_recall_rows": 369,
+      "partial_recall_rows": 70,
+      "miss_rows": 61,
+      "bootstrap_95_ci": {
+        "hit_at_20": {
+          "lower": 0.848,
+          "upper": 0.906
+        },
+        "recall_at_20": {
+          "lower": 0.779969,
+          "upper": 0.841381
+        },
+        "top_1_accuracy": {
+          "lower": 0.476,
+          "upper": 0.564
+        },
+        "mrr_at_20": {
+          "lower": 0.586975,
+          "upper": 0.660168
+        }
+      },
+      "per_repository": {
+        "astropy/astropy": {
+          "rows": 22,
+          "hit_at_20": 0.9545454545454546,
+          "recall_at_20": 0.8771645021645021,
+          "top_1_accuracy": 0.5909090909090909,
+          "mrr_at_20": 0.7035353535353536,
+          "miss_rows": 1
+        },
+        "django/django": {
+          "rows": 184,
+          "hit_at_20": 0.9184782608695652,
+          "recall_at_20": 0.8645046152518978,
+          "top_1_accuracy": 0.5815217391304348,
+          "mrr_at_20": 0.6695787854515476,
+          "miss_rows": 15
+        },
+        "matplotlib/matplotlib": {
+          "rows": 41,
+          "hit_at_20": 0.8292682926829268,
+          "recall_at_20": 0.7384823848238482,
+          "top_1_accuracy": 0.43902439024390244,
+          "mrr_at_20": 0.5296118704221098,
+          "miss_rows": 7
+        },
+        "mwaskom/seaborn": {
+          "rows": 5,
+          "hit_at_20": 1.0,
+          "recall_at_20": 0.8666666666666666,
+          "top_1_accuracy": 0.6,
+          "mrr_at_20": 0.7666666666666667,
+          "miss_rows": 0
+        },
+        "pallets/flask": {
+          "rows": 2,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 1.0,
+          "mrr_at_20": 1.0,
+          "miss_rows": 0
+        },
+        "psf/requests": {
+          "rows": 9,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 0.5555555555555556,
+          "mrr_at_20": 0.6898148148148148,
+          "miss_rows": 0
+        },
+        "pydata/xarray": {
+          "rows": 26,
+          "hit_at_20": 1.0,
+          "recall_at_20": 0.893944099378882,
+          "top_1_accuracy": 0.46153846153846156,
+          "mrr_at_20": 0.6441391941391941,
+          "miss_rows": 0
+        },
+        "pylint-dev/pylint": {
+          "rows": 13,
+          "hit_at_20": 0.6923076923076923,
+          "recall_at_20": 0.6474358974358974,
+          "top_1_accuracy": 0.15384615384615385,
+          "mrr_at_20": 0.3471153846153846,
+          "miss_rows": 4
+        },
+        "pytest-dev/pytest": {
+          "rows": 25,
+          "hit_at_20": 0.84,
+          "recall_at_20": 0.7633333333333333,
+          "top_1_accuracy": 0.4,
+          "mrr_at_20": 0.49701960784313726,
+          "miss_rows": 4
+        },
+        "scikit-learn/scikit-learn": {
+          "rows": 52,
+          "hit_at_20": 0.9038461538461539,
+          "recall_at_20": 0.8846153846153846,
+          "top_1_accuracy": 0.6923076923076923,
+          "mrr_at_20": 0.7762820512820513,
+          "miss_rows": 5
+        },
+        "sphinx-doc/sphinx": {
+          "rows": 43,
+          "hit_at_20": 0.7209302325581395,
+          "recall_at_20": 0.6378737541528239,
+          "top_1_accuracy": 0.3023255813953488,
+          "mrr_at_20": 0.43631157703985124,
+          "miss_rows": 12
+        },
+        "sympy/sympy": {
+          "rows": 78,
+          "hit_at_20": 0.8333333333333334,
+          "recall_at_20": 0.7373931623931623,
+          "top_1_accuracy": 0.5,
+          "mrr_at_20": 0.5990689865689866,
+          "miss_rows": 13
+        }
+      }
+    },
+    "tfidf-routing": {
+      "rows": 500,
+      "hit_at_20": 0.88,
+      "recall_at_20": 0.8128307280883368,
+      "top_1_accuracy": 0.512,
+      "mrr_at_20": 0.6204984870049111,
+      "full_recall_rows": 370,
+      "partial_recall_rows": 70,
+      "miss_rows": 60,
+      "bootstrap_95_ci": {
+        "hit_at_20": {
+          "lower": 0.852,
+          "upper": 0.908
+        },
+        "recall_at_20": {
+          "lower": 0.782393,
+          "upper": 0.84328
+        },
+        "top_1_accuracy": {
+          "lower": 0.468,
+          "upper": 0.556
+        },
+        "mrr_at_20": {
+          "lower": 0.584795,
+          "upper": 0.655928
+        }
+      },
+      "per_repository": {
+        "astropy/astropy": {
+          "rows": 22,
+          "hit_at_20": 0.9545454545454546,
+          "recall_at_20": 0.8771645021645021,
+          "top_1_accuracy": 0.5909090909090909,
+          "mrr_at_20": 0.7035353535353536,
+          "miss_rows": 1
+        },
+        "django/django": {
+          "rows": 184,
+          "hit_at_20": 0.9239130434782609,
+          "recall_at_20": 0.8685807022084195,
+          "top_1_accuracy": 0.5815217391304348,
+          "mrr_at_20": 0.6697144589567864,
+          "miss_rows": 14
+        },
+        "matplotlib/matplotlib": {
+          "rows": 41,
+          "hit_at_20": 0.8292682926829268,
+          "recall_at_20": 0.7384823848238482,
+          "top_1_accuracy": 0.3902439024390244,
+          "mrr_at_20": 0.5047288943196215,
+          "miss_rows": 7
+        },
+        "mwaskom/seaborn": {
+          "rows": 5,
+          "hit_at_20": 1.0,
+          "recall_at_20": 0.8666666666666666,
+          "top_1_accuracy": 0.6,
+          "mrr_at_20": 0.7666666666666667,
+          "miss_rows": 0
+        },
+        "pallets/flask": {
+          "rows": 2,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 1.0,
+          "mrr_at_20": 1.0,
+          "miss_rows": 0
+        },
+        "psf/requests": {
+          "rows": 9,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 0.5555555555555556,
+          "mrr_at_20": 0.6898148148148148,
+          "miss_rows": 0
+        },
+        "pydata/xarray": {
+          "rows": 26,
+          "hit_at_20": 1.0,
+          "recall_at_20": 0.893944099378882,
+          "top_1_accuracy": 0.46153846153846156,
+          "mrr_at_20": 0.6438926458157227,
+          "miss_rows": 0
+        },
+        "pylint-dev/pylint": {
+          "rows": 13,
+          "hit_at_20": 0.6923076923076923,
+          "recall_at_20": 0.6474358974358974,
+          "top_1_accuracy": 0.15384615384615385,
+          "mrr_at_20": 0.3471153846153846,
+          "miss_rows": 4
+        },
+        "pytest-dev/pytest": {
+          "rows": 25,
+          "hit_at_20": 0.84,
+          "recall_at_20": 0.7633333333333333,
+          "top_1_accuracy": 0.4,
+          "mrr_at_20": 0.49701960784313726,
+          "miss_rows": 4
+        },
+        "scikit-learn/scikit-learn": {
+          "rows": 52,
+          "hit_at_20": 0.9038461538461539,
+          "recall_at_20": 0.8846153846153846,
+          "top_1_accuracy": 0.6923076923076923,
+          "mrr_at_20": 0.7762820512820513,
+          "miss_rows": 5
+        },
+        "sphinx-doc/sphinx": {
+          "rows": 43,
+          "hit_at_20": 0.7209302325581395,
+          "recall_at_20": 0.6378737541528239,
+          "top_1_accuracy": 0.2558139534883721,
+          "mrr_at_20": 0.41942342643077035,
+          "miss_rows": 12
+        },
+        "sympy/sympy": {
+          "rows": 78,
+          "hit_at_20": 0.8333333333333334,
+          "recall_at_20": 0.7373931623931623,
+          "top_1_accuracy": 0.5,
+          "mrr_at_20": 0.5990689865689866,
+          "miss_rows": 13
+        }
+      }
+    },
+    "tfidf-sbert": {
+      "rows": 500,
+      "hit_at_20": 0.898,
+      "recall_at_20": 0.8298346445824707,
+      "top_1_accuracy": 0.562,
+      "mrr_at_20": 0.659668275025628,
+      "full_recall_rows": 376,
+      "partial_recall_rows": 73,
+      "miss_rows": 51,
+      "bootstrap_95_ci": {
+        "hit_at_20": {
+          "lower": 0.872,
+          "upper": 0.924
+        },
+        "recall_at_20": {
+          "lower": 0.800753,
+          "upper": 0.85733
+        },
+        "top_1_accuracy": {
+          "lower": 0.52,
+          "upper": 0.604
+        },
+        "mrr_at_20": {
+          "lower": 0.624225,
+          "upper": 0.694651
+        }
+      },
+      "per_repository": {
+        "astropy/astropy": {
+          "rows": 22,
+          "hit_at_20": 0.9090909090909091,
+          "recall_at_20": 0.8685064935064936,
+          "top_1_accuracy": 0.6363636363636364,
+          "mrr_at_20": 0.7251082251082251,
+          "miss_rows": 2
+        },
+        "django/django": {
+          "rows": 184,
+          "hit_at_20": 0.9239130434782609,
+          "recall_at_20": 0.8711309523809523,
+          "top_1_accuracy": 0.5815217391304348,
+          "mrr_at_20": 0.6814043768287694,
+          "miss_rows": 14
+        },
+        "matplotlib/matplotlib": {
+          "rows": 41,
+          "hit_at_20": 0.8536585365853658,
+          "recall_at_20": 0.7262872628726288,
+          "top_1_accuracy": 0.5121951219512195,
+          "mrr_at_20": 0.6080913666279519,
+          "miss_rows": 6
+        },
+        "mwaskom/seaborn": {
+          "rows": 5,
+          "hit_at_20": 1.0,
+          "recall_at_20": 0.8666666666666666,
+          "top_1_accuracy": 0.4,
+          "mrr_at_20": 0.6666666666666667,
+          "miss_rows": 0
+        },
+        "pallets/flask": {
+          "rows": 2,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 1.0,
+          "mrr_at_20": 1.0,
+          "miss_rows": 0
+        },
+        "psf/requests": {
+          "rows": 9,
+          "hit_at_20": 1.0,
+          "recall_at_20": 1.0,
+          "top_1_accuracy": 0.5555555555555556,
+          "mrr_at_20": 0.6703703703703704,
+          "miss_rows": 0
+        },
+        "pydata/xarray": {
+          "rows": 26,
+          "hit_at_20": 0.9615384615384616,
+          "recall_at_20": 0.8435539098582576,
+          "top_1_accuracy": 0.5384615384615384,
+          "mrr_at_20": 0.680982905982906,
+          "miss_rows": 1
+        },
+        "pylint-dev/pylint": {
+          "rows": 13,
+          "hit_at_20": 0.8461538461538461,
+          "recall_at_20": 0.8012820512820512,
+          "top_1_accuracy": 0.38461538461538464,
+          "mrr_at_20": 0.5075702075702075,
+          "miss_rows": 2
+        },
+        "pytest-dev/pytest": {
+          "rows": 25,
+          "hit_at_20": 0.84,
+          "recall_at_20": 0.7666666666666667,
+          "top_1_accuracy": 0.4,
+          "mrr_at_20": 0.5063030303030304,
+          "miss_rows": 4
+        },
+        "scikit-learn/scikit-learn": {
+          "rows": 52,
+          "hit_at_20": 0.9038461538461539,
+          "recall_at_20": 0.8894230769230769,
+          "top_1_accuracy": 0.7115384615384616,
+          "mrr_at_20": 0.7854395604395604,
+          "miss_rows": 5
+        },
+        "sphinx-doc/sphinx": {
+          "rows": 43,
+          "hit_at_20": 0.813953488372093,
+          "recall_at_20": 0.707641196013289,
+          "top_1_accuracy": 0.46511627906976744,
+          "mrr_at_20": 0.5622369878183832,
+          "miss_rows": 8
+        },
+        "sympy/sympy": {
+          "rows": 78,
+          "hit_at_20": 0.8846153846153846,
+          "recall_at_20": 0.7976495726495727,
+          "top_1_accuracy": 0.5641025641025641,
+          "mrr_at_20": 0.6439018832683991,
+          "miss_rows": 9
+        }
+      }
+    }
+  },
+  "paired_baseline": "tfidf",
+  "paired_differences": {
+    "tfidf-routing": {
+      "rows": 500,
+      "hit_at_20": {
+        "mean_difference": 0.002,
+        "bootstrap_95_ci": {
+          "lower": -0.004,
+          "upper": 0.01
+        }
+      },
+      "recall_at_20": {
+        "mean_difference": 0.0015,
+        "bootstrap_95_ci": {
+          "lower": -0.005,
+          "upper": 0.008
+        }
+      },
+      "top_1_accuracy": {
+        "mean_difference": -0.008,
+        "bootstrap_95_ci": {
+          "lower": -0.022,
+          "upper": 0.006
+        }
+      },
+      "mrr_at_20": {
+        "mean_difference": -0.0034556776556776557,
+        "bootstrap_95_ci": {
+          "lower": -0.013899,
+          "upper": 0.007229
+        }
+      }
+    },
+    "tfidf-sbert": {
+      "rows": 500,
+      "hit_at_20": {
+        "mean_difference": 0.02,
+        "bootstrap_95_ci": {
+          "lower": 0.0,
+          "upper": 0.04
+        }
+      },
+      "recall_at_20": {
+        "mean_difference": 0.018503916494133885,
+        "bootstrap_95_ci": {
+          "lower": 0.001122,
+          "upper": 0.036718
+        }
+      },
+      "top_1_accuracy": {
+        "mean_difference": 0.042,
+        "bootstrap_95_ci": {
+          "lower": 0.01,
+          "upper": 0.074
+        }
+      },
+      "mrr_at_20": {
+        "mean_difference": 0.03571411036503916,
+        "bootstrap_95_ci": {
+          "lower": 0.015564,
+          "upper": 0.056053
+        }
+      }
+    }
+  },
+  "bootstrap_samples": 10000,
+  "seed": 20260817,
+  "definitions": {
+    "hit_at_20": "Fraction of tickets with at least one gold file in the first 20 candidates.",
+    "recall_at_20": "Mean fraction of all gold files recovered in the first 20 candidates.",
+    "top_1_accuracy": "Fraction of tickets whose first candidate matches a gold file.",
+    "mrr_at_20": "Mean reciprocal rank of the first gold file within candidates 1-20; zero on misses."
+  }
+}
